@@ -1,0 +1,302 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "ScoreFont";
+  src: url("https://jutge.org/ttf/Terminal.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* Semantic tokens — overridden per [data-theme] */
+:root,
+[data-theme="jutge"] {
+  --jutge-bg: #f8f8f8;
+  --jutge-nav: #222222;
+  --jutge-text: #222222;
+  --jutge-muted: #808080;
+  --jutge-border: #dddddd;
+  --jutge-panel: #ffffff;
+  --jutge-input-bg: #ffffff;
+  --jutge-green: #5cb85c;
+  --jutge-green-border: #4cae4c;
+  --jutge-red: #d9534f;
+  --jutge-red-border: #d43f3a;
+  --jutge-orange: #f0ad4e;
+  --jutge-orange-border: #eea236;
+  --jutge-blue: #337ab7;
+  --jutge-blue-border: #2e6da4;
+  --jutge-blue-hover: #286090;
+  --jutge-btn-default-hover: #e6e6e6;
+  --jutge-alert-danger-bg: #f2dede;
+  --jutge-alert-danger-text: #a94442;
+  --jutge-heatmap-empty: #ebedf0;
+  --jutge-chart-track: #f5f5f5;
+  --jutge-radius: 0px;
+  --jutge-radius-sm: 0px;
+}
+
+[data-theme="dark"] {
+  --jutge-bg: #1a1a1a;
+  --jutge-nav: #1a1a1a;
+  --jutge-text: #e0e0e0;
+  --jutge-muted: #a0a0a0;
+  --jutge-border: #404040;
+  --jutge-panel: #2c2c2c;
+  --jutge-input-bg: #2c2c2c;
+  --jutge-green: #6dd47e;
+  --jutge-green-border: #5bc46c;
+  --jutge-red: #ff6b6b;
+  --jutge-red-border: #e85a5a;
+  --jutge-orange: #ffc36b;
+  --jutge-orange-border: #e6ad5a;
+  --jutge-blue: #6bb3ff;
+  --jutge-blue-border: #5a9de6;
+  --jutge-blue-hover: #5a9de6;
+  --jutge-btn-default-hover: #3a3a3a;
+  --jutge-alert-danger-bg: #3d2626;
+  --jutge-alert-danger-text: #ff8a8a;
+  --jutge-heatmap-empty: #2a2a2a;
+  --jutge-chart-track: #333333;
+}
+
+[data-theme="fib"] {
+  --jutge-bg: #f0f0f0;
+  --jutge-nav: #c5003e;
+  --jutge-text: #333333;
+  --jutge-muted: #666666;
+  --jutge-border: #dddddd;
+  --jutge-panel: #ffffff;
+  --jutge-input-bg: #ffffff;
+  --jutge-green: #5cb85c;
+  --jutge-green-border: #4cae4c;
+  --jutge-red: #d6221d;
+  --jutge-red-border: #a6002f;
+  --jutge-orange: #f0ad4e;
+  --jutge-orange-border: #eea236;
+  --jutge-blue: #007cb0;
+  --jutge-blue-border: #006a94;
+  --jutge-blue-hover: #008cba;
+  --jutge-btn-default-hover: #e8e8e8;
+  --jutge-alert-danger-bg: #fdecea;
+  --jutge-alert-danger-text: #a6002f;
+  --jutge-heatmap-empty: #e8e8e8;
+  --jutge-chart-track: #f5f5f5;
+}
+
+[data-theme="upc"] {
+  --jutge-bg: #f0f0f0;
+  --jutge-nav: #0077c8;
+  --jutge-text: #333333;
+  --jutge-muted: #666666;
+  --jutge-border: #d0d0d0;
+  --jutge-panel: #ffffff;
+  --jutge-input-bg: #ffffff;
+  --jutge-green: #5cb85c;
+  --jutge-green-border: #4cae4c;
+  --jutge-red: #d9534f;
+  --jutge-red-border: #d43f3a;
+  --jutge-orange: #f0ad4e;
+  --jutge-orange-border: #eea236;
+  --jutge-blue: #0077c8;
+  --jutge-blue-border: #0066ad;
+  --jutge-blue-hover: #0066ad;
+  --jutge-btn-default-hover: #e8e8e8;
+  --jutge-alert-danger-bg: #f2dede;
+  --jutge-alert-danger-text: #a94442;
+  --jutge-heatmap-empty: #e8e8e8;
+  --jutge-chart-track: #f5f5f5;
+}
+
+@theme {
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-score: ScoreFont, "Courier New", Courier, monospace;
+
+  --color-jutge-bg: var(--jutge-bg);
+  --color-jutge-nav: var(--jutge-nav);
+  --color-jutge-text: var(--jutge-text);
+  --color-jutge-muted: var(--jutge-muted);
+  --color-jutge-border: var(--jutge-border);
+  --color-jutge-panel: var(--jutge-panel);
+  --color-jutge-green: var(--jutge-green);
+  --color-jutge-green-border: var(--jutge-green-border);
+  --color-jutge-red: var(--jutge-red);
+  --color-jutge-red-border: var(--jutge-red-border);
+  --color-jutge-orange: var(--jutge-orange);
+  --color-jutge-orange-border: var(--jutge-orange-border);
+  --color-jutge-blue: var(--jutge-blue);
+  --color-jutge-blue-border: var(--jutge-blue-border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: var(--jutge-bg);
+  color: var(--jutge-text);
+  overflow: hidden;
+}
+
+@layer components {
+  .jutge-page {
+    @apply min-h-full bg-jutge-bg text-jutge-text;
+  }
+
+  .jutge-nav {
+    @apply bg-jutge-nav text-white;
+  }
+
+  .jutge-panel {
+    @apply border border-jutge-border bg-jutge-panel;
+    border-radius: var(--jutge-radius);
+    box-shadow: none;
+  }
+
+  .jutge-panel-heading {
+    @apply border-b border-jutge-border px-4 py-3 text-sm font-bold;
+  }
+
+  [data-theme="fib"] .jutge-panel-heading {
+    color: var(--jutge-nav);
+  }
+
+  [data-theme="upc"] .jutge-panel-heading {
+    color: var(--jutge-blue);
+  }
+
+  [data-theme="fib"] .jutge-input:focus,
+  [data-theme="fib"] .jutge-theme-select:focus {
+    border-color: var(--jutge-nav);
+  }
+
+  [data-theme="fib"] .jutge-btn-primary {
+    background: var(--jutge-nav);
+    border-color: var(--jutge-red-border);
+  }
+
+  [data-theme="fib"] .jutge-btn-primary:hover {
+    background: var(--jutge-red-border);
+  }
+
+  .jutge-theme-select {
+    @apply border border-jutge-border px-2 py-1.5 text-sm text-jutge-text outline-none;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-input-bg);
+    box-shadow: none;
+  }
+
+  .jutge-theme-select:focus {
+    border-color: var(--jutge-blue);
+  }
+
+  .jutge-theme-select-on-dark {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: transparent;
+    color: #ffffff;
+  }
+
+  .jutge-theme-select-on-dark:focus {
+    border-color: rgba(255, 255, 255, 0.7);
+  }
+
+  .jutge-theme-select-on-dark option {
+    color: #333333;
+    background: #ffffff;
+  }
+
+  .jutge-panel-body {
+    @apply p-4;
+  }
+
+  .jutge-eyebrow {
+    @apply text-xs font-bold uppercase tracking-wide text-jutge-muted;
+  }
+
+  .jutge-title {
+    font-family: var(--font-score);
+    @apply text-4xl font-bold leading-tight text-jutge-text md:text-[40px];
+  }
+
+  .jutge-subtitle {
+    @apply max-w-2xl text-base text-jutge-muted md:text-lg;
+  }
+
+  .jutge-score {
+    font-family: var(--font-score);
+    @apply font-bold;
+  }
+
+  .jutge-input {
+    @apply w-full border border-jutge-border px-3 py-2 text-jutge-text outline-none;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-input-bg);
+  }
+
+  .jutge-input:focus {
+    border-color: var(--jutge-blue);
+    box-shadow: none;
+  }
+
+  .jutge-btn-primary {
+    @apply border border-jutge-blue-border px-4 py-2 font-bold text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-blue);
+  }
+
+  .jutge-btn-primary:hover {
+    background: var(--jutge-blue-hover);
+  }
+
+  .jutge-btn-primary:disabled {
+    opacity: 0.65;
+  }
+
+  .jutge-btn-default {
+    @apply border border-jutge-border px-3 py-1.5 text-sm text-jutge-text;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-panel);
+  }
+
+  .jutge-btn-default:hover {
+    background: var(--jutge-btn-default-hover);
+  }
+
+  .jutge-metric-green {
+    @apply border border-jutge-green-border text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-green);
+    box-shadow: none;
+  }
+
+  .jutge-metric-red {
+    @apply border border-jutge-red-border text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-red);
+    box-shadow: none;
+  }
+
+  .jutge-metric-orange {
+    @apply border border-jutge-orange-border text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-orange);
+    box-shadow: none;
+  }
+
+  .jutge-metric-blue {
+    @apply border border-jutge-blue-border text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-blue);
+    box-shadow: none;
+  }
+
+  .jutge-alert-danger {
+    @apply border border-jutge-red-border px-3 py-2 text-sm;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-alert-danger-bg);
+    color: var(--jutge-alert-danger-text);
+  }
+}
