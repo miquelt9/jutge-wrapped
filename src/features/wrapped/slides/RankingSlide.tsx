@@ -21,7 +21,7 @@ export function RankingSlide({ insights, homepageStats }: Props) {
       <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
         <div className="jutge-metric-blue p-8">
           <p className="font-mono text-sm opacity-90">{t("slides.ranking.globalLeaderboard")}</p>
-          <p className="jutge-score mt-2 text-6xl">#{rank.rank}</p>
+          <p className="jutge-score mt-2 text-4xl sm:text-6xl">#{rank.rank}</p>
           <p className="mt-2 text-lg">
             {insights.level} · {insights.displayName}
           </p>

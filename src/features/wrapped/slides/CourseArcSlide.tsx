@@ -16,8 +16,10 @@ export function CourseArcSlide({ insights }: Props) {
       subtitle={courseArc.subtitle}
     >
       <div className="jutge-panel">
-        <div className="jutge-panel-body flex flex-col items-center justify-center py-8">
-          <CompilerDonut items={insights.compilers} />
+        <div className="jutge-chart-panel-body flex w-full flex-col items-center justify-center py-6 sm:py-8">
+          <div className="w-full max-w-[400px] px-2">
+            <CompilerDonut items={insights.compilers} />
+          </div>
         </div>
       </div>
     </StoryLayout>

@@ -65,9 +65,13 @@ export function WrappedDeck() {
         {state.kind === "network" && (
           <CorsOverlay kind={state.kind} message={state.message} />
         )}
-        <header className="jutge-nav flex items-center justify-between px-4 py-3">
-          <span className="font-bold text-white">{t("common.brand")}</span>
-          <NavControls onDark />
+        <header className="jutge-nav">
+          <div className="jutge-nav-inner">
+            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <div className="jutge-nav-end">
+              <NavControls onDark compact />
+            </div>
+          </div>
         </header>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
           <p className="jutge-alert-danger inline-block">{state.message}</p>
@@ -103,12 +107,16 @@ export function WrappedDeck() {
   if (showLoadingScreen) {
     return (
       <div className="jutge-page flex h-full flex-col">
-        <header className="jutge-nav flex items-center justify-between px-4 py-3">
-          <div>
-            <span className="font-bold text-white">{t("common.brand")}</span>
-            <span className="ml-2 text-sm text-white/70">{t("common.wrapped")}</span>
+        <header className="jutge-nav">
+          <div className="jutge-nav-inner">
+            <div className="jutge-nav-start min-w-0">
+              <span className="truncate font-bold text-white">{t("common.brand")}</span>
+              <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+            </div>
+            <div className="jutge-nav-end">
+              <NavControls onDark compact />
+            </div>
           </div>
-          <NavControls onDark />
         </header>
         <div className="flex flex-1 flex-col items-center justify-center px-4">
           <TerminalLoadingLine />
@@ -146,56 +154,67 @@ export function WrappedDeck() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      <header className="jutge-nav flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-4">
-          <span className="font-bold text-white">{t("common.brand")}</span>
-          <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
-          {isSnapshotMode && (
-            <span className="hidden rounded border border-white/30 px-2 py-0.5 text-xs text-white/90 sm:inline">
-              {t("common.snapshot")}
-            </span>
-          )}
-          <div className="hidden sm:block">
-            <ProgressDots total={SLIDE_COUNT} current={index} onDark />
+      <header className="jutge-nav">
+        <div className="jutge-nav-inner">
+          <div className="jutge-nav-start">
+            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+            {isSnapshotMode && (
+              <span className="hidden rounded border border-white/30 px-2 py-0.5 text-xs text-white/90 sm:inline">
+                {t("common.snapshot")}
+              </span>
+            )}
+            <div className="hidden sm:block">
+              <ProgressDots total={SLIDE_COUNT} current={index} onDark />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <NavControls onDark />
-          <SnapshotDownloadButton raw={exportRaw} variant="onDark" />
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              clearPeriod()
-            }}
-            className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
-          >
-            <Calendar className="h-4 w-4" /> {t("deck.dates")}
-          </button>
-          {isSnapshotMode ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                clearSnapshot()
-              }}
-              className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
-            >
-              <LogOut className="h-4 w-4" /> {t("deck.exit")}
-            </button>
-          ) : (
+          <div className="jutge-nav-end">
+            <NavControls onDark compact />
+            <SnapshotDownloadButton raw={exportRaw} variant="onDark" compact />
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 clearPeriod()
-                logout()
               }}
-              className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
+              aria-label={t("deck.dates")}
+              title={t("deck.dates")}
+              className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
             >
-              <LogOut className="h-4 w-4" /> {t("deck.exit")}
+              <Calendar className="h-4 w-4 shrink-0" />
+              <span className="sr-only sm:not-sr-only sm:inline">{t("deck.dates")}</span>
             </button>
-          )}
+            {isSnapshotMode ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  clearSnapshot()
+                }}
+                aria-label={t("deck.exit")}
+                title={t("deck.exit")}
+                className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  clearPeriod()
+                  logout()
+                }}
+                aria-label={t("deck.exit")}
+                title={t("deck.exit")}
+                className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -207,14 +226,14 @@ export function WrappedDeck() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 overflow-y-auto"
+            className="absolute inset-0 overflow-x-hidden overflow-y-auto"
           >
             {slides[index]}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      <footer className="flex items-center justify-between border-t border-jutge-border bg-jutge-panel px-4 py-3 text-sm text-jutge-muted">
+      <footer className="flex min-w-0 items-center justify-between gap-2 border-t border-jutge-border bg-jutge-panel px-3 py-3 text-sm text-jutge-muted sm:px-4">
         <button
           type="button"
           onClick={(e) => {
@@ -222,9 +241,11 @@ export function WrappedDeck() {
             prev()
           }}
           disabled={index === 0}
-          className="jutge-btn-default flex items-center gap-1 disabled:opacity-40"
+          aria-label={t("common.prev")}
+          className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
         >
-          <ChevronLeft className="h-4 w-4" /> {t("common.prev")}
+          <ChevronLeft className="h-4 w-4 shrink-0" />
+          <span className="sr-only sm:not-sr-only sm:inline">{t("common.prev")}</span>
         </button>
         <span className="sm:hidden">
           <ProgressDots total={SLIDE_COUNT} current={index} />
@@ -239,9 +260,11 @@ export function WrappedDeck() {
             next()
           }}
           disabled={index === SLIDE_COUNT - 1}
-          className="jutge-btn-default flex items-center gap-1 disabled:opacity-40"
+          aria-label={t("common.next")}
+          className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
         >
-          {t("common.next")} <ChevronRight className="h-4 w-4" />
+          <span className="sr-only sm:not-sr-only sm:inline">{t("common.next")}</span>
+          <ChevronRight className="h-4 w-4 shrink-0" />
         </button>
       </footer>
     </div>

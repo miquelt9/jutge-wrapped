@@ -18,7 +18,7 @@ export function ChronoSlide({ insights }: Props) {
       <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
         <div className="jutge-panel">
           <div className="jutge-panel-heading">{t("slides.chrono.chartHeading")}</div>
-          <div className="jutge-panel-body">
+          <div className="jutge-chart-panel-body">
             <ChronoHistogram hours={chrono.hours} />
           </div>
         </div>

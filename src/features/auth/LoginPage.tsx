@@ -33,12 +33,16 @@ export function LoginPage() {
 
   return (
     <div className="jutge-page relative flex min-h-full flex-col">
-      <header className="jutge-nav flex items-center justify-between px-4 py-3">
-        <div>
-          <span className="font-bold text-white">{t("common.brand")}</span>
-          <span className="ml-2 text-sm text-white/70">{t("common.wrapped")}</span>
+      <header className="jutge-nav">
+        <div className="jutge-nav-inner">
+          <div className="jutge-nav-start min-w-0">
+            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+          </div>
+          <div className="jutge-nav-end">
+            <NavControls onDark compact />
+          </div>
         </div>
-        <NavControls onDark />
       </header>
 
       {error?.kind === "network" && (

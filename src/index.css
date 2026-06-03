@@ -151,15 +151,27 @@ body {
 
 @layer components {
   .jutge-page {
-    @apply min-h-full bg-jutge-bg text-jutge-text;
+    @apply min-h-full overflow-x-hidden bg-jutge-bg text-jutge-text;
   }
 
   .jutge-nav {
-    @apply bg-jutge-nav text-white;
+    @apply shrink-0 bg-jutge-nav text-white;
+  }
+
+  .jutge-nav-inner {
+    @apply flex min-w-0 w-full items-center justify-between gap-2 px-4 py-3;
+  }
+
+  .jutge-nav-start {
+    @apply flex min-w-0 items-center gap-2 sm:gap-4;
+  }
+
+  .jutge-nav-end {
+    @apply flex min-w-0 shrink-0 items-center gap-1 sm:gap-2;
   }
 
   .jutge-panel {
-    @apply border border-jutge-border bg-jutge-panel;
+    @apply min-w-0 max-w-full border border-jutge-border bg-jutge-panel;
     border-radius: var(--jutge-radius);
     box-shadow: none;
   }
@@ -217,7 +229,11 @@ body {
   }
 
   .jutge-panel-body {
-    @apply p-4;
+    @apply min-w-0 max-w-full p-4;
+  }
+
+  .jutge-chart-panel-body {
+    @apply min-w-0 max-w-full overflow-x-hidden p-4;
   }
 
   .jutge-eyebrow {

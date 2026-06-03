@@ -19,7 +19,7 @@ export function WeekdaySlide({ insights }: Props) {
       <div className="grid gap-6 lg:grid-cols-[1fr_220px]">
         <div className="jutge-panel">
           <div className="jutge-panel-heading">{t("slides.weekday.chartHeading")}</div>
-          <div className="jutge-panel-body">
+          <div className="jutge-chart-panel-body">
             <WeekdayHistogram days={weekday.weekdays} peakKey={peak?.key} />
           </div>
         </div>

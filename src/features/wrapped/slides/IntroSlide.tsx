@@ -21,11 +21,11 @@ export function IntroSlide({ raw, insights }: Props) {
       subtitle={personalized.introSubtitle}
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center">
-          <div className="jutge-panel flex items-center gap-6">
-            <div className="jutge-panel-body flex items-center gap-6">
+        <div className="flex min-w-0 flex-col items-start gap-6 lg:flex-row lg:items-center">
+          <div className="jutge-panel w-full min-w-0">
+            <div className="jutge-panel-body flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
               <div
-                className="h-32 w-32 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel"
+                className="h-24 w-24 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel sm:h-32 sm:w-32"
                 style={{ borderRadius: 0 }}
               >
                 {raw.avatarUrl ? (
@@ -42,7 +42,7 @@ export function IntroSlide({ raw, insights }: Props) {
                   />
                 )}
               </div>
-              <div>
+              <div className="min-w-0 text-center sm:text-left">
                 <p className="text-xs font-bold uppercase text-jutge-muted">
                   {t("slides.intro.judgeLevel")}
                 </p>

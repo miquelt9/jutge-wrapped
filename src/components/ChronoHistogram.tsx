@@ -17,9 +17,9 @@ export function ChronoHistogram({ hours }: Props) {
   const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
-    <div>
+    <div className="min-w-0 w-full">
       <div
-        className="flex items-end justify-between gap-px border-b border-jutge-border"
+        className="flex min-w-0 items-end justify-between gap-px border-b border-jutge-border"
         style={{ height: CHART_HEIGHT_PX }}
       >
         {hours.map(({ hour, count }, index) => {

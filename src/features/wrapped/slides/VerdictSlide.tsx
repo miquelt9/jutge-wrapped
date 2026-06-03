@@ -12,11 +12,12 @@ export function VerdictSlide({ insights }: Props) {
     <StoryLayout
       eyebrow={t("slides.verdict.eyebrow")}
       title={t("slides.verdict.title")}
-      subtitle={insights.verdicts.narrative}
     >
       <div className="jutge-panel">
-        <div className="jutge-panel-body flex flex-col items-center justify-center py-8">
-          <VerdictDonut items={insights.verdicts.items} />
+        <div className="jutge-chart-panel-body flex w-full flex-col items-center justify-center py-6 sm:py-8">
+          <div className="w-full max-w-[400px] px-2">
+            <VerdictDonut items={insights.verdicts.items} />
+          </div>
         </div>
       </div>
     </StoryLayout>

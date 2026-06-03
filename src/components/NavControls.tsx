@@ -3,14 +3,16 @@ import { ThemeSelect } from "@/components/ThemeSelect"
 
 type Props = {
   onDark?: boolean
+  /** Narrower selects and tighter spacing for mobile nav bars. */
+  compact?: boolean
   className?: string
 }
 
-export function NavControls({ onDark = false, className = "" }: Props) {
+export function NavControls({ onDark = false, compact = false, className = "" }: Props) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <LanguageSelect onDark={onDark} />
-      <ThemeSelect onDark={onDark} />
+    <div className={`flex min-w-0 items-center gap-1 sm:gap-2 ${className}`}>
+      <LanguageSelect onDark={onDark} compact={compact} />
+      <ThemeSelect onDark={onDark} compact={compact} />
     </div>
   )
 }

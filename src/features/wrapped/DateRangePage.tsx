@@ -219,22 +219,29 @@ export function DateRangePage() {
 
   return (
     <div className="jutge-page flex min-h-full flex-col">
-      <header className="jutge-nav flex items-center justify-between px-4 py-3">
-        <div>
-          <span className="font-bold text-white">{t("common.brand")}</span>
-          <span className="ml-2 text-sm text-white/70">{t("dateRange.headerSuffix")}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {isSnapshotMode && (
-            <button
-              type="button"
-              onClick={clearSnapshot}
-              className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
-            >
-              <LogOut className="h-4 w-4" /> {t("deck.exit")}
-            </button>
-          )}
-          <NavControls onDark />
+      <header className="jutge-nav">
+        <div className="jutge-nav-inner">
+          <div className="jutge-nav-start min-w-0">
+            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <span className="hidden truncate text-sm text-white/70 sm:inline">
+              {t("dateRange.headerSuffix")}
+            </span>
+          </div>
+          <div className="jutge-nav-end">
+            {isSnapshotMode && (
+              <button
+                type="button"
+                onClick={clearSnapshot}
+                aria-label={t("deck.exit")}
+                title={t("deck.exit")}
+                className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+              </button>
+            )}
+            <NavControls onDark compact />
+          </div>
         </div>
       </header>
 

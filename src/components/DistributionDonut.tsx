@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import type { DistributionItem } from "@/features/wrapped/types"
 
-/** Shared size for verdict + compiler slides */
+/** SVG coordinate space; rendered size scales with container (max 400px). */
 export const DISTRIBUTION_DONUT_SIZE = 400
 
 function centerTitleFontSize(size: number, label: string): number {
@@ -91,12 +91,13 @@ function hitTest(
 
 export function DistributionDonut({
   items,
-  size = DISTRIBUTION_DONUT_SIZE,
+  size: coordinateSize = DISTRIBUTION_DONUT_SIZE,
   getColor,
   centerItems,
   formatCenterLabel = (item) => item.key,
   ariaLabel,
 }: Props) {
+  const size = coordinateSize
   const reduceMotion = useReducedMotion()
   const [selected, setSelected] = useState<DistributionItem | null>(null)
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
@@ -143,19 +144,16 @@ export function DistributionDonut({
 
   return (
     <motion.div
-      className="relative mx-auto shrink-0"
-      style={{ width: size, height: size }}
+      className="relative mx-auto aspect-square w-full max-w-[min(400px,100%)]"
       initial={reduceMotion ? false : { opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
       <svg
-        width={size}
-        height={size}
         viewBox={`0 0 ${size} ${size}`}
         role="img"
         aria-label={ariaLabel}
-        className="cursor-pointer touch-none"
+        className="h-full w-full cursor-pointer touch-none"
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
         onClick={onClick}
@@ -212,7 +210,7 @@ export function DistributionDonut({
               transition={{ duration: 0.2 }}
             >
               <p
-                className="jutge-score whitespace-nowrap font-bold leading-tight"
+                className="jutge-score max-w-full truncate font-bold leading-tight sm:whitespace-nowrap"
                 style={{
                   fontSize: centerTitleFontSize(size, formatCenterLabel(selected)),
                   color: getColor(selected),
@@ -221,7 +219,7 @@ export function DistributionDonut({
                 {formatCenterLabel(selected)}
               </p>
               <p
-                className="jutge-score mt-1 whitespace-nowrap font-bold text-jutge-text"
+                className="jutge-score mt-1 font-bold text-jutge-text sm:whitespace-nowrap"
                 style={{ fontSize: size * 0.082 }}
               >
                 {formatCenterPercent(selected.percent)}
