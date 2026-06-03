@@ -1,0 +1,205 @@
+{
+  "common": {
+    "brand": "Jutge.org",
+    "wrapped": "Wrapped",
+    "disclaimer": "Unofficial fan project — not affiliated with Jutge.org or the UPC.",
+    "snapshot": "Snapshot",
+    "dismiss": "Dismiss",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "language": {
+    "label": "Language",
+    "aria": "Language"
+  },
+  "theme": {
+    "label": "Theme",
+    "aria": "Theme"
+  },
+  "login": {
+    "signIn": "Sign in",
+    "intro": "Use your Jutge.org credentials. Your token stays in memory only — we never store your password.",
+    "email": "Email",
+    "password": "Password",
+    "signingIn": "Signing in…",
+    "continue": "Continue",
+    "sessionMemory": "In-memory session",
+    "noCredentialPersistence": "No credential persistence",
+    "localTesting": "Local testing",
+    "localTestingHint": "Load a JSON file from <0>npm run export:snapshot</0> — no API calls after that."
+  },
+  "dateRange": {
+    "headerSuffix": "Wrapped — choose dates",
+    "heading": "When should we look?",
+    "intro": "Pick the dates for your Wrapped stats. Custom ranges are built from your submission history.",
+    "loadingBounds": "Loading your activity range…",
+    "customRange": "Custom range",
+    "from": "From",
+    "to": "To",
+    "invalidRange": "Start date must be on or before end date.",
+    "buildWrapped": "Build my Wrapped",
+    "presetNoOverlap": "Your Jutge activity ({{min}} – {{max}}) does not overlap {{label}}.",
+    "presetNoSubmissions": "No submissions in {{label}} within your activity dates ({{start}} – {{end}})."
+  },
+  "period": {
+    "allTime": "All time",
+    "last12Months": "Last 12 months",
+    "academicYear": "Academic year {{startYear}}–{{endYearShort}}",
+    "from": "From {{date}}",
+    "until": "Until {{date}}",
+    "through": "{{start}} through {{end}}"
+  },
+  "deck": {
+    "chooseDates": "Wrapped — choose dates",
+    "loadingLine": "Loading your Jutge Wrapped",
+    "loadingDone": "Done.",
+    "changeDates": "Change dates",
+    "backToLogin": "Back to login",
+    "dates": "Dates",
+    "clearSnapshot": "Clear snapshot",
+    "exit": "Exit"
+  },
+  "slides": {
+    "intro": {
+      "eyebrow": "Welcome",
+      "subtitle": "{{period}} · your Jutge identity has been verified.",
+      "judgeLevel": "Judge level",
+      "acceptedProblems": "Accepted problems",
+      "rejectedProblems": "Rejected problems",
+      "submissions": "Submissions",
+      "acRate": "AC rate",
+      "problemSuccessRate": "{{rate}}% of attempted problems reached acceptance in this period.",
+      "avatarAlt": "Jutge avatar",
+      "mascotAlt": "Jutge mascot"
+    },
+    "heatmap": {
+      "eyebrow": "Activity map",
+      "title": "The long game",
+      "peakDay": "{{period}} · Peak day: {{count}} on {{date}}.",
+      "summary": "{{period}} · {{submissions}} across {{days}} active days.",
+      "activeDays": "Active days",
+      "longestStreakLabel": "Longest streak",
+      "longestStreakValue": "🔥 {{count}} in a row",
+      "mostActiveDay": "Most active day",
+      "busiestWeek": "Busiest week",
+      "busiestMonth": "Busiest month",
+      "calendarHeading": "Submissions calendar"
+    },
+    "weekday": {
+      "eyebrow": "Campus rhythm",
+      "judgmentDay": "{{day}} is judgment day",
+      "weeklyRhythm": "Weekly rhythm",
+      "subtitle": "You submit most on {{peak}}s · quietest: {{quietest}}",
+      "chartHeading": "Submissions by day of week",
+      "busiestDay": "Busiest day",
+      "submissionsShare": "{{count}} submissions · {{percent}}% of your week",
+      "quietest": "Quietest: {{day}} ({{count}})"
+    },
+    "chrono": {
+      "eyebrow": "Chrono-analysis",
+      "chartHeading": "Submissions by hour",
+      "peakHour": "Peak hour",
+      "submissionsAtPeak": "{{count}} submissions"
+    },
+    "courseArc": {
+      "eyebrow": "Languages & compilers"
+    },
+    "verdict": {
+      "eyebrow": "Verdict distribution",
+      "title": "The judge has spoken"
+    },
+    "ranking": {
+      "eyebrow": "System rank",
+      "globalLeaderboard": "Global leaderboard",
+      "problems": "Problems",
+      "submissions": "Submissions",
+      "topLanguage": "Top language",
+      "busiestDay": "Busiest day",
+      "acRuns": "AC runs",
+      "platformSubs": "Platform subs",
+      "judgeAlt": "Jutge judge"
+    }
+  },
+  "chrono": {
+    "archetypes": {
+      "balancedGrinder": "Balanced Grinder",
+      "nightOwl": "Night Owl",
+      "earlyRiser": "Early Riser",
+      "eveningCoder": "Evening Coder",
+      "afternoonOperator": "Afternoon Operator"
+    },
+    "narrativePeak": "You peak around {{hour}}:00 — a {{archetype}} on campus time.",
+    "narrativeNight": "{{count}} submissions landed between midnight and 5 AM."
+  },
+  "courseArc": {
+    "mostlyCoursework": "Mostly campus coursework",
+    "compilerMix": "Your compiler mix",
+    "mainLanguageSub": "{{lang}} was your main language",
+    "fallbackLang": "your go-to language",
+    "fallbackCompiler": "your top compiler"
+  },
+  "verdicts": {
+    "narrativeClean": "You logged {{ac}} fully accepted runs out of {{total}} judged submissions.",
+    "narrativeFriction": "Across {{total}} judged runs, you earned {{ac}} AC verdicts while battling {{count}} {{label}} along the way.",
+    "wrongAnswers": "wrong answers",
+    "compilationErrors": "compilation errors",
+    "executionErrors": "execution errors",
+    "scoredAttempts": "scored attempts",
+    "presentationErrors": "presentation errors"
+  },
+  "rank": {
+    "eliteLabel": "Top {{percent}}% of Jutge users"
+  },
+  "weekdays": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "weekdaysShort": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
+  },
+  "heatmap": {
+    "noActivity": "No activity data yet.",
+    "noSubmissionsTooltip": "No submissions on {{date}}",
+    "submissionTooltip": "{{count}} · {{date}}"
+  },
+  "snapshot": {
+    "loading": "Loading snapshot…",
+    "loadButton": "Load JSON snapshot",
+    "invalidJson": "Invalid JSON file.",
+    "readError": "Could not read snapshot file."
+  },
+  "cors": {
+    "title": "Connection blocked?",
+    "hintCredentials": "Confirm your email and password are correct.",
+    "hintCors": "If login works on jutge.org but not here, your browser may be blocking cross-origin requests to <0>api.jutge.org</0>.",
+    "hintExtensions": "Try disabling strict privacy extensions for this site."
+  },
+  "errors": {
+    "unexpected": "An unexpected error occurred.",
+    "network": "Could not reach the Jutge API. This is often caused by browser CORS restrictions or network issues.",
+    "invalidRange": "Your date range is reversed ({{start}} is after {{end}}). Go back and pick a valid range.",
+    "emptyRangeSnapshot": "No submissions in {{label}}. Try a wider range, or re-export your snapshot (npm run export:snapshot) so it includes full submission history.",
+    "emptyRange": "You had no Jutge submissions between {{label}}. Choose a different range, or pick All time.",
+    "loadFailureEmpty": "We couldn't load your submission history from Jutge. Try again in a moment, or pick All time.",
+    "loadFailure": "Something went wrong while loading your submissions. Try again, or pick All time."
+  },
+  "submission_one": "{{count}} submission",
+  "submission_other": "{{count}} submissions",
+  "day_one": "{{count}} day",
+  "day_other": "{{count}} days",
+  "donut": {
+    "compilerAria": "Compiler distribution. Click a segment for details.",
+    "verdictAria": "Verdict distribution. Click a segment for details."
+  }
+}

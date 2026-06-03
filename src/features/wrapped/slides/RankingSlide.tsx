@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { StoryLayout } from "@/components/StoryLayout"
 import type { HomepageStats } from "@/api/client"
 import type { WrappedInsights } from "../types"
@@ -8,17 +9,18 @@ type Props = {
 }
 
 export function RankingSlide({ insights, homepageStats }: Props) {
+  const { t, i18n } = useTranslation()
   const { rank, journey, weekday, courseArc, verdicts } = insights
 
   return (
     <StoryLayout
-      eyebrow="System rank"
+      eyebrow={t("slides.ranking.eyebrow")}
       title={`#${rank.rank}`}
       subtitle={`${insights.periodLabel} · ${rank.eliteLabel}`}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
         <div className="jutge-metric-blue p-8">
-          <p className="font-mono text-sm opacity-90">Global leaderboard</p>
+          <p className="font-mono text-sm opacity-90">{t("slides.ranking.globalLeaderboard")}</p>
           <p className="jutge-score mt-2 text-6xl">#{rank.rank}</p>
           <p className="mt-2 text-lg">
             {insights.level} · {insights.displayName}
@@ -32,18 +34,27 @@ export function RankingSlide({ insights, homepageStats }: Props) {
         </div>
         <img
           src={`${import.meta.env.BASE_URL}jutge.png`}
-          alt="Jutge judge"
+          alt={t("slides.ranking.judgeAlt")}
           className="mx-auto hidden h-36 border border-jutge-border bg-white object-contain p-2 lg:block"
           style={{ borderRadius: 0 }}
         />
       </div>
       <dl className="mt-6 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
-        <RecapItem label="Problems" value={String(journey.acceptedProblems)} />
-        <RecapItem label="Submissions" value={String(journey.totalSubmissions)} />
-        <RecapItem label="Top language" value={courseArc.topProglang?.label ?? "—"} />
-        <RecapItem label="Busiest day" value={weekday.peak?.label ?? "—"} />
-        <RecapItem label="AC runs" value={String(verdicts.ac)} />
-        <RecapItem label="Platform subs" value={homepageStats.submissions.toLocaleString()} />
+        <RecapItem label={t("slides.ranking.problems")} value={String(journey.acceptedProblems)} />
+        <RecapItem
+          label={t("slides.ranking.submissions")}
+          value={String(journey.totalSubmissions)}
+        />
+        <RecapItem
+          label={t("slides.ranking.topLanguage")}
+          value={courseArc.topProglang?.label ?? "—"}
+        />
+        <RecapItem label={t("slides.ranking.busiestDay")} value={weekday.peak?.label ?? "—"} />
+        <RecapItem label={t("slides.ranking.acRuns")} value={String(verdicts.ac)} />
+        <RecapItem
+          label={t("slides.ranking.platformSubs")}
+          value={homepageStats.submissions.toLocaleString(i18n.language)}
+        />
       </dl>
     </StoryLayout>
   )

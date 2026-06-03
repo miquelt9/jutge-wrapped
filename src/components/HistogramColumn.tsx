@@ -1,38 +1,47 @@
 import type { ReactNode } from "react"
 
+/** Space reserved above bars so hover counts do not overlap tall columns. */
+export const HISTOGRAM_LABEL_RESERVE_PX = 20
+
+export function histogramBarMaxHeight(chartHeight: number): number {
+  return chartHeight - HISTOGRAM_LABEL_RESERVE_PX
+}
+
 type Props = {
   columnId: string
   count: number
   chartHeight: number
   hoveredId: string | null
   onHover: (id: string | null) => void
-  isPeak?: boolean
   children: ReactNode
 }
 
-/** Bar column with submission count shown on hover (or for peak when idle). */
+/** Bar column with submission count shown above the bar on hover only. */
 export function HistogramColumn({
   columnId,
   count,
   chartHeight,
   hoveredId,
   onHover,
-  isPeak,
   children,
 }: Props) {
-  const showCount = hoveredId === columnId || (hoveredId === null && isPeak)
+  const showCount = hoveredId === columnId
 
   return (
     <div
-      className="flex min-w-0 flex-1 cursor-default flex-col items-center justify-end"
+      className="flex min-w-0 flex-1 cursor-default flex-col justify-end"
       style={{ height: chartHeight }}
       onMouseEnter={() => onHover(columnId)}
       onMouseLeave={() => onHover(null)}
     >
-      {showCount && (
-        <span className="mb-1 font-mono text-[10px] font-bold text-jutge-text">{count}</span>
-      )}
-      {children}
+      <div className="relative flex w-full flex-col items-center">
+        {showCount && (
+          <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-0.5 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] font-bold leading-none text-jutge-text">
+            {count}
+          </span>
+        )}
+        {children}
+      </div>
     </div>
   )
 }

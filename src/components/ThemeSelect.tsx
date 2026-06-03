@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useTheme } from "@/context/ThemeContext"
 import { THEME_OPTIONS, type ThemeId } from "@/theme/themes"
 
@@ -8,15 +9,16 @@ type Props = {
 }
 
 export function ThemeSelect({ onDark = false, className = "" }: Props) {
+  const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
 
   return (
     <label className={`inline-flex items-center gap-2 text-sm ${className}`}>
-      <span className={onDark ? "sr-only" : "font-bold text-jutge-text"}>Theme</span>
+      <span className={onDark ? "sr-only" : "font-bold text-jutge-text"}>{t("theme.label")}</span>
       <select
         value={theme}
         onChange={(e) => setTheme(e.target.value as ThemeId)}
-        aria-label="Theme"
+        aria-label={t("theme.aria")}
         className={
           onDark
             ? "jutge-theme-select jutge-theme-select-on-dark"

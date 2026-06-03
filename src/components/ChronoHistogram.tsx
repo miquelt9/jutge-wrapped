@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistogramColumn } from "@/components/HistogramColumn"
+import { HistogramColumn, histogramBarMaxHeight } from "@/components/HistogramColumn"
 
 const CHART_HEIGHT_PX = 140
 
@@ -8,13 +8,13 @@ type HourPoint = { hour: number; count: number }
 
 type Props = {
   hours: HourPoint[]
-  peakHour: number
 }
 
-export function ChronoHistogram({ hours, peakHour }: Props) {
+export function ChronoHistogram({ hours }: Props) {
   const reduceMotion = useReducedMotion()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const maxCount = Math.max(...hours.map((h) => h.count), 1)
+  const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
     <div>
@@ -24,9 +24,8 @@ export function ChronoHistogram({ hours, peakHour }: Props) {
       >
         {hours.map(({ hour, count }, index) => {
           const columnId = String(hour)
-          const isPeak = hour === peakHour && count > 0
           const barHeight =
-            count === 0 ? 0 : Math.max(3, Math.round((count / maxCount) * CHART_HEIGHT_PX))
+            count === 0 ? 0 : Math.max(3, Math.round((count / maxCount) * barMaxHeight))
 
           return (
             <HistogramColumn
@@ -36,7 +35,6 @@ export function ChronoHistogram({ hours, peakHour }: Props) {
               chartHeight={CHART_HEIGHT_PX}
               hoveredId={hoveredId}
               onHover={setHoveredId}
-              isPeak={isPeak}
             >
               <motion.div
                 className="w-full min-w-[4px]"

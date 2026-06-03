@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react"
+import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
+import { ThumbsDown, ThumbsUp, Send, Gavel } from "lucide-react"
 import type { WrappedInsights, WrappedRawData } from "../types"
 import { StoryLayout } from "@/components/StoryLayout"
 
@@ -8,93 +10,109 @@ type Props = {
 }
 
 export function IntroSlide({ raw, insights }: Props) {
-  const [typed, setTyped] = useState("")
-  const line = "Loading your Jutge Wrapped… Done."
-
-  useEffect(() => {
-    let i = 0
-    const id = window.setInterval(() => {
-      i += 1
-      setTyped(line.slice(0, i))
-      if (i >= line.length) window.clearInterval(id)
-    }, 28)
-    return () => window.clearInterval(id)
-  }, [line])
-
-  const { journey, rank } = insights
+  const { t } = useTranslation()
+  const { journey, level } = insights
 
   return (
     <StoryLayout
-      eyebrow="Welcome"
+      eyebrow={t("slides.intro.eyebrow")}
       title={insights.displayName}
-      subtitle={`${insights.periodLabel} · your Jutge identity has been verified.`}
+      subtitle={t("slides.intro.subtitle", { period: insights.periodLabel })}
     >
-      <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center">
-        <div className="jutge-panel flex items-center gap-6">
-          <div className="jutge-panel-body flex items-center gap-6">
-            <div
-              className="h-32 w-32 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel"
-              style={{ borderRadius: 0 }}
-            >
-              {raw.avatarUrl ? (
-                <img
-                  src={raw.avatarUrl}
-                  alt="Jutge avatar"
-                  className="h-full w-full object-cover object-center"
-                />
-              ) : (
-                <img
-                  src={`${import.meta.env.BASE_URL}jutge.png`}
-                  alt="Jutge mascot"
-                  className="h-full w-full object-cover object-center"
-                />
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase text-jutge-muted">Judge level</p>
-              <p className="jutge-score text-2xl text-jutge-blue">{insights.level}</p>
-              <p className="mt-1 text-sm text-jutge-muted">
-                {raw.profile.name || raw.profile.email}
-              </p>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center">
+          <div className="jutge-panel flex items-center gap-6">
+            <div className="jutge-panel-body flex items-center gap-6">
+              <div
+                className="h-32 w-32 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel"
+                style={{ borderRadius: 0 }}
+              >
+                {raw.avatarUrl ? (
+                  <img
+                    src={raw.avatarUrl}
+                    alt={t("slides.intro.avatarAlt")}
+                    className="h-full w-full object-cover object-center"
+                  />
+                ) : (
+                  <img
+                    src={`${import.meta.env.BASE_URL}jutge.png`}
+                    alt={t("slides.intro.mascotAlt")}
+                    className="h-full w-full object-cover object-center"
+                  />
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase text-jutge-muted">
+                  {t("slides.intro.judgeLevel")}
+                </p>
+                <p className="jutge-score text-2xl text-jutge-blue">{level}</p>
+                <p className="mt-1 text-sm text-jutge-muted">
+                  {raw.profile.name || raw.profile.email}
+                </p>
+              </div>
             </div>
           </div>
+          <div className="grid w-full flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <MetricCard
+              icon={<ThumbsUp className="h-6 w-6" />}
+              label={t("slides.intro.acceptedProblems")}
+              value={journey.acceptedProblems}
+              variant="green"
+            />
+            <MetricCard
+              icon={<ThumbsDown className="h-6 w-6" />}
+              label={t("slides.intro.rejectedProblems")}
+              value={journey.rejectedProblems}
+              variant="red"
+            />
+            <MetricCard
+              icon={<Send className="h-6 w-6" />}
+              label={t("slides.intro.submissions")}
+              value={journey.totalSubmissions}
+              variant="orange"
+            />
+            <MetricCard
+              icon={<Gavel className="h-6 w-6" />}
+              label={t("slides.intro.acRate")}
+              value={`${insights.verdicts.acRate}%`}
+              text
+              variant="blue"
+            />
+          </div>
         </div>
-        <div className="grid w-full max-w-md gap-3 sm:grid-cols-2">
-          <StatCard label="Problems solved" value={String(journey.acceptedProblems)} variant="green" />
-          <StatCard label="Submissions" value={String(journey.totalSubmissions)} variant="orange" />
-          <StatCard label="Global rank" value={`#${rank.rank}`} variant="blue" />
-          <StatCard label="AC rate" value={`${insights.verdicts.acRate}%`} variant="green" />
-        </div>
-      </div>
-      <div className="jutge-panel mt-4 max-w-xl">
-        <div className="jutge-panel-body font-mono text-sm text-jutge-text">
-          <span className="text-jutge-blue">&gt; </span>
-          {typed}
-        </div>
+        <p className="text-sm text-jutge-muted">
+          {t("slides.intro.problemSuccessRate", { rate: journey.problemSuccessRate })}
+        </p>
       </div>
     </StoryLayout>
   )
 }
 
-function StatCard({
+function MetricCard({
+  icon,
   label,
   value,
   variant,
+  text,
 }: {
+  icon: ReactNode
   label: string
-  value: string
-  variant: "green" | "orange" | "blue"
+  value: number | string
+  variant: "green" | "red" | "orange" | "blue"
+  text?: boolean
 }) {
-  const cls =
-    variant === "green"
-      ? "jutge-metric-green"
-      : variant === "orange"
-        ? "jutge-metric-orange"
-        : "jutge-metric-blue"
+  const cls = {
+    green: "jutge-metric-green",
+    red: "jutge-metric-red",
+    orange: "jutge-metric-orange",
+    blue: "jutge-metric-blue",
+  }[variant]
+
   return (
-    <div className={`p-3 ${cls}`}>
-      <p className="text-[10px] font-bold uppercase opacity-90">{label}</p>
-      <p className="jutge-score text-xl">{value}</p>
+    <div className={`p-5 ${cls}`}>
+      {icon}
+      <p className="mt-3 text-xs font-bold uppercase opacity-90">{label}</p>
+      <p className={`jutge-score mt-1 ${text ? "text-2xl" : "text-4xl"}`}>{value}</p>
     </div>
   )
 }

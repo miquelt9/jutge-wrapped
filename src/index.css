@@ -29,7 +29,9 @@
   --jutge-alert-danger-bg: #f2dede;
   --jutge-alert-danger-text: #a94442;
   --jutge-heatmap-empty: #ebedf0;
+  --jutge-heatmap-active: var(--jutge-green);
   --jutge-chart-track: #f5f5f5;
+  --jutge-metric-neutral-bg: #e8e8e8;
   --jutge-radius: 0px;
   --jutge-radius-sm: 0px;
 }
@@ -55,7 +57,9 @@
   --jutge-alert-danger-bg: #3d2626;
   --jutge-alert-danger-text: #ff8a8a;
   --jutge-heatmap-empty: #2a2a2a;
+  --jutge-heatmap-active: var(--jutge-green);
   --jutge-chart-track: #333333;
+  --jutge-metric-neutral-bg: #333333;
 }
 
 [data-theme="fib"] {
@@ -79,7 +83,9 @@
   --jutge-alert-danger-bg: #fdecea;
   --jutge-alert-danger-text: #a6002f;
   --jutge-heatmap-empty: #e8e8e8;
+  --jutge-heatmap-active: var(--jutge-nav);
   --jutge-chart-track: #f5f5f5;
+  --jutge-metric-neutral-bg: #e8e8e8;
 }
 
 [data-theme="upc"] {
@@ -103,7 +109,9 @@
   --jutge-alert-danger-bg: #f2dede;
   --jutge-alert-danger-text: #a94442;
   --jutge-heatmap-empty: #e8e8e8;
+  --jutge-heatmap-active: var(--jutge-blue);
   --jutge-chart-track: #f5f5f5;
+  --jutge-metric-neutral-bg: #e8e8e8;
 }
 
 @theme {
@@ -290,6 +298,21 @@ body {
     @apply border border-jutge-blue-border text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-blue);
+    box-shadow: none;
+  }
+
+  .jutge-metric-primary {
+    @apply text-white;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-heatmap-active);
+    border: 1px solid color-mix(in srgb, var(--jutge-heatmap-active) 75%, #000);
+    box-shadow: none;
+  }
+
+  .jutge-metric-neutral {
+    @apply border border-jutge-border text-jutge-text;
+    border-radius: var(--jutge-radius);
+    background: var(--jutge-metric-neutral-bg);
     box-shadow: none;
   }
 

@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next"
 import { AlertTriangle, X } from "lucide-react"
 import type { ApiErrorKind } from "@/api/client"
 
@@ -8,6 +9,8 @@ type Props = {
 }
 
 export function CorsOverlay({ kind, message, onDismiss }: Props) {
+  const { t } = useTranslation()
+
   if (kind !== "network") return null
 
   return (
@@ -16,14 +19,14 @@ export function CorsOverlay({ kind, message, onDismiss }: Props) {
         <div className="jutge-panel-heading flex items-start justify-between gap-4">
           <div className="flex items-center gap-2 text-jutge-orange">
             <AlertTriangle className="h-5 w-5 shrink-0" />
-            <span>Connection blocked?</span>
+            <span>{t("cors.title")}</span>
           </div>
           {onDismiss && (
             <button
               type="button"
               onClick={onDismiss}
               className="text-jutge-muted hover:text-jutge-text"
-              aria-label="Dismiss"
+              aria-label={t("common.dismiss")}
             >
               <X className="h-5 w-5" />
             </button>
@@ -32,12 +35,14 @@ export function CorsOverlay({ kind, message, onDismiss }: Props) {
         <div className="jutge-panel-body space-y-3 text-sm text-jutge-text">
           <p>{message}</p>
           <ul className="list-inside list-disc text-jutge-muted">
-            <li>Confirm your email and password are correct.</li>
+            <li>{t("cors.hintCredentials")}</li>
             <li>
-              If login works on jutge.org but not here, your browser may be blocking cross-origin
-              requests to <code className="text-jutge-blue">api.jutge.org</code>.
+              <Trans
+                i18nKey="cors.hintCors"
+                components={[<code key="0" className="text-jutge-blue" />]}
+              />
             </li>
-            <li>Try disabling strict privacy extensions for this site.</li>
+            <li>{t("cors.hintExtensions")}</li>
           </ul>
         </div>
       </div>

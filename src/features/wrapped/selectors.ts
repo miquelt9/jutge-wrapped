@@ -1,12 +1,14 @@
 import type { AllTables, ColorMapping, Dashboard, HeatmapCalendar, HomepageStats } from "@/api/client"
-import { formatPeriodLabel } from "./period"
+import i18n from "@/i18n/config"
+import { formatPeriodLabel, isAllTimePeriod, utcDayTsFromIso } from "./period"
+import type { WrappedPeriod } from "./period"
 import { compilerColor } from "@/theme/jutgeColors"
 import type {
   ChronoInsights,
   CourseArcInsights,
   DistributionItem,
   HeatmapInsights,
-  HeatmapMonthCell,
+  HeatmapYearBlock,
   JourneyInsights,
   RankInsights,
   VerdictInsights,
@@ -17,8 +19,8 @@ import type {
 
 const DAY_SECONDS = 86_400
 
-/** Beyond this span, the weekly GitHub grid becomes unreadable — use monthly bars. */
-export const WEEK_MODE_MAX_WEEKS = 26
+/** Beyond this span, stack one GitHub-style grid per calendar year. */
+export const MULTI_YEAR_THRESHOLD_WEEKS = 54
 const COURSE_COMPILERS = new Set(["P1++", "PRO2", "MakePRO2"])
 
 export const WEEKDAY_ORDER = [
@@ -31,14 +33,8 @@ export const WEEKDAY_ORDER = [
   "sunday",
 ] as const
 
-const WEEKDAY_LABELS: Record<string, string> = {
-  monday: "Monday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
-  thursday: "Thursday",
-  friday: "Friday",
-  saturday: "Saturday",
-  sunday: "Sunday",
+function weekdayLabel(key: string): string {
+  return i18n.t(`weekdays.${key}`, { defaultValue: key })
 }
 
 function heatmapTimestampToMs(ts: number): number {
@@ -46,7 +42,7 @@ function heatmapTimestampToMs(ts: number): number {
 }
 
 function formatDate(ts: number): string {
-  return new Date(heatmapTimestampToMs(ts)).toLocaleDateString(undefined, {
+  return new Date(heatmapTimestampToMs(ts)).toLocaleDateString(i18n.language, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -96,7 +92,7 @@ export function distributionToItems(
 
 function formatMonthLabel(year: number, month: number): string {
   const d = new Date(Date.UTC(year, month, 1))
-  const mon = d.toLocaleDateString(undefined, { month: "short" })
+  const mon = d.toLocaleDateString(i18n.language, { month: "short" })
   const yr = String(year).slice(-2)
   return `${mon} '${yr}`
 }
@@ -121,7 +117,7 @@ function buildWeekMonthLabels(minTs: number, weekCount: number): (string | null)
     const d = new Date(heatmapTimestampToMs(weekStartTs))
     const month = d.getUTCMonth()
     if (month !== prevMonth) {
-      labels.push(d.toLocaleDateString(undefined, { month: "short" }))
+      labels.push(d.toLocaleDateString(i18n.language, { month: "long" }))
       prevMonth = month
     } else {
       labels.push(null)
@@ -130,20 +126,16 @@ function buildWeekMonthLabels(minTs: number, weekCount: number): (string | null)
   return labels
 }
 
-function buildMonthlyBars(heatmap: HeatmapCalendar): {
-  monthlyBars: HeatmapMonthCell[]
-  maxMonthValue: number
-  peakMonth: HeatmapInsights["peakMonth"]
-} {
-  if (heatmap.length === 0) {
-    return { monthlyBars: [], maxMonthValue: 0, peakMonth: null }
-  }
+function utcDayTs(year: number, month: number, day: number): number {
+  return Math.floor(Date.UTC(year, month, day) / 1000)
+}
 
-  const sorted = [...heatmap].sort((a, b) => a.date - b.date)
-  const minCell = sorted[0]!
-  const maxCell = sorted[sorted.length - 1]!
-  const minDate = new Date(heatmapTimestampToMs(minCell.date))
-  const maxDate = new Date(heatmapTimestampToMs(maxCell.date))
+function mondayBasedDow(ts: number): number {
+  return (new Date(heatmapTimestampToMs(ts)).getUTCDay() + 6) % 7
+}
+
+function buildPeakMonth(heatmap: HeatmapCalendar): HeatmapInsights["peakMonth"] {
+  if (heatmap.length === 0) return null
 
   const valueByMonth = new Map<string, number>()
   for (const c of heatmap) {
@@ -152,81 +144,99 @@ function buildMonthlyBars(heatmap: HeatmapCalendar): {
     valueByMonth.set(key, (valueByMonth.get(key) ?? 0) + c.value)
   }
 
-  const monthlyBars: HeatmapMonthCell[] = []
-  let year = minDate.getUTCFullYear()
-  let month = minDate.getUTCMonth()
-  const endYear = maxDate.getUTCFullYear()
-  const endMonth = maxDate.getUTCMonth()
-
-  while (year < endYear || (year === endYear && month <= endMonth)) {
-    const key = monthKey(year, month)
-    const total = valueByMonth.get(key) ?? 0
-    monthlyBars.push({
-      year,
-      month,
-      label: formatMonthLabel(year, month),
-      total,
-    })
-    month += 1
-    if (month > 11) {
-      month = 0
-      year += 1
-    }
-  }
-
-  const maxMonthValue = Math.max(...monthlyBars.map((b) => b.total), 0)
   let peakMonth: HeatmapInsights["peakMonth"] = null
-  for (const bar of monthlyBars) {
-    if (bar.total > 0 && (!peakMonth || bar.total > peakMonth.total)) {
-      peakMonth = { monthLabel: bar.label, total: bar.total }
+  for (const [key, total] of valueByMonth) {
+    if (total <= 0) continue
+    if (!peakMonth || total > peakMonth.total) {
+      const [yearStr, monthStr] = key.split("-")
+      const year = Number(yearStr)
+      const month = Number(monthStr)
+      peakMonth = { monthLabel: formatMonthLabel(year, month), total }
     }
   }
-
-  return { monthlyBars, maxMonthValue, peakMonth }
+  return peakMonth
 }
 
-function buildCalendarGrid(heatmap: HeatmapCalendar): {
-  calendarGrid: number[][]
-  calendarLabels: (string | null)[][]
-  weekCount: number
-  maxCellValue: number
-  minTs: number
-} {
-  if (heatmap.length === 0) {
-    return {
-      calendarGrid: [],
-      calendarLabels: [],
-      weekCount: 0,
-      maxCellValue: 0,
-      minTs: 0,
-    }
-  }
-
-  const sorted = [...heatmap].sort((a, b) => a.date - b.date)
-  const minTs = sorted[0]!.date
-  const maxTs = sorted[sorted.length - 1]!.date
-  const valueByDay = new Map(sorted.map((c) => [c.date, c.value]))
+function buildCalendarGridForRange(
+  valueByDay: Map<number, number>,
+  minTs: number,
+  maxTs: number,
+): Omit<HeatmapYearBlock, "year"> {
   const weekCount = Math.floor((maxTs - minTs) / (7 * DAY_SECONDS)) + 1
-
-  const calendarGrid: number[][] = Array.from({ length: 7 }, () => Array(weekCount).fill(0))
-  const calendarLabels: (string | null)[][] = Array.from({ length: 7 }, () =>
+  const grid: number[][] = Array.from({ length: 7 }, () => Array(weekCount).fill(0))
+  const labels: (string | null)[][] = Array.from({ length: 7 }, () =>
     Array(weekCount).fill(null),
   )
   let maxCellValue = 0
 
   for (let ts = minTs; ts <= maxTs; ts += DAY_SECONDS) {
     const weekIndex = Math.floor((ts - minTs) / (7 * DAY_SECONDS))
-    const dow = new Date(heatmapTimestampToMs(ts)).getUTCDay()
+    const dow = mondayBasedDow(ts)
     const value = valueByDay.get(ts) ?? 0
     maxCellValue = Math.max(maxCellValue, value)
-    calendarGrid[dow]![weekIndex] = value
-    if (value > 0) calendarLabels[dow]![weekIndex] = formatDate(ts)
+    grid[dow]![weekIndex] = value
+    labels[dow]![weekIndex] = formatDate(ts)
   }
 
-  return { calendarGrid, calendarLabels, weekCount, maxCellValue, minTs }
+  return {
+    grid,
+    labels,
+    monthLabels: buildWeekMonthLabels(minTs, weekCount),
+    maxCellValue,
+  }
 }
 
-export function buildHeatmapInsights(dashboard: Dashboard): HeatmapInsights {
+function periodGridBounds(
+  heatmap: HeatmapCalendar,
+  period?: WrappedPeriod,
+): { minTs: number; maxTs: number } | null {
+  if (period && !isAllTimePeriod(period) && period.start && period.end) {
+    return {
+      minTs: utcDayTsFromIso(period.start),
+      maxTs: utcDayTsFromIso(period.end),
+    }
+  }
+  if (heatmap.length === 0) return null
+  const sorted = [...heatmap].sort((a, b) => a.date - b.date)
+  return { minTs: sorted[0]!.date, maxTs: sorted[sorted.length - 1]!.date }
+}
+
+function gridSpanWeeks(minTs: number, maxTs: number): number {
+  return Math.floor((maxTs - minTs) / (7 * DAY_SECONDS)) + 1
+}
+
+function buildYearBlocks(heatmap: HeatmapCalendar, period?: WrappedPeriod): HeatmapYearBlock[] {
+  const bounds = periodGridBounds(heatmap, period)
+  if (!bounds) return []
+
+  const { minTs, maxTs } = bounds
+  const valueByDay = new Map(heatmap.map((c) => [c.date, c.value]))
+  const spanWeeks = gridSpanWeeks(minTs, maxTs)
+
+  if (spanWeeks > MULTI_YEAR_THRESHOLD_WEEKS) {
+    const minYear = new Date(heatmapTimestampToMs(minTs)).getUTCFullYear()
+    const maxYear = new Date(heatmapTimestampToMs(maxTs)).getUTCFullYear()
+    const blocks: HeatmapYearBlock[] = []
+    for (let year = minYear; year <= maxYear; year++) {
+      const rangeMin = Math.max(utcDayTs(year, 0, 1), minTs)
+      const rangeMax = Math.min(utcDayTs(year, 11, 31), maxTs)
+      if (rangeMin > rangeMax) continue
+      blocks.push({
+        year,
+        ...buildCalendarGridForRange(valueByDay, rangeMin, rangeMax),
+      })
+    }
+    return blocks
+  }
+
+  const year = new Date(heatmapTimestampToMs(minTs)).getUTCFullYear()
+  return [{ year, ...buildCalendarGridForRange(valueByDay, minTs, maxTs) }]
+}
+
+export function buildHeatmapInsights(
+  dashboard: Dashboard,
+  period?: WrappedPeriod,
+): HeatmapInsights {
   const activeDays = dashboard.heatmap.filter((c) => c.value > 0)
   const sorted = [...activeDays].sort((a, b) => a.date - b.date)
 
@@ -266,51 +276,28 @@ export function buildHeatmapInsights(dashboard: Dashboard): HeatmapInsights {
     }
   }
 
-  const spanWeeks = heatmapSpanWeeks(dashboard.heatmap)
+  const gridBounds = periodGridBounds(dashboard.heatmap, period)
+  const spanWeeks = gridBounds
+    ? gridSpanWeeks(gridBounds.minTs, gridBounds.maxTs)
+    : heatmapSpanWeeks(dashboard.heatmap)
+  const yearBlocks = buildYearBlocks(dashboard.heatmap, period)
   const calendarMode: HeatmapInsights["calendarMode"] =
-    spanWeeks > WEEK_MODE_MAX_WEEKS ? "month" : "week"
+    spanWeeks > MULTI_YEAR_THRESHOLD_WEEKS ? "multiYear" : "single"
   const totalSubmissions = dashboard.heatmap.reduce((s, c) => s + c.value, 0)
+  const maxCellValue = Math.max(...dashboard.heatmap.map((c) => c.value), 0)
 
-  const base = {
+  return {
     calendarMode,
     longestStreak,
     peakDay: peakCell
       ? { date: formatDate(peakCell.date), count: peakCell.value, timestamp: peakCell.date }
       : null,
     peakWeek,
+    peakMonth: buildPeakMonth(dashboard.heatmap),
     totalActiveDays: activeDays.length,
     totalSubmissions,
-  }
-
-  if (calendarMode === "month") {
-    const { monthlyBars, maxMonthValue, peakMonth } = buildMonthlyBars(dashboard.heatmap)
-    return {
-      ...base,
-      peakMonth,
-      calendarGrid: [],
-      calendarLabels: [],
-      weekMonthLabels: [],
-      weekCount: 0,
-      maxCellValue: 0,
-      monthlyBars,
-      maxMonthValue,
-    }
-  }
-
-  const { calendarGrid, calendarLabels, weekCount, maxCellValue, minTs: gridMinTs } =
-    buildCalendarGrid(dashboard.heatmap)
-  const weekMonthLabels = buildWeekMonthLabels(gridMinTs, weekCount)
-
-  return {
-    ...base,
-    peakMonth: null,
-    calendarGrid,
-    calendarLabels,
-    weekMonthLabels,
-    weekCount,
+    yearBlocks,
     maxCellValue,
-    monthlyBars: [],
-    maxMonthValue: 0,
   }
 }
 
@@ -331,7 +318,9 @@ export function buildJourneyInsights(dashboard: Dashboard): JourneyInsights {
     firstActive: first ? formatDate(first.date) : null,
     lastActive: last ? formatDate(last.date) : null,
     spanLabel:
-      first && last ? `${formatDate(first.date)} – ${formatDate(last.date)}` : "All-time",
+      first && last
+        ? `${formatDate(first.date)} – ${formatDate(last.date)}`
+        : i18n.t("period.allTime"),
   }
 }
 
@@ -340,7 +329,7 @@ export function buildWeekdayInsights(dashboard: Dashboard): WeekdayInsights {
   const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1
   const weekdays = WEEKDAY_ORDER.map((key) => ({
     key,
-    label: WEEKDAY_LABELS[key] ?? key,
+    label: weekdayLabel(key),
     count: dist[key] ?? 0,
     percent: Math.round(((dist[key] ?? 0) / total) * 1000) / 10,
   }))
@@ -373,12 +362,13 @@ export function buildChronoInsights(dashboard: Dashboard): ChronoInsights {
   const afternoon = hours.filter((h) => h.hour >= 12 && h.hour < 18).reduce((s, h) => s + h.count, 0)
   const evening = hours.filter((h) => h.hour >= 18 && h.hour <= 23).reduce((s, h) => s + h.count, 0)
 
-  let archetype = "Balanced Grinder"
+  let archetypeKey = "balancedGrinder"
   const maxBucket = Math.max(morning, afternoon, evening, nightSubmissions)
-  if (nightSubmissions === maxBucket && nightSubmissions > 50) archetype = "Night Owl"
-  else if (morning === maxBucket) archetype = "Early Riser"
-  else if (evening === maxBucket) archetype = "Evening Coder"
-  else if (afternoon === maxBucket) archetype = "Afternoon Operator"
+  if (nightSubmissions === maxBucket && nightSubmissions > 50) archetypeKey = "nightOwl"
+  else if (morning === maxBucket) archetypeKey = "earlyRiser"
+  else if (evening === maxBucket) archetypeKey = "eveningCoder"
+  else if (afternoon === maxBucket) archetypeKey = "afternoonOperator"
+  const archetype = i18n.t(`chrono.archetypes.${archetypeKey}`)
 
   const peak = hours.reduce(
     (best, h) => (h.count > best.count ? h : best),
@@ -388,8 +378,11 @@ export function buildChronoInsights(dashboard: Dashboard): ChronoInsights {
   const subsTotal = dashboard.stats.number_of_submissions || 1
   const narrative =
     nightSubmissions < subsTotal * 0.05
-      ? `You peak around ${String(peak.hour).padStart(2, "0")}:00 — a ${archetype.toLowerCase()} on campus time.`
-      : `${nightSubmissions} submissions landed between midnight and 5 AM.`
+      ? i18n.t("chrono.narrativePeak", {
+          hour: String(peak.hour).padStart(2, "0"),
+          archetype: archetype.toLowerCase(),
+        })
+      : i18n.t("chrono.narrativeNight", { count: nightSubmissions })
 
   return {
     archetype,
@@ -432,7 +425,6 @@ export function buildCourseArcInsights(
   const { title, subtitle } = buildCourseArcCopy(
     courseCompilerShare,
     topProglang,
-    topCompiler,
   )
 
   return {
@@ -449,21 +441,20 @@ export function buildCourseArcInsights(
 function buildCourseArcCopy(
   courseShare: number,
   topProglang: DistributionItem | null,
-  topCompiler: DistributionItem | null,
 ): { title: string; subtitle: string } {
-  const lang = topProglang?.label ?? "your go-to language"
-  const compiler = topCompiler?.label ?? "your top compiler"
+  const lang = topProglang?.label ?? i18n.t("courseArc.fallbackLang")
+  const subtitle = i18n.t("courseArc.mainLanguageSub", { lang })
 
   if (courseShare >= 50) {
     return {
-      title: "Mostly campus coursework",
-      subtitle: `${courseShare}% of runs used the classic UPC compilers (P1++, PRO2…) · ${lang} was your main language`,
+      title: i18n.t("courseArc.mostlyCoursework"),
+      subtitle,
     }
   }
 
   return {
-    title: "Your compiler mix",
-    subtitle: `Led by ${compiler} · ${lang} (${topProglang?.percent ?? 0}% of runs)`,
+    title: i18n.t("courseArc.compilerMix"),
+    subtitle,
   }
 }
 
@@ -477,18 +468,23 @@ function buildVerdictNarrative(
   total: number,
 ): string {
   const friction = [
-    { key: "WA", count: wa, label: "wrong answers" },
-    { key: "CE", count: ce, label: "compilation errors" },
-    { key: "EE", count: ee, label: "execution errors" },
-    { key: "SC", count: sc, label: "scored attempts" },
-    { key: "PE", count: pe, label: "presentation errors" },
+    { key: "WA", count: wa, label: i18n.t("verdicts.wrongAnswers") },
+    { key: "CE", count: ce, label: i18n.t("verdicts.compilationErrors") },
+    { key: "EE", count: ee, label: i18n.t("verdicts.executionErrors") },
+    { key: "SC", count: sc, label: i18n.t("verdicts.scoredAttempts") },
+    { key: "PE", count: pe, label: i18n.t("verdicts.presentationErrors") },
   ].sort((a, b) => b.count - a.count)
 
   const top = friction[0]
   if (!top || top.count === 0) {
-    return `You logged ${ac} fully accepted runs out of ${total} judged submissions.`
+    return i18n.t("verdicts.narrativeClean", { ac, total })
   }
-  return `Across ${total} judged runs, you earned ${ac} AC verdicts while battling ${top.count} ${top.label} along the way.`
+  return i18n.t("verdicts.narrativeFriction", {
+    total,
+    ac,
+    count: top.count,
+    label: top.label,
+  })
 }
 
 export function buildVerdictInsights(
@@ -534,7 +530,7 @@ export function buildRankInsights(rank: number, homepage: HomepageStats): RankIn
     platformUserCount,
     percentile,
     usersAhead,
-    eliteLabel: `Top ${topPercent}% of Jutge users`,
+    eliteLabel: i18n.t("rank.eliteLabel", { percent: topPercent }),
   }
 }
 
@@ -560,7 +556,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     level,
     periodLabel: formatPeriodLabel(raw.period),
     journey: buildJourneyInsights(dashboard),
-    heatmap: buildHeatmapInsights(dashboard),
+    heatmap: buildHeatmapInsights(dashboard, raw.period),
     weekday: buildWeekdayInsights(dashboard),
     chrono: buildChronoInsights(dashboard),
     courseArc: buildCourseArcInsights(dashboard, tables, hexColors),

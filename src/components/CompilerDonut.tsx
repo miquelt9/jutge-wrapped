@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { DISTRIBUTION_DONUT_SIZE, DistributionDonut } from "@/components/DistributionDonut"
 import { compilerColor } from "@/theme/jutgeColors"
 import type { DistributionItem } from "@/features/wrapped/types"
@@ -9,6 +10,7 @@ type Props = {
 }
 
 export function CompilerDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) {
+  const { t } = useTranslation()
   const getColor = useCallback(
     (item: DistributionItem) => compilerColor(item.key, item.color),
     [],
@@ -25,7 +27,7 @@ export function CompilerDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) 
       getColor={getColor}
       centerItems={centerItems}
       formatCenterLabel={(item) => item.key}
-      ariaLabel="Compiler distribution. Click a segment for details."
+      ariaLabel={t("donut.compilerAria")}
     />
   )
 }

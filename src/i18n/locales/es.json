@@ -1,0 +1,205 @@
+{
+  "common": {
+    "brand": "Jutge.org",
+    "wrapped": "Wrapped",
+    "disclaimer": "Proyecto no oficial — sin afiliación con Jutge.org ni la UPC.",
+    "snapshot": "Instantánea",
+    "dismiss": "Cerrar",
+    "prev": "Ant.",
+    "next": "Sig."
+  },
+  "language": {
+    "label": "Idioma",
+    "aria": "Idioma"
+  },
+  "theme": {
+    "label": "Tema",
+    "aria": "Tema"
+  },
+  "login": {
+    "signIn": "Iniciar sesión",
+    "intro": "Usa tus credenciales de Jutge.org. El token solo se guarda en memoria — nunca almacenamos tu contraseña.",
+    "email": "Correo",
+    "password": "Contraseña",
+    "signingIn": "Iniciando sesión…",
+    "continue": "Continuar",
+    "sessionMemory": "Sesión en memoria",
+    "noCredentialPersistence": "Sin guardar credenciales",
+    "localTesting": "Pruebas locales",
+    "localTestingHint": "Carga un JSON de <0>npm run export:snapshot</0> — sin llamadas a la API después."
+  },
+  "dateRange": {
+    "headerSuffix": "Wrapped — elige fechas",
+    "heading": "¿Qué periodo miramos?",
+    "intro": "Elige las fechas de tus estadísticas Wrapped. Los rangos personalizados se construyen a partir de tu historial de envíos.",
+    "loadingBounds": "Cargando tu rango de actividad…",
+    "customRange": "Rango personalizado",
+    "from": "Desde",
+    "to": "Hasta",
+    "invalidRange": "La fecha de inicio debe ser anterior o igual a la de fin.",
+    "buildWrapped": "Crear mi Wrapped",
+    "presetNoOverlap": "Tu actividad en Jutge ({{min}} – {{max}}) no coincide con {{label}}.",
+    "presetNoSubmissions": "Sin envíos en {{label}} dentro de tus fechas de actividad ({{start}} – {{end}})."
+  },
+  "period": {
+    "allTime": "Todo el historial",
+    "last12Months": "Últimos 12 meses",
+    "academicYear": "Curso {{startYear}}–{{endYearShort}}",
+    "from": "Desde {{date}}",
+    "until": "Hasta {{date}}",
+    "through": "{{start}} hasta {{end}}"
+  },
+  "deck": {
+    "chooseDates": "Wrapped — elige fechas",
+    "loadingLine": "Cargando tu Jutge Wrapped",
+    "loadingDone": "Listo.",
+    "changeDates": "Cambiar fechas",
+    "backToLogin": "Volver al inicio",
+    "dates": "Fechas",
+    "clearSnapshot": "Quitar instantánea",
+    "exit": "Salir"
+  },
+  "slides": {
+    "intro": {
+      "eyebrow": "Bienvenida",
+      "subtitle": "{{period}} · tu identidad Jutge ha sido verificada.",
+      "judgeLevel": "Nivel de juez",
+      "acceptedProblems": "Problemas aceptados",
+      "rejectedProblems": "Problemas rechazados",
+      "submissions": "Envíos",
+      "acRate": "Tasa AC",
+      "problemSuccessRate": "{{rate}}% de los problemas intentados llegaron a aceptación en este periodo.",
+      "avatarAlt": "Avatar de Jutge",
+      "mascotAlt": "Mascota de Jutge"
+    },
+    "heatmap": {
+      "eyebrow": "Mapa de actividad",
+      "title": "El juego largo",
+      "peakDay": "{{period}} · Día pico: {{count}} el {{date}}.",
+      "summary": "{{period}} · {{submissions}} en {{days}} días activos.",
+      "activeDays": "Días activos",
+      "longestStreakLabel": "Racha más larga",
+      "longestStreakValue": "🔥 {{count}} seguidos",
+      "mostActiveDay": "Día más activo",
+      "busiestWeek": "Semana más intensa",
+      "busiestMonth": "Mes más intenso",
+      "calendarHeading": "Calendario de envíos"
+    },
+    "weekday": {
+      "eyebrow": "Ritmo del campus",
+      "judgmentDay": "El {{day}} es día de juicio",
+      "weeklyRhythm": "Ritmo semanal",
+      "subtitle": "Envías más los {{peak}} · más tranquilo: {{quietest}}",
+      "chartHeading": "Envíos por día de la semana",
+      "busiestDay": "Día más activo",
+      "submissionsShare": "{{count}} envíos · {{percent}}% de tu semana",
+      "quietest": "Más tranquilo: {{day}} ({{count}})"
+    },
+    "chrono": {
+      "eyebrow": "Cronoanálisis",
+      "chartHeading": "Envíos por hora",
+      "peakHour": "Hora pico",
+      "submissionsAtPeak": "{{count}} envíos"
+    },
+    "courseArc": {
+      "eyebrow": "Lenguajes y compiladores"
+    },
+    "verdict": {
+      "eyebrow": "Distribución de veredictos",
+      "title": "El juez ha hablado"
+    },
+    "ranking": {
+      "eyebrow": "Rango del sistema",
+      "globalLeaderboard": "Clasificación global",
+      "problems": "Problemas",
+      "submissions": "Envíos",
+      "topLanguage": "Lenguaje principal",
+      "busiestDay": "Día más activo",
+      "acRuns": "Ejecuciones AC",
+      "platformSubs": "Envíos en la plataforma",
+      "judgeAlt": "Juez de Jutge"
+    }
+  },
+  "chrono": {
+    "archetypes": {
+      "balancedGrinder": "Programador equilibrado",
+      "nightOwl": "Noctámbulo",
+      "earlyRiser": "Madrugador",
+      "eveningCoder": "Programador vespertino",
+      "afternoonOperator": "Operador de tarde"
+    },
+    "narrativePeak": "Tu pico es sobre las {{hour}}:00 — un {{archetype}} en horario de campus.",
+    "narrativeNight": "{{count}} envíos entre medianoche y las 5 AM."
+  },
+  "courseArc": {
+    "mostlyCoursework": "Sobre todo trabajo de clase",
+    "compilerMix": "Tu mezcla de compiladores",
+    "mainLanguageSub": "{{lang}} fue tu lenguaje principal",
+    "fallbackLang": "tu lenguaje habitual",
+    "fallbackCompiler": "tu compilador principal"
+  },
+  "verdicts": {
+    "narrativeClean": "Registraste {{ac}} ejecuciones totalmente aceptadas de {{total}} envíos juzgados.",
+    "narrativeFriction": "En {{total}} ejecuciones juzgadas, obtuviste {{ac}} veredictos AC mientras luchabas con {{count}} {{label}}.",
+    "wrongAnswers": "respuestas incorrectas",
+    "compilationErrors": "errores de compilación",
+    "executionErrors": "errores de ejecución",
+    "scoredAttempts": "intentos puntuados",
+    "presentationErrors": "errores de presentación"
+  },
+  "rank": {
+    "eliteLabel": "Top {{percent}}% de usuarios de Jutge"
+  },
+  "weekdays": {
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo"
+  },
+  "weekdaysShort": {
+    "monday": "Lun",
+    "tuesday": "Mar",
+    "wednesday": "Mié",
+    "thursday": "Jue",
+    "friday": "Vie",
+    "saturday": "Sáb",
+    "sunday": "Dom"
+  },
+  "heatmap": {
+    "noActivity": "Aún no hay datos de actividad.",
+    "noSubmissionsTooltip": "Sin envíos el {{date}}",
+    "submissionTooltip": "{{count}} · {{date}}"
+  },
+  "snapshot": {
+    "loading": "Cargando instantánea…",
+    "loadButton": "Cargar instantánea JSON",
+    "invalidJson": "Archivo JSON no válido.",
+    "readError": "No se pudo leer el archivo de instantánea."
+  },
+  "cors": {
+    "title": "¿Conexión bloqueada?",
+    "hintCredentials": "Comprueba que el correo y la contraseña son correctos.",
+    "hintCors": "Si el inicio de sesión funciona en jutge.org pero no aquí, el navegador puede estar bloqueando peticiones a <0>api.jutge.org</0>.",
+    "hintExtensions": "Prueba a desactivar extensiones de privacidad estrictas para este sitio."
+  },
+  "errors": {
+    "unexpected": "Ha ocurrido un error inesperado.",
+    "network": "No se pudo contactar con la API de Jutge. Suele deberse a restricciones CORS del navegador o problemas de red.",
+    "invalidRange": "El rango de fechas está invertido ({{start}} es posterior a {{end}}). Vuelve atrás y elige un rango válido.",
+    "emptyRangeSnapshot": "Sin envíos en {{label}}. Prueba un rango más amplio o vuelve a exportar la instantánea (npm run export:snapshot) con el historial completo.",
+    "emptyRange": "No tuviste envíos en Jutge entre {{label}}. Elige otro rango o selecciona Todo el historial.",
+    "loadFailureEmpty": "No pudimos cargar tu historial de envíos desde Jutge. Inténtalo de nuevo o elige Todo el historial.",
+    "loadFailure": "Algo falló al cargar tus envíos. Inténtalo de nuevo o elige Todo el historial."
+  },
+  "submission_one": "{{count}} envío",
+  "submission_other": "{{count}} envíos",
+  "day_one": "{{count}} día",
+  "day_other": "{{count}} días",
+  "donut": {
+    "compilerAria": "Distribución de compiladores. Haz clic en un segmento para ver detalles.",
+    "verdictAria": "Distribución de veredictos. Haz clic en un segmento para ver detalles."
+  }
+}

@@ -1,17 +1,8 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistogramColumn } from "@/components/HistogramColumn"
+import { HistogramColumn, histogramBarMaxHeight } from "@/components/HistogramColumn"
 import type { DistributionItem } from "@/features/wrapped/types"
-
-const SHORT_LABELS: Record<string, string> = {
-  monday: "Mon",
-  tuesday: "Tue",
-  wednesday: "Wed",
-  thursday: "Thu",
-  friday: "Fri",
-  saturday: "Sat",
-  sunday: "Sun",
-}
 
 const CHART_HEIGHT_PX = 168
 
@@ -21,9 +12,11 @@ type Props = {
 }
 
 export function WeekdayHistogram({ days, peakKey }: Props) {
+  const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const maxCount = Math.max(...days.map((d) => d.count), 1)
+  const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
     <div>
@@ -36,7 +29,7 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
           const barHeight =
             day.count === 0
               ? 0
-              : Math.max(6, Math.round((day.count / maxCount) * CHART_HEIGHT_PX))
+              : Math.max(6, Math.round((day.count / maxCount) * barMaxHeight))
 
           return (
             <HistogramColumn
@@ -46,7 +39,6 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
               chartHeight={CHART_HEIGHT_PX}
               hoveredId={hoveredId}
               onHover={setHoveredId}
-              isPeak={isPeak}
             >
               <motion.div
                 className="w-full min-w-[20px] max-w-[56px]"
@@ -77,7 +69,7 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
                 isPeak || isHovered ? "font-bold text-jutge-text" : "text-jutge-muted"
               }`}
             >
-              {SHORT_LABELS[day.key] ?? day.label.slice(0, 3)}
+              {t(`weekdaysShort.${day.key}`, { defaultValue: day.label.slice(0, 3) })}
             </span>
           )
         })}

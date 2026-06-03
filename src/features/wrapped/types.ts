@@ -4,6 +4,7 @@ import type {
   Dashboard,
   HomepageStats,
   Profile,
+  Submission,
 } from "@/api/client"
 import type { WrappedPeriod } from "./period"
 
@@ -17,6 +18,8 @@ export type WrappedRawData = {
   hexColors: ColorMapping
   tables: AllTables
   period: WrappedPeriod
+  /** When present (e.g. snapshot export), enables full period filtering. */
+  submissions?: Submission[]
 }
 
 export type DistributionItem = {
@@ -39,30 +42,25 @@ export type JourneyInsights = {
   spanLabel: string
 }
 
-export type HeatmapMonthCell = {
+export type HeatmapYearBlock = {
   year: number
-  month: number
-  label: string
-  total: number
+  /** rows = Mon..Sun, cols = weeks */
+  grid: number[][]
+  labels: (string | null)[][]
+  monthLabels: (string | null)[]
+  maxCellValue: number
 }
 
 export type HeatmapInsights = {
-  calendarMode: "week" | "month"
+  calendarMode: "single" | "multiYear"
   longestStreak: number
   peakDay: { date: string; count: number; timestamp: number } | null
   peakWeek: { weekLabel: string; total: number } | null
   peakMonth: { monthLabel: string; total: number } | null
   totalActiveDays: number
   totalSubmissions: number
-  /** rows = Sun..Sat, cols = weeks (week mode only) */
-  calendarGrid: number[][]
-  calendarLabels: (string | null)[][]
-  weekMonthLabels: (string | null)[]
-  weekCount: number
+  yearBlocks: HeatmapYearBlock[]
   maxCellValue: number
-  /** one bar per calendar month (month mode only) */
-  monthlyBars: HeatmapMonthCell[]
-  maxMonthValue: number
 }
 
 export type WeekdayInsights = {

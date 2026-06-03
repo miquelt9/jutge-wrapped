@@ -50,6 +50,7 @@ async function main() {
     profile,
     avatar,
     dashboard,
+    submissions,
     level,
     absoluteRanking,
     homepageStats,
@@ -59,6 +60,7 @@ async function main() {
     client.student.profile.get(),
     fetchAvatarOptional(client),
     client.student.dashboard.getDashboard(),
+    client.student.submissions.getAll(),
     client.student.dashboard.getLevel(),
     client.student.dashboard.getAbsoluteRanking(),
     client.misc.getHomepageStats(),
@@ -68,6 +70,12 @@ async function main() {
 
   if (!avatar) {
     console.log("Note: no custom avatar on this account (skipped).")
+  }
+
+  const period = {
+    start: null as string | null,
+    end: null as string | null,
+    label: "All time",
   }
 
   const snapshot = {
@@ -85,11 +93,13 @@ async function main() {
         }
       : null,
     dashboard,
+    submissions,
     level,
     absoluteRanking,
     homepageStats,
     hexColors,
     tables,
+    period,
   }
 
   const outDir = path.join(rootDir, "artifacts")

@@ -1,0 +1,205 @@
+{
+  "common": {
+    "brand": "Jutge.org",
+    "wrapped": "Wrapped",
+    "disclaimer": "Projecte no oficial — sense afiliació amb Jutge.org ni la UPC.",
+    "snapshot": "Instantània",
+    "dismiss": "Tancar",
+    "prev": "Ant.",
+    "next": "Seg."
+  },
+  "language": {
+    "label": "Idioma",
+    "aria": "Idioma"
+  },
+  "theme": {
+    "label": "Tema",
+    "aria": "Tema"
+  },
+  "login": {
+    "signIn": "Inicia sessió",
+    "intro": "Fes servir les credencials de Jutge.org. El token només es guarda en memòria — mai desem la contrasenya.",
+    "email": "Correu",
+    "password": "Contrasenya",
+    "signingIn": "Iniciant sessió…",
+    "continue": "Continua",
+    "sessionMemory": "Sessió en memòria",
+    "noCredentialPersistence": "Sense desar credencials",
+    "localTesting": "Proves locals",
+    "localTestingHint": "Carrega un JSON de <0>npm run export:snapshot</0> — sense crides a l'API després."
+  },
+  "dateRange": {
+    "headerSuffix": "Wrapped — tria dates",
+    "heading": "Quin període mirem?",
+    "intro": "Tria les dates de les estadístiques Wrapped. Els intervals personalitzats es construeixen a partir del teu historial d'enviaments.",
+    "loadingBounds": "Carregant el teu rang d'activitat…",
+    "customRange": "Interval personalitzat",
+    "from": "Des de",
+    "to": "Fins a",
+    "invalidRange": "La data d'inici ha de ser anterior o igual a la de fi.",
+    "buildWrapped": "Crea el meu Wrapped",
+    "presetNoOverlap": "La teva activitat a Jutge ({{min}} – {{max}}) no coincideix amb {{label}}.",
+    "presetNoSubmissions": "Sense enviaments a {{label}} dins les teves dates d'activitat ({{start}} – {{end}})."
+  },
+  "period": {
+    "allTime": "Tot l'historial",
+    "last12Months": "Últims 12 mesos",
+    "academicYear": "Curs {{startYear}}–{{endYearShort}}",
+    "from": "Des de {{date}}",
+    "until": "Fins a {{date}}",
+    "through": "{{start}} fins a {{end}}"
+  },
+  "deck": {
+    "chooseDates": "Wrapped — tria dates",
+    "loadingLine": "Carregant el teu Jutge Wrapped",
+    "loadingDone": "Fet.",
+    "changeDates": "Canvia dates",
+    "backToLogin": "Torna a l'inici",
+    "dates": "Dates",
+    "clearSnapshot": "Treu instantània",
+    "exit": "Surt"
+  },
+  "slides": {
+    "intro": {
+      "eyebrow": "Benvinguda",
+      "subtitle": "{{period}} · la teva identitat Jutge ha estat verificada.",
+      "judgeLevel": "Nivell de jutge",
+      "acceptedProblems": "Problemes acceptats",
+      "rejectedProblems": "Problemes rebutjats",
+      "submissions": "Enviaments",
+      "acRate": "Taxa AC",
+      "problemSuccessRate": "{{rate}}% dels problemes intentats van arribar a acceptació en aquest període.",
+      "avatarAlt": "Avatar de Jutge",
+      "mascotAlt": "Mascota de Jutge"
+    },
+    "heatmap": {
+      "eyebrow": "Mapa d'activitat",
+      "title": "El joc llarg",
+      "peakDay": "{{period}} · Dia pic: {{count}} el {{date}}.",
+      "summary": "{{period}} · {{submissions}} en {{days}} dies actius.",
+      "activeDays": "Dies actius",
+      "longestStreakLabel": "Ratxa més llarga",
+      "longestStreakValue": "🔥 {{count}} seguits",
+      "mostActiveDay": "Dia més actiu",
+      "busiestWeek": "Setmana més intensa",
+      "busiestMonth": "Mes més intens",
+      "calendarHeading": "Calendari d'enviaments"
+    },
+    "weekday": {
+      "eyebrow": "Ritme del campus",
+      "judgmentDay": "El {{day}} és dia de judici",
+      "weeklyRhythm": "Ritme setmanal",
+      "subtitle": "Envies més els {{peak}} · més tranquil: {{quietest}}",
+      "chartHeading": "Enviaments per dia de la setmana",
+      "busiestDay": "Dia més actiu",
+      "submissionsShare": "{{count}} enviaments · {{percent}}% de la teva setmana",
+      "quietest": "Més tranquil: {{day}} ({{count}})"
+    },
+    "chrono": {
+      "eyebrow": "Cronoanàlisi",
+      "chartHeading": "Enviaments per hora",
+      "peakHour": "Hora pic",
+      "submissionsAtPeak": "{{count}} enviaments"
+    },
+    "courseArc": {
+      "eyebrow": "Llenguatges i compiladors"
+    },
+    "verdict": {
+      "eyebrow": "Distribució de veredictes",
+      "title": "El jutge ha parlat"
+    },
+    "ranking": {
+      "eyebrow": "Rang del sistema",
+      "globalLeaderboard": "Classificació global",
+      "problems": "Problemes",
+      "submissions": "Enviaments",
+      "topLanguage": "Llenguatge principal",
+      "busiestDay": "Dia més actiu",
+      "acRuns": "Execucions AC",
+      "platformSubs": "Enviaments a la plataforma",
+      "judgeAlt": "Jutge de Jutge"
+    }
+  },
+  "chrono": {
+    "archetypes": {
+      "balancedGrinder": "Programador equilibrat",
+      "nightOwl": "Noctàmbul",
+      "earlyRiser": "Matiner",
+      "eveningCoder": "Programador vespertí",
+      "afternoonOperator": "Operador de tarda"
+    },
+    "narrativePeak": "El teu pic és cap a les {{hour}}:00 — un {{archetype}} en horari de campus.",
+    "narrativeNight": "{{count}} enviaments entre mitjanit i les 5 AM."
+  },
+  "courseArc": {
+    "mostlyCoursework": "Sobretot feina de classe",
+    "compilerMix": "La teva barreja de compiladors",
+    "mainLanguageSub": "{{lang}} va ser el teu llenguatge principal",
+    "fallbackLang": "el teu llenguatge habitual",
+    "fallbackCompiler": "el teu compilador principal"
+  },
+  "verdicts": {
+    "narrativeClean": "Vas registrar {{ac}} execucions totalment acceptades de {{total}} enviaments jutjats.",
+    "narrativeFriction": "En {{total}} execucions jutjades, vas obtenir {{ac}} veredictes AC mentre lluitaves amb {{count}} {{label}}.",
+    "wrongAnswers": "respostes incorrectes",
+    "compilationErrors": "errors de compilació",
+    "executionErrors": "errors d'execució",
+    "scoredAttempts": "intents puntuats",
+    "presentationErrors": "errors de presentació"
+  },
+  "rank": {
+    "eliteLabel": "Top {{percent}}% d'usuaris de Jutge"
+  },
+  "weekdays": {
+    "monday": "Dilluns",
+    "tuesday": "Dimarts",
+    "wednesday": "Dimecres",
+    "thursday": "Dijous",
+    "friday": "Divendres",
+    "saturday": "Dissabte",
+    "sunday": "Diumenge"
+  },
+  "weekdaysShort": {
+    "monday": "Dl",
+    "tuesday": "Dt",
+    "wednesday": "Dc",
+    "thursday": "Dj",
+    "friday": "Dv",
+    "saturday": "Ds",
+    "sunday": "Dg"
+  },
+  "heatmap": {
+    "noActivity": "Encara no hi ha dades d'activitat.",
+    "noSubmissionsTooltip": "Sense enviaments el {{date}}",
+    "submissionTooltip": "{{count}} · {{date}}"
+  },
+  "snapshot": {
+    "loading": "Carregant instantània…",
+    "loadButton": "Carrega instantània JSON",
+    "invalidJson": "Fitxer JSON no vàlid.",
+    "readError": "No s'ha pogut llegir el fitxer d'instantània."
+  },
+  "cors": {
+    "title": "Connexió bloquejada?",
+    "hintCredentials": "Comprova que el correu i la contrasenya són correctes.",
+    "hintCors": "Si l'inici de sessió funciona a jutge.org però no aquí, el navegador pot estar bloquejant peticions a <0>api.jutge.org</0>.",
+    "hintExtensions": "Prova de desactivar extensions de privadesa estrictes per a aquest lloc."
+  },
+  "errors": {
+    "unexpected": "S'ha produït un error inesperat.",
+    "network": "No s'ha pogut contactar amb l'API de Jutge. Sovint és per restriccions CORS del navegador o problemes de xarxa.",
+    "invalidRange": "L'interval de dates està invertit ({{start}} és posterior a {{end}}). Torna enrere i tria un interval vàlid.",
+    "emptyRangeSnapshot": "Sense enviaments a {{label}}. Prova un interval més ampli o torna a exportar la instantània (npm run export:snapshot) amb l'historial complet.",
+    "emptyRange": "No vas tenir enviaments a Jutge entre {{label}}. Tria un altre interval o selecciona Tot l'historial.",
+    "loadFailureEmpty": "No hem pogut carregar el teu historial d'enviaments des de Jutge. Torna-ho a provar o tria Tot l'historial.",
+    "loadFailure": "Alguna cosa ha fallat en carregar els teus enviaments. Torna-ho a provar o tria Tot l'historial."
+  },
+  "submission_one": "{{count}} enviament",
+  "submission_other": "{{count}} enviaments",
+  "day_one": "{{count}} dia",
+  "day_other": "{{count}} dies",
+  "donut": {
+    "compilerAria": "Distribució de compiladors. Fes clic en un segment per veure detalls.",
+    "verdictAria": "Distribució de veredictes. Fes clic en un segment per veure detalls."
+  }
+}

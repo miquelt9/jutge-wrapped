@@ -1,24 +1,44 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { downloadToBlobUrl, fetchStudentAvatar, mapApiError } from "@/api/client"
 import type { JutgeApiClient } from "@/api/client"
 import { buildWrappedInsights } from "./selectors"
 import type { WrappedRawData } from "./types"
 import {
+  emptyRangeMessage,
+  invalidRangeMessage,
+  liveLoadFailureMessage,
+  translateApiError,
+} from "./errors"
+import {
   aggregateDashboardFromSubmissions,
+  dashboardForWrappedPeriod,
   isAllTimePeriod,
+  isValidBoundedPeriod,
   submissionInPeriod,
   type WrappedPeriod,
 } from "./period"
+
+export type WrappedLoadErrorKind =
+  | ReturnType<typeof mapApiError>["kind"]
+  | "empty_range"
+  | "invalid_range"
 
 export type WrappedLoadState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "ready"; raw: WrappedRawData; insights: ReturnType<typeof buildWrappedInsights> }
-  | { status: "error"; message: string; kind: ReturnType<typeof mapApiError>["kind"] }
+  | { status: "error"; message: string; kind: WrappedLoadErrorKind }
 
-export function useWrappedData(client: JutgeApiClient | null, period: WrappedPeriod | null) {
+export function useWrappedData(
+  client: JutgeApiClient | null,
+  period: WrappedPeriod | null,
+  snapshot: WrappedRawData | null = null,
+) {
+  const { i18n } = useTranslation()
   const [state, setState] = useState<WrappedLoadState>({ status: "idle" })
   const avatarUrlRef = useRef<string | null>(null)
+  const readyRawRef = useRef<WrappedRawData | null>(null)
 
   const revokeAvatar = useCallback(() => {
     if (avatarUrlRef.current) {
@@ -28,13 +48,64 @@ export function useWrappedData(client: JutgeApiClient | null, period: WrappedPer
   }, [])
 
   const load = useCallback(async () => {
-    if (!client?.meta?.token || !period) {
+    if (!period) {
       setState({ status: "idle" })
+      readyRawRef.current = null
+      return
+    }
+
+    if (!isAllTimePeriod(period) && !isValidBoundedPeriod(period)) {
+      setState({
+        status: "error",
+        message: invalidRangeMessage(period),
+        kind: "invalid_range",
+      })
+      readyRawRef.current = null
+      return
+    }
+
+    if (snapshot) {
+      revokeAvatar()
+      const hasSubmissionList = Boolean(snapshot.submissions && snapshot.submissions.length > 0)
+      const dashboard = dashboardForWrappedPeriod(
+        {
+          dashboard: snapshot.dashboard,
+          submissions: snapshot.submissions,
+          tables: snapshot.tables,
+        },
+        period,
+      )
+      if (
+        !isAllTimePeriod(period) &&
+        (dashboard.stats.number_of_submissions ?? 0) === 0
+      ) {
+        setState({
+          status: "error",
+          message: emptyRangeMessage(period, "snapshot", hasSubmissionList),
+          kind: "empty_range",
+        })
+        readyRawRef.current = null
+        return
+      }
+      const raw: WrappedRawData = { ...snapshot, period, dashboard }
+      readyRawRef.current = raw
+      setState({
+        status: "ready",
+        raw,
+        insights: buildWrappedInsights(raw),
+      })
+      return
+    }
+
+    if (!client?.meta?.token) {
+      setState({ status: "idle" })
+      readyRawRef.current = null
       return
     }
 
     setState({ status: "loading" })
     revokeAvatar()
+    readyRawRef.current = null
 
     try {
       const [profile, avatarDownload, tables, hexColors, homepageStats, level, absoluteRanking] =
@@ -57,8 +128,11 @@ export function useWrappedData(client: JutgeApiClient | null, period: WrappedPer
         if (filtered.length === 0) {
           setState({
             status: "error",
-            message: "No submissions found in the selected date range. Try a wider window.",
-            kind: "unknown",
+            message:
+              allSubmissions.length === 0
+                ? liveLoadFailureMessage(0)
+                : emptyRangeMessage(period, "live", true),
+            kind: allSubmissions.length === 0 ? "unknown" : "empty_range",
           })
           return
         }
@@ -79,6 +153,7 @@ export function useWrappedData(client: JutgeApiClient | null, period: WrappedPer
         tables,
         period,
       }
+      readyRawRef.current = raw
 
       setState({
         status: "ready",
@@ -87,14 +162,42 @@ export function useWrappedData(client: JutgeApiClient | null, period: WrappedPer
       })
     } catch (error) {
       const mapped = mapApiError(error)
-      setState({ status: "error", message: mapped.message, kind: mapped.kind })
+      setState({ status: "error", message: translateApiError(mapped), kind: mapped.kind })
     }
-  }, [client, period, revokeAvatar])
+  }, [client, period, snapshot, revokeAvatar])
 
   useEffect(() => {
     void load()
     return () => revokeAvatar()
   }, [load, revokeAvatar])
+
+  useEffect(() => {
+    setState((prev) => {
+      if (prev.status === "ready" && readyRawRef.current) {
+        return {
+          status: "ready",
+          raw: readyRawRef.current,
+          insights: buildWrappedInsights(readyRawRef.current),
+        }
+      }
+      if (prev.status === "error" && period) {
+        if (prev.kind === "invalid_range") {
+          return { ...prev, message: invalidRangeMessage(period) }
+        }
+        if (prev.kind === "empty_range") {
+          const hasList = Boolean(snapshot?.submissions && snapshot.submissions.length > 0)
+          return {
+            ...prev,
+            message: emptyRangeMessage(period, snapshot ? "snapshot" : "live", hasList),
+          }
+        }
+        if (prev.kind === "network") {
+          return { ...prev, message: translateApiError({ kind: "network", message: "" }) }
+        }
+      }
+      return prev
+    })
+  }, [i18n.language, period, snapshot])
 
   return { state, reload: load }
 }

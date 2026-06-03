@@ -2,6 +2,8 @@
 
 A Spotify Wrapped–style recap for [Jutge.org](https://jutge.org) students. Fully client-side: log in with your Jutge credentials, and your stats are fetched directly from `api.jutge.org` in the browser.
 
+This is an unofficial fan project and is not affiliated with Jutge.org or the UPC.
+
 ## Stack
 
 - Vite + React + TypeScript
@@ -13,7 +15,8 @@ A Spotify Wrapped–style recap for [Jutge.org](https://jutge.org) students. Ful
 
 - Credentials are sent only to the official Jutge API at login.
 - The access token is kept **in memory** only (React state). Refreshing the page clears the session.
-- Nothing is written to `localStorage` or `sessionStorage`.
+- Nothing credential-related is written to `localStorage` or `sessionStorage`.
+- UI language preference is stored in `localStorage` under `jutge-wrapped-lang` (English, Spanish, or Catalan).
 
 ## Local development
 
@@ -45,6 +48,16 @@ npm run export:snapshot
 ```
 
 Output goes to `artifacts/` (gitignored).
+
+### Load a snapshot in the app (dev)
+
+In development (`npm run dev`), use **Load JSON snapshot** on the login screen (or date picker) and choose a file from `artifacts/`. The deck opens with **no further API calls**. A **Snapshot** badge appears in the header; use **Clear snapshot** to return to normal login.
+
+Optional auto-load: put a copy of your snapshot in `public/snapshot.json` and set:
+
+```env
+VITE_SNAPSHOT_PATH=/snapshot.json
+```
 
 ## Build
 
