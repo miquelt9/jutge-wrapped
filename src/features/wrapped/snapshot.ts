@@ -91,3 +91,62 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
     submissions: snap.submissions,
   }
 }
+
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = ""
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!)
+  return btoa(binary)
+}
+
+async function avatarUrlToExport(
+  avatarUrl: string | null,
+): Promise<ExportedJutgeSnapshot["avatar"]> {
+  if (!avatarUrl) return null
+  const res = await fetch(avatarUrl)
+  const blob = await res.blob()
+  const bytes = new Uint8Array(await blob.arrayBuffer())
+  return {
+    mimeType: blob.type || "image/png",
+    base64: uint8ArrayToBase64(bytes),
+  }
+}
+
+/** Serialize in-app data to the export file shape. */
+export function serializeSnapshot(
+  raw: WrappedRawData,
+  avatar: ExportedJutgeSnapshot["avatar"] = null,
+): ExportedJutgeSnapshot {
+  return {
+    exportedAt: new Date().toISOString(),
+    profile: raw.profile,
+    avatar,
+    dashboard: raw.dashboard,
+    level: raw.level,
+    absoluteRanking: raw.absoluteRanking,
+    homepageStats: raw.homepageStats,
+    hexColors: raw.hexColors,
+    tables: raw.tables,
+    period: raw.period,
+    submissions: raw.submissions,
+  }
+}
+
+export function snapshotDownloadFilename(raw: WrappedRawData): string {
+  const user = raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
+  const safeUser = user.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40)
+  const periodPart =
+    raw.period.start && raw.period.end ? `${raw.period.start}_${raw.period.end}` : "all-time"
+  return `jutge-wrapped-${safeUser || "user"}-${periodPart}.json`
+}
+
+export async function downloadSnapshotJson(raw: WrappedRawData): Promise<void> {
+  const avatar = await avatarUrlToExport(raw.avatarUrl)
+  const payload = serializeSnapshot(raw, avatar)
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement("a")
+  anchor.href = url
+  anchor.download = snapshotDownloadFilename(raw)
+  anchor.click()
+  URL.revokeObjectURL(url)
+}

@@ -7,12 +7,13 @@ type Props = { insights: WrappedInsights }
 
 export function CourseArcSlide({ insights }: Props) {
   const { t } = useTranslation()
+  const { courseArc } = insights
 
   return (
     <StoryLayout
       eyebrow={t("slides.courseArc.eyebrow")}
-      title={insights.courseArc.title}
-      subtitle={insights.courseArc.subtitle}
+      title={courseArc.title}
+      subtitle={courseArc.subtitle}
     >
       <div className="jutge-panel">
         <div className="jutge-panel-body flex flex-col items-center justify-center py-8">

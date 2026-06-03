@@ -25,8 +25,9 @@
     "continue": "Continue",
     "sessionMemory": "In-memory session",
     "noCredentialPersistence": "No credential persistence",
-    "localTesting": "Local testing",
-    "localTestingHint": "Load a JSON file from <0>npm run export:snapshot</0> — no API calls after that."
+    "or": "or",
+    "loadSnapshotHint": "Open a JSON file you saved earlier — works offline, no login required.",
+    "viewOnGitHub": "View source on GitHub"
   },
   "dateRange": {
     "headerSuffix": "Wrapped — choose dates",
@@ -38,6 +39,7 @@
     "to": "To",
     "invalidRange": "Start date must be on or before end date.",
     "buildWrapped": "Build my Wrapped",
+    "loadSnapshotHint": "Use a JSON file you exported from Wrapped — no API calls needed.",
     "presetNoOverlap": "Your Jutge activity ({{min}} – {{max}}) does not overlap {{label}}.",
     "presetNoSubmissions": "No submissions in {{label}} within your activity dates ({{start}} – {{end}})."
   },
@@ -56,7 +58,6 @@
     "changeDates": "Change dates",
     "backToLogin": "Back to login",
     "dates": "Dates",
-    "clearSnapshot": "Clear snapshot",
     "exit": "Exit"
   },
   "slides": {
@@ -150,6 +151,32 @@
   "rank": {
     "eliteLabel": "Top {{percent}}% of Jutge users"
   },
+  "personalization": {
+    "intro": {
+      "subtitle": "{{period}} · {{rate}}% of attempted problems reached acceptance.",
+      "activity": "Active on Jutge from {{span}}."
+    },
+    "heatmap": {
+      "titleStreak": "{{count}} in a row",
+      "titlePeakMonth": "Peak month: {{month}}"
+    },
+    "chrono": {
+      "eyebrow": "{{period}} · {{archetype}}"
+    },
+    "ranking": {
+      "subtitle": "{{period}} · {{elite}}",
+      "usersAhead": "You rank above {{count}} of {{total}} Jutge users"
+    },
+    "hero": {
+      "label": "Your standout problem",
+      "grindHeadline": "Your grind problem: {{problem}}",
+      "grindDetail": "{{attempts}} tries before your first AC — {{submissions}} total.",
+      "mostAttemptedHeadline": "You kept coming back to {{problem}}",
+      "mostAttemptedDetail": "{{submissions}} in this period.",
+      "firstAcHeadline": "First AC in this period: {{problem}}",
+      "firstAcDetail": "{{submissions}} on that problem overall."
+    }
+  },
   "weekdays": {
     "monday": "Monday",
     "tuesday": "Tuesday",
@@ -175,7 +202,9 @@
   },
   "snapshot": {
     "loading": "Loading snapshot…",
-    "loadButton": "Load JSON snapshot",
+    "loadButton": "Load snapshot",
+    "downloadButton": "Download JSON",
+    "downloading": "Preparing download…",
     "invalidJson": "Invalid JSON file.",
     "readError": "Could not read snapshot file."
   },

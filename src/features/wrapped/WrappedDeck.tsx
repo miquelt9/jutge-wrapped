@@ -3,6 +3,7 @@ import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "framer-motion"
 import { Calendar, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
 import { useAuth } from "@/context/AuthContext"
 import { useSnapshot } from "@/context/SnapshotContext"
 import { useWrappedPeriod } from "@/context/WrappedContext"
@@ -70,20 +71,29 @@ export function WrappedDeck() {
         </header>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
           <p className="jutge-alert-danger inline-block">{state.message}</p>
-          <div className="flex gap-3">
-            <button type="button" onClick={clearPeriod} className="jutge-btn-default">
-              {t("deck.changeDates")}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                clearPeriod()
-                logout()
-              }}
-              className="jutge-btn-primary"
-            >
-              {t("deck.backToLogin")}
-            </button>
+          <div className="flex flex-wrap justify-center gap-3">
+            {!isSnapshotMode && (
+              <>
+                <button type="button" onClick={clearPeriod} className="jutge-btn-default">
+                  {t("deck.changeDates")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearPeriod()
+                    logout()
+                  }}
+                  className="jutge-btn-primary"
+                >
+                  {t("deck.backToLogin")}
+                </button>
+              </>
+            )}
+            {isSnapshotMode && (
+              <button type="button" onClick={clearSnapshot} className="jutge-btn-primary">
+                {t("deck.exit")}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -110,6 +120,8 @@ export function WrappedDeck() {
   if (state.status !== "ready") return null
 
   const { raw, insights } = state
+  const exportRaw =
+    isSnapshotMode && snapshot ? { ...snapshot, period: raw.period } : raw
 
   const slides = [
     <IntroSlide key="intro" raw={raw} insights={insights} />,
@@ -149,6 +161,7 @@ export function WrappedDeck() {
         </div>
         <div className="flex items-center gap-2">
           <NavControls onDark />
+          <SnapshotDownloadButton raw={exportRaw} variant="onDark" />
           <button
             type="button"
             onClick={(e) => {
@@ -165,11 +178,10 @@ export function WrappedDeck() {
               onClick={(e) => {
                 e.stopPropagation()
                 clearSnapshot()
-                clearPeriod()
               }}
               className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
             >
-              <LogOut className="h-4 w-4" /> {t("deck.clearSnapshot")}
+              <LogOut className="h-4 w-4" /> {t("deck.exit")}
             </button>
           ) : (
             <button

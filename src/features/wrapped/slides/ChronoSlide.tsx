@@ -7,11 +7,11 @@ type Props = { insights: WrappedInsights }
 
 export function ChronoSlide({ insights }: Props) {
   const { t } = useTranslation()
-  const { chrono } = insights
+  const { chrono, personalized } = insights
 
   return (
     <StoryLayout
-      eyebrow={t("slides.chrono.eyebrow")}
+      eyebrow={personalized.chronoEyebrow}
       title={chrono.archetype}
       subtitle={chrono.narrative}
     >

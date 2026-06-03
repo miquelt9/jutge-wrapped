@@ -1,6 +1,20 @@
-import type { AllTables, ColorMapping, Dashboard, HeatmapCalendar, HomepageStats } from "@/api/client"
+import type {
+  AllTables,
+  ColorMapping,
+  Dashboard,
+  HeatmapCalendar,
+  HomepageStats,
+  Submission,
+} from "@/api/client"
 import i18n from "@/i18n/config"
-import { formatPeriodLabel, isAllTimePeriod, utcDayTsFromIso } from "./period"
+import { formatDays, formatSubmissions } from "@/i18n/plurals"
+import {
+  formatPeriodLabel,
+  isAllTimePeriod,
+  parseSubmissionTime,
+  submissionInPeriod,
+  utcDayTsFromIso,
+} from "./period"
 import type { WrappedPeriod } from "./period"
 import { compilerColor } from "@/theme/jutgeColors"
 import type {
@@ -9,7 +23,10 @@ import type {
   DistributionItem,
   HeatmapInsights,
   HeatmapYearBlock,
+  HeroMomentInsight,
+  HeroMomentKind,
   JourneyInsights,
+  PersonalizedInsights,
   RankInsights,
   VerdictInsights,
   WeekdayInsights,
@@ -520,6 +537,236 @@ export function buildVerdictInsights(
   }
 }
 
+function submissionTimeMs(sub: Submission): number {
+  return parseSubmissionTime(sub.time_in).getTime()
+}
+
+function buildHeroMoment(
+  submissions: Submission[] | undefined,
+  period: WrappedPeriod,
+): HeroMomentInsight | null {
+  if (!submissions?.length) return null
+
+  const filtered = isAllTimePeriod(period)
+    ? submissions
+    : submissions.filter((s) => submissionInPeriod(s, period))
+  if (filtered.length === 0) return null
+
+  const byProblem = new Map<string, Submission[]>()
+  for (const sub of filtered) {
+    const list = byProblem.get(sub.problem_id) ?? []
+    list.push(sub)
+    byProblem.set(sub.problem_id, list)
+  }
+
+  let mostAttempted: { problemId: string; total: number } | null = null
+  let bestGrind: {
+    problemId: string
+    total: number
+    attemptsBeforeAc: number
+  } | null = null
+  let firstAc: { problemId: string; timeMs: number } | null = null
+
+  for (const [problemId, subs] of byProblem) {
+    const sorted = [...subs].sort((a, b) => submissionTimeMs(a) - submissionTimeMs(b))
+    const total = sorted.length
+    if (!mostAttempted || total > mostAttempted.total) {
+      mostAttempted = { problemId, total }
+    }
+
+    const firstAcIdx = sorted.findIndex((s) => s.veredict === "AC")
+    if (firstAcIdx >= 0) {
+      const attemptsBeforeAc = firstAcIdx
+      if (
+        attemptsBeforeAc >= 2 &&
+        (!bestGrind || attemptsBeforeAc > bestGrind.attemptsBeforeAc)
+      ) {
+        bestGrind = { problemId, total, attemptsBeforeAc }
+      }
+      const acTime = submissionTimeMs(sorted[firstAcIdx]!)
+      if (!firstAc || acTime < firstAc.timeMs) {
+        firstAc = { problemId, timeMs: acTime }
+      }
+    }
+  }
+
+  let pick: {
+    kind: HeroMomentKind
+    problemId: string
+    submissionCount: number
+    attemptsBeforeAc: number | null
+  } | null = null
+
+  if (bestGrind) {
+    pick = {
+      kind: "grind",
+      problemId: bestGrind.problemId,
+      submissionCount: bestGrind.total,
+      attemptsBeforeAc: bestGrind.attemptsBeforeAc,
+    }
+  } else if (mostAttempted && mostAttempted.total >= 2) {
+    pick = {
+      kind: "most_attempted",
+      problemId: mostAttempted.problemId,
+      submissionCount: mostAttempted.total,
+      attemptsBeforeAc: null,
+    }
+  } else if (firstAc) {
+    pick = {
+      kind: "first_ac",
+      problemId: firstAc.problemId,
+      submissionCount: byProblem.get(firstAc.problemId)?.length ?? 1,
+      attemptsBeforeAc: null,
+    }
+  }
+
+  if (!pick) return null
+
+  const problemLabel = pick.problemId
+  const subsWord = formatSubmissions(i18n.t, pick.submissionCount)
+
+  if (pick.kind === "grind" && pick.attemptsBeforeAc !== null) {
+    return {
+      kind: pick.kind,
+      problemId: pick.problemId,
+      problemLabel,
+      submissionCount: pick.submissionCount,
+      attemptsBeforeAc: pick.attemptsBeforeAc,
+      headline: i18n.t("personalization.hero.grindHeadline", {
+        problem: problemLabel,
+      }),
+      detail: i18n.t("personalization.hero.grindDetail", {
+        attempts: pick.attemptsBeforeAc,
+        total: pick.submissionCount,
+        submissions: subsWord,
+      }),
+    }
+  }
+
+  if (pick.kind === "most_attempted") {
+    return {
+      kind: pick.kind,
+      problemId: pick.problemId,
+      problemLabel,
+      submissionCount: pick.submissionCount,
+      attemptsBeforeAc: null,
+      headline: i18n.t("personalization.hero.mostAttemptedHeadline", {
+        problem: problemLabel,
+      }),
+      detail: i18n.t("personalization.hero.mostAttemptedDetail", {
+        submissions: subsWord,
+      }),
+    }
+  }
+
+  return {
+    kind: "first_ac",
+    problemId: pick.problemId,
+    problemLabel,
+    submissionCount: pick.submissionCount,
+    attemptsBeforeAc: null,
+    headline: i18n.t("personalization.hero.firstAcHeadline", {
+      problem: problemLabel,
+    }),
+    detail: i18n.t("personalization.hero.firstAcDetail", {
+      submissions: subsWord,
+    }),
+  }
+}
+
+function buildPersonalizedInsights(
+  raw: WrappedRawData,
+  journey: JourneyInsights,
+  heatmap: HeatmapInsights,
+  weekday: WeekdayInsights,
+  chrono: ChronoInsights,
+  rank: RankInsights,
+): PersonalizedInsights {
+  const periodLabel = formatPeriodLabel(raw.period)
+  const peak = weekday.peak
+  const quietest = weekday.quietest
+
+  const introSubtitle = i18n.t("personalization.intro.subtitle", {
+    period: periodLabel,
+    rate: journey.problemSuccessRate,
+  })
+
+  const introActivity =
+    journey.firstActive && journey.lastActive
+      ? i18n.t("personalization.intro.activity", {
+          span: journey.spanLabel,
+        })
+      : null
+
+  let heatmapTitle = i18n.t("slides.heatmap.title")
+  if (heatmap.longestStreak >= 7) {
+    heatmapTitle = i18n.t("personalization.heatmap.titleStreak", {
+      count: formatDays(i18n.t, heatmap.longestStreak),
+    })
+  } else if (heatmap.peakMonth) {
+    heatmapTitle = i18n.t("personalization.heatmap.titlePeakMonth", {
+      month: heatmap.peakMonth.monthLabel,
+    })
+  }
+
+  const heatmapSubtitle = heatmap.peakDay
+    ? i18n.t("slides.heatmap.peakDay", {
+        period: periodLabel,
+        count: formatSubmissions(i18n.t, heatmap.peakDay.count),
+        date: heatmap.peakDay.date,
+      })
+    : i18n.t("slides.heatmap.summary", {
+        period: periodLabel,
+        submissions: formatSubmissions(i18n.t, heatmap.totalSubmissions),
+        days: formatDays(i18n.t, heatmap.totalActiveDays),
+      })
+
+  const weekdayTitle = peak
+    ? i18n.t("slides.weekday.judgmentDay", { day: peak.label })
+    : i18n.t("slides.weekday.weeklyRhythm")
+
+  const weekdaySubtitle =
+    peak && quietest
+      ? i18n.t("slides.weekday.subtitle", {
+          peak: peak.label.toLowerCase(),
+          quietest: quietest.label.toLowerCase(),
+        })
+      : undefined
+
+  const chronoEyebrow = i18n.t("personalization.chrono.eyebrow", {
+    period: periodLabel,
+    archetype: chrono.archetype,
+  })
+
+  const rankingSubtitle = i18n.t("personalization.ranking.subtitle", {
+    period: periodLabel,
+    elite: rank.eliteLabel,
+  })
+
+  const usersAheadText =
+    rank.usersAhead > 0
+      ? i18n.t("personalization.ranking.usersAhead", {
+          count: rank.usersAhead.toLocaleString(i18n.language),
+          total: rank.platformUserCount.toLocaleString(i18n.language),
+        })
+      : null
+
+  const heroMoment = buildHeroMoment(raw.submissions, raw.period)
+
+  return {
+    introSubtitle,
+    introActivity,
+    heatmapTitle,
+    heatmapSubtitle,
+    weekdayTitle,
+    weekdaySubtitle,
+    chronoEyebrow,
+    rankingSubtitle,
+    usersAheadText,
+    heroMoment,
+  }
+}
+
 export function buildRankInsights(rank: number, homepage: HomepageStats): RankInsights {
   const platformUserCount = homepage.users || 1
   const usersAhead = Math.max(0, rank - 1)
@@ -551,18 +798,34 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     "compilers",
   )
 
+  const journey = buildJourneyInsights(dashboard)
+  const heatmap = buildHeatmapInsights(dashboard, raw.period)
+  const weekday = buildWeekdayInsights(dashboard)
+  const chrono = buildChronoInsights(dashboard)
+  const courseArc = buildCourseArcInsights(dashboard, tables, hexColors)
+  const verdicts = buildVerdictInsights(dashboard, tables, hexColors)
+  const rank = buildRankInsights(absoluteRanking, homepageStats)
+
   return {
     displayName,
     level,
     periodLabel: formatPeriodLabel(raw.period),
-    journey: buildJourneyInsights(dashboard),
-    heatmap: buildHeatmapInsights(dashboard, raw.period),
-    weekday: buildWeekdayInsights(dashboard),
-    chrono: buildChronoInsights(dashboard),
-    courseArc: buildCourseArcInsights(dashboard, tables, hexColors),
+    journey,
+    heatmap,
+    weekday,
+    chrono,
+    courseArc,
     proglangs,
     compilers,
-    verdicts: buildVerdictInsights(dashboard, tables, hexColors),
-    rank: buildRankInsights(absoluteRanking, homepageStats),
+    verdicts,
+    rank,
+    personalized: buildPersonalizedInsights(
+      raw,
+      journey,
+      heatmap,
+      weekday,
+      chrono,
+      rank,
+    ),
   }
 }

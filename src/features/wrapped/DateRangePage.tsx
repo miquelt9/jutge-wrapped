@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
-import { Calendar, Loader2 } from "lucide-react"
+import { Calendar, Loader2, LogOut } from "lucide-react"
 import type { HeatmapCalendar } from "@/api/client"
 import { SnapshotLoadButton } from "@/components/SnapshotLoadButton"
 import { NavControls } from "@/components/NavControls"
@@ -65,7 +65,7 @@ function buildPresetOption(
 export function DateRangePage() {
   const { t } = useTranslation()
   const { client } = useAuth()
-  const { snapshot, isSnapshotMode } = useSnapshot()
+  const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { setPeriod } = useWrappedPeriod()
   const [heatmap, setHeatmap] = useState<HeatmapCalendar | null>(null)
   const [bounds, setBounds] = useState<{ min: string; max: string } | null>(null)
@@ -224,7 +224,18 @@ export function DateRangePage() {
           <span className="font-bold text-white">{t("common.brand")}</span>
           <span className="ml-2 text-sm text-white/70">{t("dateRange.headerSuffix")}</span>
         </div>
-        <NavControls onDark />
+        <div className="flex items-center gap-2">
+          {isSnapshotMode && (
+            <button
+              type="button"
+              onClick={clearSnapshot}
+              className="jutge-btn-default flex items-center gap-1 border-white/30 bg-transparent text-white hover:bg-white/10"
+            >
+              <LogOut className="h-4 w-4" /> {t("deck.exit")}
+            </button>
+          )}
+          <NavControls onDark />
+        </div>
       </header>
 
       <div className="flex flex-1 items-center justify-center p-6">
@@ -301,12 +312,10 @@ export function DateRangePage() {
                   </button>
                 </form>
 
-                {import.meta.env.DEV && (
-                  <div className="mt-8 border-t border-jutge-border pt-6">
-                    <p className="jutge-eyebrow">{t("login.localTesting")}</p>
-                    <SnapshotLoadButton className="mt-3" />
-                  </div>
-                )}
+                <div className="mt-8 border-t border-jutge-border pt-6">
+                  <p className="text-xs text-jutge-muted">{t("dateRange.loadSnapshotHint")}</p>
+                  <SnapshotLoadButton className="mt-3" />
+                </div>
               </>
             )}
           </div>

@@ -26,10 +26,11 @@ type SnapshotContextValue = {
 const SnapshotContext = createContext<SnapshotContextValue | null>(null)
 
 export function SnapshotProvider({ children }: { children: ReactNode }) {
-  const { setPeriod } = useWrappedPeriod()
+  const { setPeriod, clearPeriod } = useWrappedPeriod()
   const [snapshot, setSnapshot] = useState<WrappedRawData | null>(null)
   const [snapshotError, setSnapshotError] = useState<string | null>(null)
   const avatarUrlRef = useRef<string | null>(null)
+  const devAutoloadDisabled = useRef(false)
 
   const revokeAvatar = useCallback(() => {
     if (avatarUrlRef.current) {
@@ -78,16 +79,18 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
   )
 
   const clearSnapshot = useCallback(() => {
+    devAutoloadDisabled.current = true
     revokeAvatar()
     setSnapshot(null)
     setSnapshotError(null)
-  }, [revokeAvatar])
+    clearPeriod()
+  }, [revokeAvatar, clearPeriod])
 
   const clearError = useCallback(() => setSnapshotError(null), [])
 
   useEffect(() => {
     const path = import.meta.env.VITE_SNAPSHOT_PATH
-    if (!import.meta.env.DEV || !path || snapshot) return
+    if (!import.meta.env.DEV || !path || snapshot || devAutoloadDisabled.current) return
 
     let cancelled = false
     ;(async () => {

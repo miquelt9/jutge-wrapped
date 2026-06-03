@@ -10,13 +10,13 @@ type Props = {
 
 export function RankingSlide({ insights, homepageStats }: Props) {
   const { t, i18n } = useTranslation()
-  const { rank, journey, weekday, courseArc, verdicts } = insights
+  const { rank, journey, weekday, courseArc, verdicts, personalized } = insights
 
   return (
     <StoryLayout
       eyebrow={t("slides.ranking.eyebrow")}
       title={`#${rank.rank}`}
-      subtitle={`${insights.periodLabel} · ${rank.eliteLabel}`}
+      subtitle={personalized.rankingSubtitle}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
         <div className="jutge-metric-blue p-8">
@@ -25,6 +25,9 @@ export function RankingSlide({ insights, homepageStats }: Props) {
           <p className="mt-2 text-lg">
             {insights.level} · {insights.displayName}
           </p>
+          {personalized.usersAheadText && (
+            <p className="mt-3 text-sm opacity-90">{personalized.usersAheadText}</p>
+          )}
           <div className="mt-6 h-3 border border-white/40 bg-white/20">
             <div
               className="h-full bg-white"

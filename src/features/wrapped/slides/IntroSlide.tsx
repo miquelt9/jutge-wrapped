@@ -11,13 +11,14 @@ type Props = {
 
 export function IntroSlide({ raw, insights }: Props) {
   const { t } = useTranslation()
-  const { journey, level } = insights
+  const { journey, level, personalized } = insights
+  const hero = personalized.heroMoment
 
   return (
     <StoryLayout
       eyebrow={t("slides.intro.eyebrow")}
       title={insights.displayName}
-      subtitle={t("slides.intro.subtitle", { period: insights.periodLabel })}
+      subtitle={personalized.introSubtitle}
     >
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center">
@@ -80,9 +81,20 @@ export function IntroSlide({ raw, insights }: Props) {
             />
           </div>
         </div>
-        <p className="text-sm text-jutge-muted">
-          {t("slides.intro.problemSuccessRate", { rate: journey.problemSuccessRate })}
-        </p>
+        {personalized.introActivity && (
+          <p className="text-sm text-jutge-muted">{personalized.introActivity}</p>
+        )}
+        {hero && (
+          <div className="jutge-panel border-l-4 border-l-jutge-blue">
+            <div className="jutge-panel-body">
+              <p className="text-xs font-bold uppercase text-jutge-muted">
+                {t("personalization.hero.label")}
+              </p>
+              <p className="jutge-score mt-1 text-lg text-jutge-text">{hero.headline}</p>
+              <p className="mt-1 text-sm text-jutge-muted">{hero.detail}</p>
+            </div>
+          </div>
+        )}
       </div>
     </StoryLayout>
   )

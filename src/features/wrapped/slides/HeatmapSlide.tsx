@@ -9,27 +9,15 @@ type Props = { insights: WrappedInsights }
 
 export function HeatmapSlide({ insights }: Props) {
   const { t } = useTranslation()
-  const { heatmap } = insights
+  const { heatmap, personalized } = insights
   const peak = heatmap.peakDay
-
-  const subtitle = peak
-    ? t("slides.heatmap.peakDay", {
-        period: insights.periodLabel,
-        count: formatSubmissions(t, peak.count),
-        date: peak.date,
-      })
-    : t("slides.heatmap.summary", {
-        period: insights.periodLabel,
-        submissions: formatSubmissions(t, heatmap.totalSubmissions),
-        days: formatDays(t, heatmap.totalActiveDays),
-      })
 
   return (
     <StoryLayout
       align="start"
       eyebrow={t("slides.heatmap.eyebrow")}
-      title={t("slides.heatmap.title")}
-      subtitle={subtitle}
+      title={personalized.heatmapTitle}
+      subtitle={personalized.heatmapSubtitle}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3">

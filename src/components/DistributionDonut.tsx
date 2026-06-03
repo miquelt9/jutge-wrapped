@@ -8,7 +8,13 @@ export const DISTRIBUTION_DONUT_SIZE = 400
 function centerTitleFontSize(size: number, label: string): number {
   if (label.length > 8) return size * 0.09
   if (label.length > 5) return size * 0.1
+  if (label.length > 4 || /[+]{2,}/.test(label)) return size * 0.095
   return size * 0.11
+}
+
+function formatCenterPercent(percent: number): string {
+  const rounded = Math.round(percent * 10) / 10
+  return Number.isInteger(rounded) ? `${rounded}%` : `${rounded.toFixed(1)}%`
 }
 
 type Arc = {
@@ -193,7 +199,7 @@ export function DistributionDonut({
       </svg>
 
       <div
-        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center"
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
         aria-live="polite"
       >
         <AnimatePresence mode="wait">
@@ -206,7 +212,7 @@ export function DistributionDonut({
               transition={{ duration: 0.2 }}
             >
               <p
-                className="jutge-score max-w-[58%] font-bold leading-tight"
+                className="jutge-score whitespace-nowrap font-bold leading-tight"
                 style={{
                   fontSize: centerTitleFontSize(size, formatCenterLabel(selected)),
                   color: getColor(selected),
@@ -215,10 +221,10 @@ export function DistributionDonut({
                 {formatCenterLabel(selected)}
               </p>
               <p
-                className="jutge-score mt-1 font-bold text-jutge-text"
+                className="jutge-score mt-1 whitespace-nowrap font-bold text-jutge-text"
                 style={{ fontSize: size * 0.082 }}
               >
-                {selected.percent}%
+                {formatCenterPercent(selected.percent)}
               </p>
               <p className="mt-1.5 text-[11px] text-jutge-muted">
                 {selected.count} of {total}

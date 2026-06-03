@@ -110,6 +110,31 @@ export type RankInsights = {
   eliteLabel: string
 }
 
+export type HeroMomentKind = "most_attempted" | "grind" | "first_ac"
+
+export type HeroMomentInsight = {
+  kind: HeroMomentKind
+  problemId: string
+  problemLabel: string
+  submissionCount: number
+  attemptsBeforeAc: number | null
+  headline: string
+  detail: string
+}
+
+export type PersonalizedInsights = {
+  introSubtitle: string
+  introActivity: string | null
+  heatmapTitle: string
+  heatmapSubtitle: string
+  weekdayTitle: string
+  weekdaySubtitle: string | undefined
+  chronoEyebrow: string
+  rankingSubtitle: string
+  usersAheadText: string | null
+  heroMoment: HeroMomentInsight | null
+}
+
 export type WrappedInsights = {
   displayName: string
   level: string
@@ -123,4 +148,5 @@ export type WrappedInsights = {
   compilers: DistributionItem[]
   verdicts: VerdictInsights
   rank: RankInsights
+  personalized: PersonalizedInsights
 }

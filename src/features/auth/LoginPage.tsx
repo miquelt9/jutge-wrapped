@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react"
-import { Trans, useTranslation } from "react-i18next"
-import { Info, Lock, LogIn, Shield } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { Github, Info, Lock, LogIn, Shield } from "lucide-react"
+
+const GITHUB_REPO_URL = "https://github.com/miquelt9/jutge-wrapped"
 import { useAuth } from "@/context/AuthContext"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { NavControls } from "@/components/NavControls"
@@ -100,26 +102,39 @@ export function LoginPage() {
               </span>
             </div>
 
-            <div className="mt-4 flex items-start gap-2 text-left text-xs text-jutge-muted">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+            <div className="mt-4 flex items-center gap-1 text-left text-xs text-jutge-muted">
+              <Info className="h-3.5 w-3.5 shrink-0" aria-hidden />
               <p>{t("common.disclaimer")}</p>
             </div>
 
-            {import.meta.env.DEV && (
-              <div className="mt-8 border-t border-jutge-border pt-6">
-                <p className="jutge-eyebrow">{t("login.localTesting")}</p>
-                <p className="mt-1 text-xs text-jutge-muted">
-                  <Trans
-                    i18nKey="login.localTestingHint"
-                    components={[<code key="0" className="font-mono" />]}
-                  />
-                </p>
-                <SnapshotLoadButton className="mt-3" />
+            <div className="relative mt-8">
+              <div className="absolute inset-0 flex items-center" aria-hidden>
+                <div className="w-full border-t border-jutge-border" />
               </div>
-            )}
+              <div className="relative flex justify-center text-xs uppercase tracking-wide">
+                <span className="bg-jutge-panel px-2 text-jutge-muted">{t("login.or")}</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs text-jutge-muted">{t("login.loadSnapshotHint")}</p>
+              <SnapshotLoadButton className="mt-3" />
+            </div>
           </div>
         </div>
       </div>
+
+      <footer className="shrink-0 px-4 py-4 text-center">
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-jutge-muted transition-colors hover:text-jutge-text"
+        >
+          <Github className="h-3.5 w-3.5" aria-hidden />
+          {t("login.viewOnGitHub")}
+        </a>
+      </footer>
     </div>
   )
 }

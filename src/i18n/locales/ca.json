@@ -25,8 +25,9 @@
     "continue": "Continua",
     "sessionMemory": "Sessió en memòria",
     "noCredentialPersistence": "Sense desar credencials",
-    "localTesting": "Proves locals",
-    "localTestingHint": "Carrega un JSON de <0>npm run export:snapshot</0> — sense crides a l'API després."
+    "or": "o",
+    "loadSnapshotHint": "Obre un JSON que has desat abans — funciona sense connexió i sense iniciar sessió.",
+    "viewOnGitHub": "Codi font a GitHub"
   },
   "dateRange": {
     "headerSuffix": "Wrapped — tria dates",
@@ -38,6 +39,7 @@
     "to": "Fins a",
     "invalidRange": "La data d'inici ha de ser anterior o igual a la de fi.",
     "buildWrapped": "Crea el meu Wrapped",
+    "loadSnapshotHint": "Fes servir un JSON exportat des de Wrapped — sense crides a l'API.",
     "presetNoOverlap": "La teva activitat a Jutge ({{min}} – {{max}}) no coincideix amb {{label}}.",
     "presetNoSubmissions": "Sense enviaments a {{label}} dins les teves dates d'activitat ({{start}} – {{end}})."
   },
@@ -56,7 +58,6 @@
     "changeDates": "Canvia dates",
     "backToLogin": "Torna a l'inici",
     "dates": "Dates",
-    "clearSnapshot": "Treu instantània",
     "exit": "Surt"
   },
   "slides": {
@@ -150,6 +151,32 @@
   "rank": {
     "eliteLabel": "Top {{percent}}% d'usuaris de Jutge"
   },
+  "personalization": {
+    "intro": {
+      "subtitle": "{{period}} · {{rate}}% dels problemes intentats van arribar a acceptació.",
+      "activity": "Actiu a Jutge des de {{span}}."
+    },
+    "heatmap": {
+      "titleStreak": "{{count}} seguits",
+      "titlePeakMonth": "Mes pic: {{month}}"
+    },
+    "chrono": {
+      "eyebrow": "{{period}} · {{archetype}}"
+    },
+    "ranking": {
+      "subtitle": "{{period}} · {{elite}}",
+      "usersAhead": "Estàs per sobre de {{count}} de {{total}} usuaris de Jutge"
+    },
+    "hero": {
+      "label": "El teu problema destacat",
+      "grindHeadline": "El teu problema de insistència: {{problem}}",
+      "grindDetail": "{{attempts}} intents abans del primer AC — {{submissions}} en total.",
+      "mostAttemptedHeadline": "Tornaves una i altra vegada a {{problem}}",
+      "mostAttemptedDetail": "{{submissions}} en aquest període.",
+      "firstAcHeadline": "Primer AC en aquest període: {{problem}}",
+      "firstAcDetail": "{{submissions}} en aquest problema en total."
+    }
+  },
   "weekdays": {
     "monday": "Dilluns",
     "tuesday": "Dimarts",
@@ -175,7 +202,9 @@
   },
   "snapshot": {
     "loading": "Carregant instantània…",
-    "loadButton": "Carrega instantània JSON",
+    "loadButton": "Carrega instantània",
+    "downloadButton": "Descarrega JSON",
+    "downloading": "Preparant descàrrega…",
     "invalidJson": "Fitxer JSON no vàlid.",
     "readError": "No s'ha pogut llegir el fitxer d'instantània."
   },

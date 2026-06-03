@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { downloadToBlobUrl, fetchStudentAvatar, mapApiError } from "@/api/client"
-import type { JutgeApiClient } from "@/api/client"
+import type { JutgeApiClient, Submission } from "@/api/client"
 import { buildWrappedInsights } from "./selectors"
 import type { WrappedRawData } from "./types"
 import {
@@ -87,7 +87,12 @@ export function useWrappedData(
         readyRawRef.current = null
         return
       }
-      const raw: WrappedRawData = { ...snapshot, period, dashboard }
+      const raw: WrappedRawData = {
+        ...snapshot,
+        period,
+        dashboard,
+        submissions: snapshot.submissions,
+      }
       readyRawRef.current = raw
       setState({
         status: "ready",
@@ -120,6 +125,7 @@ export function useWrappedData(
         ])
 
       let dashboard
+      let periodSubmissions: Submission[] | undefined
       if (isAllTimePeriod(period)) {
         dashboard = await client.student.dashboard.getDashboard()
       } else {
@@ -137,6 +143,7 @@ export function useWrappedData(
           return
         }
         dashboard = aggregateDashboardFromSubmissions(filtered, tables)
+        periodSubmissions = filtered
       }
 
       const avatarUrl = avatarDownload ? downloadToBlobUrl(avatarDownload) : null
@@ -152,6 +159,7 @@ export function useWrappedData(
         hexColors,
         tables,
         period,
+        submissions: periodSubmissions,
       }
       readyRawRef.current = raw
 

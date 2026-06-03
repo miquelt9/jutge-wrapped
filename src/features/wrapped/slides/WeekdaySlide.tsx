@@ -7,24 +7,14 @@ type Props = { insights: WrappedInsights }
 
 export function WeekdaySlide({ insights }: Props) {
   const { t } = useTranslation()
-  const { weekday } = insights
+  const { weekday, personalized } = insights
   const peak = weekday.peak
-
-  const subtitle =
-    weekday.quietest && peak
-      ? t("slides.weekday.subtitle", {
-          peak: peak.label.toLowerCase(),
-          quietest: weekday.quietest.label.toLowerCase(),
-        })
-      : undefined
 
   return (
     <StoryLayout
       eyebrow={t("slides.weekday.eyebrow")}
-      title={
-        peak ? t("slides.weekday.judgmentDay", { day: peak.label }) : t("slides.weekday.weeklyRhythm")
-      }
-      subtitle={subtitle}
+      title={personalized.weekdayTitle}
+      subtitle={personalized.weekdaySubtitle}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_220px]">
         <div className="jutge-panel">

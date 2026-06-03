@@ -25,8 +25,9 @@
     "continue": "Continuar",
     "sessionMemory": "Sesión en memoria",
     "noCredentialPersistence": "Sin guardar credenciales",
-    "localTesting": "Pruebas locales",
-    "localTestingHint": "Carga un JSON de <0>npm run export:snapshot</0> — sin llamadas a la API después."
+    "or": "o",
+    "loadSnapshotHint": "Abre un JSON que guardaste antes — funciona sin conexión y sin iniciar sesión.",
+    "viewOnGitHub": "Ver código en GitHub"
   },
   "dateRange": {
     "headerSuffix": "Wrapped — elige fechas",
@@ -38,6 +39,7 @@
     "to": "Hasta",
     "invalidRange": "La fecha de inicio debe ser anterior o igual a la de fin.",
     "buildWrapped": "Crear mi Wrapped",
+    "loadSnapshotHint": "Usa un JSON exportado desde Wrapped — sin llamadas a la API.",
     "presetNoOverlap": "Tu actividad en Jutge ({{min}} – {{max}}) no coincide con {{label}}.",
     "presetNoSubmissions": "Sin envíos en {{label}} dentro de tus fechas de actividad ({{start}} – {{end}})."
   },
@@ -56,7 +58,6 @@
     "changeDates": "Cambiar fechas",
     "backToLogin": "Volver al inicio",
     "dates": "Fechas",
-    "clearSnapshot": "Quitar instantánea",
     "exit": "Salir"
   },
   "slides": {
@@ -150,6 +151,32 @@
   "rank": {
     "eliteLabel": "Top {{percent}}% de usuarios de Jutge"
   },
+  "personalization": {
+    "intro": {
+      "subtitle": "{{period}} · {{rate}}% de los problemas intentados llegaron a aceptación.",
+      "activity": "Activo en Jutge desde {{span}}."
+    },
+    "heatmap": {
+      "titleStreak": "{{count}} seguidos",
+      "titlePeakMonth": "Mes pico: {{month}}"
+    },
+    "chrono": {
+      "eyebrow": "{{period}} · {{archetype}}"
+    },
+    "ranking": {
+      "subtitle": "{{period}} · {{elite}}",
+      "usersAhead": "Estás por encima de {{count}} de {{total}} usuarios de Jutge"
+    },
+    "hero": {
+      "label": "Tu problema destacado",
+      "grindHeadline": "Tu problema de insistencia: {{problem}}",
+      "grindDetail": "{{attempts}} intentos antes del primer AC — {{submissions}} en total.",
+      "mostAttemptedHeadline": "Volvías una y otra vez a {{problem}}",
+      "mostAttemptedDetail": "{{submissions}} en este periodo.",
+      "firstAcHeadline": "Primer AC en este periodo: {{problem}}",
+      "firstAcDetail": "{{submissions}} en ese problema en total."
+    }
+  },
   "weekdays": {
     "monday": "Lunes",
     "tuesday": "Martes",
@@ -175,7 +202,9 @@
   },
   "snapshot": {
     "loading": "Cargando instantánea…",
-    "loadButton": "Cargar instantánea JSON",
+    "loadButton": "Cargar instantánea",
+    "downloadButton": "Descargar JSON",
+    "downloading": "Preparando descarga…",
     "invalidJson": "Archivo JSON no válido.",
     "readError": "No se pudo leer el archivo de instantánea."
   },
