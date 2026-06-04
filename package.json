@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:host": "VITE_DEV_HTTPS=true vite --host",
     "build": "tsc -b --pretty false && vite build",
     "preview": "vite preview",
     "export:snapshot": "tsx scripts/export-jutge-snapshot.mts"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",
+    "html-to-image": "^1.11.13",
     "i18next": "^26.3.1",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
@@ -22,6 +24,7 @@
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^5.0.2",
     "tailwindcss": "^4.1.12",
     "tsx": "^4.20.5",

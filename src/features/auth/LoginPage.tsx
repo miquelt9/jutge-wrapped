@@ -57,6 +57,9 @@ export function LoginPage() {
         <div className="jutge-panel w-full max-w-md">
           <div className="jutge-panel-heading">{t("login.signIn")}</div>
           <div className="jutge-panel-body">
+            <h1 className="text-center text-lg font-black text-jutge-text sm:text-xl">
+              {t("login.underDevelopmentTitle")}
+            </h1>
             <p className="text-sm text-jutge-muted">{t("login.intro")}</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -124,11 +127,23 @@ export function LoginPage() {
               <p className="text-xs text-jutge-muted">{t("login.loadSnapshotHint")}</p>
               <SnapshotLoadButton className="mt-3" />
             </div>
+
+            <div className="mt-5 text-center sm:hidden">
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-jutge-muted transition-colors hover:text-jutge-text"
+              >
+                <Github className="h-3.5 w-3.5" aria-hidden />
+                {t("login.viewOnGitHub")}
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
-      <footer className="shrink-0 px-4 py-4 text-center">
+      <footer className="hidden shrink-0 px-4 py-4 text-center sm:block">
         <a
           href={GITHUB_REPO_URL}
           target="_blank"

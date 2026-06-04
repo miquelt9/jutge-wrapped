@@ -7,8 +7,9 @@ import type { HeatmapInsights, HeatmapYearBlock } from "@/features/wrapped/types
 const ROW_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const
 const CELL_PX_DESKTOP = 12
 const CELL_GAP_PX_DESKTOP = 3
-const CELL_PX_MOBILE = 10
-const CELL_GAP_PX_MOBILE = 2
+const CELL_PX_MOBILE = 14
+const CELL_GAP_PX_MOBILE = 3
+const MOBILE_MONTH_LABEL_WIDTH_PX = 56
 /** Height for diagonal month names above the week columns. */
 const MONTH_LABEL_ROW_PX = 52
 
@@ -16,6 +17,7 @@ function useHeatmapCellMetrics() {
   const [metrics, setMetrics] = useState({
     cellPx: CELL_PX_DESKTOP,
     gapPx: CELL_GAP_PX_DESKTOP,
+    isMobile: false,
   })
 
   useEffect(() => {
@@ -23,8 +25,8 @@ function useHeatmapCellMetrics() {
     const update = () =>
       setMetrics(
         mq.matches
-          ? { cellPx: CELL_PX_MOBILE, gapPx: CELL_GAP_PX_MOBILE }
-          : { cellPx: CELL_PX_DESKTOP, gapPx: CELL_GAP_PX_DESKTOP },
+          ? { cellPx: CELL_PX_MOBILE, gapPx: CELL_GAP_PX_MOBILE, isMobile: true }
+          : { cellPx: CELL_PX_DESKTOP, gapPx: CELL_GAP_PX_DESKTOP, isMobile: false },
       )
     update()
     mq.addEventListener("change", update)
@@ -68,6 +70,7 @@ type HeatmapCellProps = {
   cellPx: number
   hoveredId: string | null
   onHover: (id: string | null) => void
+  exportMode?: boolean
 }
 
 function HeatmapCell({
@@ -78,6 +81,7 @@ function HeatmapCell({
   cellPx,
   hoveredId,
   onHover,
+  exportMode = false,
 }: HeatmapCellProps) {
   const { t } = useTranslation()
   const max = maxValue || 1
@@ -88,15 +92,15 @@ function HeatmapCell({
     <div
       className="relative shrink-0"
       style={{ width: cellPx, height: cellPx }}
-      onMouseEnter={() => onHover(cellId)}
-      onMouseLeave={() => onHover(null)}
-      onFocus={() => onHover(cellId)}
-      onBlur={() => onHover(null)}
-      title={label || undefined}
-      aria-label={label || undefined}
-      tabIndex={0}
+      onMouseEnter={exportMode ? undefined : () => onHover(cellId)}
+      onMouseLeave={exportMode ? undefined : () => onHover(null)}
+      onFocus={exportMode ? undefined : () => onHover(cellId)}
+      onBlur={exportMode ? undefined : () => onHover(null)}
+      title={exportMode ? undefined : label || undefined}
+      aria-label={exportMode ? undefined : label || undefined}
+      tabIndex={exportMode ? -1 : 0}
     >
-      {isHovered && dateLabel && (
+      {!exportMode && isHovered && dateLabel && (
         <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded border border-jutge-border bg-jutge-panel px-1.5 py-0.5 font-mono text-[9px] leading-tight text-jutge-text shadow-sm">
           {label}
         </span>
@@ -115,29 +119,148 @@ type WeekHeatmapGridProps = {
   block: HeatmapYearBlock
   maxValue: number
   showYearLabel: boolean
+  exportMode?: boolean
 }
 
-function WeekHeatmapGrid({ block, maxValue, showYearLabel }: WeekHeatmapGridProps) {
+type MobileWeekHeatmapGridProps = {
+  block: HeatmapYearBlock
+  maxValue: number
+  showYearLabel: boolean
+  cellPx: number
+  gapPx: number
+  hoveredId: string | null
+  onHover: (id: string | null) => void
+}
+
+function shortWeekdayLabel(label: string): string {
+  return label.slice(0, 2)
+}
+
+function MobileWeekHeatmapGrid({
+  block,
+  maxValue,
+  showYearLabel,
+  cellPx,
+  gapPx,
+  hoveredId,
+  onHover,
+}: MobileWeekHeatmapGridProps) {
+  const { t } = useTranslation()
+  const { grid, labels, monthLabels } = block
+
+  return (
+    <div className="flex w-full max-w-full flex-col items-center gap-2">
+      {showYearLabel && (
+        <h3 className="w-full text-center font-mono text-sm font-bold text-jutge-text">
+          {block.year}
+        </h3>
+      )}
+      <div className="w-full max-w-full px-1 pt-2 pb-4">
+        <div className="mx-auto flex w-fit min-w-0 flex-col" style={{ gap: gapPx }}>
+          <div className="flex items-center" style={{ gap: gapPx }}>
+            <span
+              aria-hidden
+              className="shrink-0"
+              style={{ width: MOBILE_MONTH_LABEL_WIDTH_PX, minWidth: MOBILE_MONTH_LABEL_WIDTH_PX }}
+            />
+            {ROW_KEYS.map((rowKey) => {
+              const label = t(`weekdaysShort.${rowKey}`)
+              return (
+                <span
+                  key={rowKey}
+                  className="flex items-center justify-center font-mono text-[9px] font-bold uppercase text-jutge-muted"
+                  style={{ width: cellPx, minWidth: cellPx }}
+                >
+                  {shortWeekdayLabel(label)}
+                </span>
+              )
+            })}
+          </div>
+
+          {Array.from({ length: grid[0]?.length ?? 0 }, (_, weekIdx) => (
+            <div key={`${block.year}-${weekIdx}`} className="flex items-center" style={{ gap: gapPx }}>
+              <span
+                className="shrink-0 truncate pr-1 text-right text-[10px] font-bold uppercase tracking-wide text-jutge-muted"
+                style={{ width: MOBILE_MONTH_LABEL_WIDTH_PX, minWidth: MOBILE_MONTH_LABEL_WIDTH_PX }}
+              >
+                {monthLabels[weekIdx] ?? ""}
+              </span>
+              <div className="flex items-center" style={{ gap: gapPx }}>
+                {grid.map((row, rowIdx) => {
+                  const dateLabel = labels[rowIdx]?.[weekIdx] ?? null
+                  const cellId = `${block.year}-${rowIdx}-${weekIdx}`
+                  return (
+                    <HeatmapCell
+                      key={cellId}
+                      cellId={cellId}
+                      cellPx={cellPx}
+                      value={row[weekIdx] ?? 0}
+                      dateLabel={dateLabel}
+                      maxValue={maxValue}
+                      hoveredId={hoveredId}
+                      onHover={onHover}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }: WeekHeatmapGridProps) {
   const { t } = useTranslation()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const { cellPx, gapPx } = useHeatmapCellMetrics()
+  const responsiveMetrics = useHeatmapCellMetrics()
+  const cellPx = exportMode ? CELL_PX_DESKTOP : responsiveMetrics.cellPx
+  const gapPx = exportMode ? CELL_GAP_PX_DESKTOP : responsiveMetrics.gapPx
+  const isMobile = !exportMode && responsiveMetrics.isMobile
   const { grid, labels, monthLabels } = block
 
   if (grid.length === 0 || !grid[0]?.length) {
     return <p className="text-sm text-jutge-muted">{t("heatmap.noActivity")}</p>
   }
 
+  if (isMobile) {
+    return (
+      <MobileWeekHeatmapGrid
+        block={block}
+        maxValue={maxValue}
+        showYearLabel={showYearLabel}
+        cellPx={cellPx}
+        gapPx={gapPx}
+        hoveredId={hoveredId}
+        onHover={setHoveredId}
+      />
+    )
+  }
+
   const weekCount = grid[0]!.length
   const gridWidthPx = weekCount * cellPx + (weekCount - 1) * gapPx
 
   return (
-    <div className="flex w-full min-w-0 max-w-full flex-col items-center gap-2">
+    <div
+      className={
+        exportMode
+          ? "flex max-w-full flex-col items-center gap-2"
+          : "flex w-full min-w-0 max-w-full flex-col items-center gap-2 sm:w-auto"
+      }
+    >
       {showYearLabel && (
         <h3 className="w-full text-center font-mono text-sm font-bold text-jutge-text">
           {block.year}
         </h3>
       )}
-      <div className="w-full max-w-full overflow-x-auto overflow-y-hidden scroll-smooth px-1 pt-2 pb-4">
+      <div
+        className={
+          exportMode
+            ? "max-w-full px-1 pt-2 pb-4"
+            : "w-full max-w-full overflow-x-auto overflow-y-hidden scroll-smooth px-1 pt-2 pb-4 sm:w-auto"
+        }
+      >
         <div className="mx-auto inline-flex min-w-0 flex-col gap-1">
           <div className="flex gap-2">
             <span className="w-8 shrink-0" aria-hidden />
@@ -181,6 +304,7 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel }: WeekHeatmapGridProp
                       maxValue={maxValue}
                       hoveredId={hoveredId}
                       onHover={setHoveredId}
+                      exportMode={exportMode}
                     />
                   )
                 })}
@@ -194,7 +318,13 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel }: WeekHeatmapGridProp
 }
 
 /** GitHub-style submission calendar for slide-level heatmap insights. */
-export function ActivityCalendar({ heatmap }: { heatmap: HeatmapInsights }) {
+export function ActivityCalendar({
+  heatmap,
+  exportMode = false,
+}: {
+  heatmap: HeatmapInsights
+  exportMode?: boolean
+}) {
   const { t } = useTranslation()
 
   if (heatmap.yearBlocks.length === 0) {
@@ -205,13 +335,20 @@ export function ActivityCalendar({ heatmap }: { heatmap: HeatmapInsights }) {
   const globalMax = heatmap.maxCellValue || 1
 
   return (
-    <div className="flex w-full min-w-0 max-w-full flex-col items-center gap-8">
+    <div
+      className={
+        exportMode
+          ? "flex max-w-full flex-col items-center gap-8"
+          : "flex w-full min-w-0 max-w-full flex-col items-center gap-8 sm:w-auto"
+      }
+    >
       {heatmap.yearBlocks.map((block) => (
         <WeekHeatmapGrid
           key={block.year}
           block={block}
           maxValue={globalMax}
           showYearLabel={showYearLabels}
+          exportMode={exportMode}
         />
       ))}
     </div>

@@ -14,10 +14,17 @@ export function ThemeSelect({ onDark = false, compact = false, className = "" }:
   const { theme, setTheme } = useTheme()
 
   const selectClass = onDark
-    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " max-w-[4.25rem] px-1 text-xs" : ""}`
+    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-full min-w-[5.5rem] max-w-[9rem] px-1.5 text-xs sm:w-auto sm:min-w-0 sm:max-w-[4.25rem] sm:px-1" : ""}`
     : compact
-      ? "jutge-theme-select jutge-input w-auto max-w-[4.25rem] px-1 py-1 text-xs"
+      ? "jutge-theme-select jutge-input w-full min-w-[5.5rem] max-w-[9rem] px-1.5 py-1 text-xs sm:w-auto sm:min-w-0 sm:max-w-[4.25rem] sm:px-1"
       : "jutge-theme-select jutge-input w-auto min-w-[9rem] py-1.5"
+
+  const compactThemeLabel: Record<ThemeId, string> = {
+    jutge: "Jutge",
+    dark: "Dark",
+    fib: "FIB",
+    upc: "UPC",
+  }
 
   return (
     <label className={`inline-flex min-w-0 items-center gap-2 text-sm ${className}`}>
@@ -32,7 +39,7 @@ export function ThemeSelect({ onDark = false, compact = false, className = "" }:
       >
         {THEME_OPTIONS.map((option) => (
           <option key={option.id} value={option.id}>
-            {option.label}
+            {compact ? compactThemeLabel[option.id] : option.label}
           </option>
         ))}
       </select>

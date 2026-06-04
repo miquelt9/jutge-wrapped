@@ -18,6 +18,7 @@
   },
   "login": {
     "signIn": "Sign in",
+    "underDevelopmentTitle": "This website is under development",
     "intro": "Use your Jutge.org credentials. Your token stays in memory only — we never store your password.",
     "email": "Email",
     "password": "Password",
@@ -58,7 +59,9 @@
     "changeDates": "Change dates",
     "backToLogin": "Back to login",
     "dates": "Dates",
-    "exit": "Exit"
+    "exit": "Exit",
+    "pullToNext": "Scroll down for next slide",
+    "releaseToNext": "Release for next slide"
   },
   "slides": {
     "intro": {
@@ -119,6 +122,15 @@
       "acRuns": "AC runs",
       "platformSubs": "Platform subs",
       "judgeAlt": "Jutge judge"
+    },
+    "share": {
+      "eyebrow": "Share your Wrapped",
+      "title": "Show off your stats",
+      "subtitle": "Export images to post on social media or send to friends.",
+      "calendarHeading": "Submissions calendar",
+      "calendarHint": "A clean GitHub-style activity map — just your submission heatmap, no extra slide chrome.",
+      "slideHeading": "Individual slides",
+      "slideHint": "Use the share button in the top bar on any slide to export what you're viewing."
     }
   },
   "chrono": {
@@ -207,6 +219,23 @@
     "downloading": "Preparing download…",
     "invalidJson": "Invalid JSON file.",
     "readError": "Could not read snapshot file."
+  },
+  "share": {
+    "shareSlide": "Share",
+    "downloadSlide": "Download",
+    "preparing": "Preparing...",
+    "httpsRequired": "Native sharing only works over HTTPS. For local testing on your phone, run npm run dev:host. End users on the deployed GitHub Pages site will not see this message.",
+    "copied": "Copied!",
+    "shared": "Shared!",
+    "templates": {
+      "intro": "My Jutge.org Wrapped! Level {{level}} ({{name}}). Accepted: {{accepted}}, Submissions: {{submissions}}, AC Rate: {{acRate}}%!",
+      "heatmap": "My Jutge.org Wrapped! Active Days: {{activeDays}}, Longest Streak: {{longestStreak}} days!",
+      "weekday": "My Jutge.org Wrapped! Busiest day: {{busiestDay}}!",
+      "chrono": "My Jutge.org Wrapped! Peak hour: {{peakHour}}:00, Archetype: {{archetype}}!",
+      "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
+      "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
+      "ranking": "My Jutge.org Wrapped! Global leaderboard rank: #{{rank}}!"
+    }
   },
   "cors": {
     "title": "Connection blocked?",

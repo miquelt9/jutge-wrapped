@@ -12,9 +12,9 @@ export function LanguageSelect({ onDark = false, compact = false, className = ""
   const { i18n, t } = useTranslation()
 
   const selectClass = onDark
-    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " max-w-[4.25rem] px-1 text-xs" : ""}`
+    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-[3.25rem] shrink-0 px-1 text-xs sm:w-auto sm:max-w-[4.25rem]" : ""}`
     : compact
-      ? "jutge-theme-select jutge-input w-auto max-w-[4.25rem] px-1 py-1 text-xs"
+      ? "jutge-theme-select jutge-input w-[3.25rem] shrink-0 px-1 py-1 text-xs sm:w-auto sm:max-w-[4.25rem]"
       : "jutge-theme-select jutge-input w-auto min-w-[9rem] py-1.5"
 
   return (
@@ -30,7 +30,7 @@ export function LanguageSelect({ onDark = false, compact = false, className = ""
       >
         {SUPPORTED_LANGUAGES.map((option) => (
           <option key={option.code} value={option.code}>
-            {option.label}
+            {compact ? option.code.toUpperCase() : option.label}
           </option>
         ))}
       </select>

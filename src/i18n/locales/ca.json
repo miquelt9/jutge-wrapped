@@ -18,6 +18,7 @@
   },
   "login": {
     "signIn": "Inicia sessió",
+    "underDevelopmentTitle": "Aquest lloc web està en desenvolupament",
     "intro": "Fes servir les credencials de Jutge.org. El token només es guarda en memòria — mai desem la contrasenya.",
     "email": "Correu",
     "password": "Contrasenya",
@@ -58,7 +59,9 @@
     "changeDates": "Canvia dates",
     "backToLogin": "Torna a l'inici",
     "dates": "Dates",
-    "exit": "Surt"
+    "exit": "Surt",
+    "pullToNext": "Llisca cap avall per a la següent diapositiva",
+    "releaseToNext": "Deixa anar per a la següent diapositiva"
   },
   "slides": {
     "intro": {
@@ -119,6 +122,15 @@
       "acRuns": "Execucions AC",
       "platformSubs": "Enviaments a la plataforma",
       "judgeAlt": "Jutge de Jutge"
+    },
+    "share": {
+      "eyebrow": "Comparteix el teu Wrapped",
+      "title": "Mostra les teves estadístiques",
+      "subtitle": "Exporta imatges per publicar a xarxes socials o enviar als amics.",
+      "calendarHeading": "Calendari d'enviaments",
+      "calendarHint": "Un mapa d'activitat estil GitHub — només el teu calendari d'enviaments, sense la resta de la diapositiva.",
+      "slideHeading": "Diapositives individuals",
+      "slideHint": "Fes servir el botó de compartir de la barra superior a qualsevol diapositiva per exportar el que estàs veient."
     }
   },
   "chrono": {
@@ -207,6 +219,23 @@
     "downloading": "Preparant descàrrega…",
     "invalidJson": "Fitxer JSON no vàlid.",
     "readError": "No s'ha pogut llegir el fitxer d'instantània."
+  },
+  "share": {
+    "shareSlide": "Comparteix",
+    "downloadSlide": "Descarrega",
+    "preparing": "Preparant…",
+    "httpsRequired": "La compartició nativa només funciona amb HTTPS. Per provar-ho al mòbil en local, executa npm run dev:host. Els usuaris del lloc desplegat a GitHub Pages no veuran aquest missatge.",
+    "copied": "Copiat!",
+    "shared": "Compartit!",
+    "templates": {
+      "intro": "El meu Jutge.org Wrapped! Nivell {{level}} ({{name}}). Acceptats: {{accepted}}, Enviaments: {{submissions}}, Percentatge AC: {{acRate}}%!",
+      "heatmap": "El meu Jutge.org Wrapped! Dies actius: {{activeDays}}, Major ratxa: {{longestStreak}} dies!",
+      "weekday": "El meu Jutge.org Wrapped! Dia més actiu: {{busiestDay}}!",
+      "chrono": "El meu Jutge.org Wrapped! Hora punta: {{peakHour}}:00, Arquetip: {{archetype}}!",
+      "course": "El meu Jutge.org Wrapped! Llenguatge principal: {{topLanguage}}!",
+      "verdict": "El meu Jutge.org Wrapped! Enviaments AC: {{ac}} ({{acRate}}% d'acceptats)!",
+      "ranking": "El meu Jutge.org Wrapped! Posició al rànquing global: #{{rank}}!"
+    }
   },
   "cors": {
     "title": "Connexió bloquejada?",

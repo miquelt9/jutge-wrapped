@@ -18,6 +18,7 @@
   },
   "login": {
     "signIn": "Iniciar sesión",
+    "underDevelopmentTitle": "Este sitio web está en desarrollo",
     "intro": "Usa tus credenciales de Jutge.org. El token solo se guarda en memoria — nunca almacenamos tu contraseña.",
     "email": "Correo",
     "password": "Contraseña",
@@ -58,7 +59,9 @@
     "changeDates": "Cambiar fechas",
     "backToLogin": "Volver al inicio",
     "dates": "Fechas",
-    "exit": "Salir"
+    "exit": "Salir",
+    "pullToNext": "Desliza hacia abajo para la siguiente diapositiva",
+    "releaseToNext": "Suelta para la siguiente diapositiva"
   },
   "slides": {
     "intro": {
@@ -119,6 +122,15 @@
       "acRuns": "Ejecuciones AC",
       "platformSubs": "Envíos en la plataforma",
       "judgeAlt": "Juez de Jutge"
+    },
+    "share": {
+      "eyebrow": "Comparte tu Wrapped",
+      "title": "Presume de tus estadísticas",
+      "subtitle": "Exporta imágenes para publicar en redes sociales o enviar a amigos.",
+      "calendarHeading": "Calendario de envíos",
+      "calendarHint": "Un mapa de actividad estilo GitHub — solo tu calendario de envíos, sin el resto de la diapositiva.",
+      "slideHeading": "Diapositivas individuales",
+      "slideHint": "Usa el botón de compartir de la barra superior en cualquier diapositiva para exportar lo que estás viendo."
     }
   },
   "chrono": {
@@ -207,6 +219,23 @@
     "downloading": "Preparando descarga…",
     "invalidJson": "Archivo JSON no válido.",
     "readError": "No se pudo leer el archivo de instantánea."
+  },
+  "share": {
+    "shareSlide": "Compartir",
+    "downloadSlide": "Descargar",
+    "preparing": "Preparando…",
+    "httpsRequired": "Compartir de forma nativa solo funciona con HTTPS. Para probar en el móvil en local, ejecuta npm run dev:host. Los usuarios del sitio desplegado en GitHub Pages no verán este mensaje.",
+    "copied": "¡Copiado!",
+    "shared": "¡Compartido!",
+    "templates": {
+      "intro": "¡Mi Jutge.org Wrapped! Nivel {{level}} ({{name}}). Aceptados: {{accepted}}, Envíos: {{submissions}}, Porcentaje AC: {{acRate}}%!",
+      "heatmap": "¡Mi Jutge.org Wrapped! Días activos: {{activeDays}}, Mayor racha: {{longestStreak}} días!",
+      "weekday": "¡Mi Jutge.org Wrapped! Día más activo: {{busiestDay}}!",
+      "chrono": "¡Mi Jutge.org Wrapped! Hora punta: {{peakHour}}:00, Arquetipo: {{archetype}}!",
+      "course": "¡Mi Jutge.org Wrapped! Lenguaje principal: {{topLanguage}}!",
+      "verdict": "¡Mi Jutge.org Wrapped! Envíos AC: {{ac}} ({{acRate}}% de aceptados)!",
+      "ranking": "¡Mi Jutge.org Wrapped! Posición en el ranking global: #{{rank}}!"
+    }
   },
   "cors": {
     "title": "¿Conexión bloqueada?",

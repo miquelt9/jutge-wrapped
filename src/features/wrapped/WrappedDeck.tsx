@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "framer-motion"
-import { Calendar, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import { ArrowUp, Calendar, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
 import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
+import { SlideShareButton } from "@/components/SlideShareButton"
 import { useAuth } from "@/context/AuthContext"
 import { useSnapshot } from "@/context/SnapshotContext"
 import { useWrappedPeriod } from "@/context/WrappedContext"
@@ -12,6 +13,7 @@ import { NavControls } from "@/components/NavControls"
 import { TerminalLoadingLine } from "@/components/TerminalLoadingLine"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { useWrappedData } from "./useWrappedData"
+import { captureSlideImage, SLIDE_IDS, type SlideId } from "./shareExport"
 import { IntroSlide } from "./slides/IntroSlide"
 import { HeatmapSlide } from "./slides/HeatmapSlide"
 import { WeekdaySlide } from "./slides/WeekdaySlide"
@@ -20,7 +22,7 @@ import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
 import { RankingSlide } from "./slides/RankingSlide"
 
-const SLIDE_COUNT = 7
+const SLIDE_COUNT = SLIDE_IDS.length
 
 export function WrappedDeck() {
   const { t } = useTranslation()
@@ -29,6 +31,11 @@ export function WrappedDeck() {
   const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { state } = useWrappedData(client, period, snapshot)
   const [index, setIndex] = useState(0)
+  const slideCaptureRef = useRef<HTMLDivElement>(null)
+  const precomputeCaptureRef = useRef<HTMLDivElement>(null)
+  const shareImageCacheRef = useRef<Map<SlideId, string>>(new Map())
+  const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
+  const [isPrecomputing, setIsPrecomputing] = useState(false)
   const loadingLine = t("deck.loadingLine")
   const { showLoadingScreen } = useDeckLoadingUX(state.status, loadingLine.length)
 
@@ -49,15 +56,161 @@ export function WrappedDeck() {
     return () => window.removeEventListener("keydown", onKey)
   }, [next, prev])
 
-  let touchStartX = 0
-  function onTouchStart(e: React.TouchEvent) {
-    touchStartX = e.touches[0]?.clientX ?? 0
-  }
-  function onTouchEnd(e: React.TouchEvent) {
-    const dx = (e.changedTouches[0]?.clientX ?? 0) - touchStartX
-    if (dx < -50) next()
-    else if (dx > 50) prev()
-  }
+  const [pullDistance, setPullDistance] = useState(0)
+  const [isPulling, setIsPulling] = useState(false)
+  const reachedBottomYRef = useRef<number | null>(null)
+
+  const handleTouchStart = useCallback(() => {
+    reachedBottomYRef.current = null
+  }, [])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 4
+
+    if (!isAtBottom) {
+      setIsPulling(false)
+      setPullDistance(0)
+      reachedBottomYRef.current = null
+      return
+    }
+
+    if (index === SLIDE_COUNT - 1) return
+
+    const currentY = e.touches[0]?.clientY ?? 0
+
+    if (reachedBottomYRef.current === null) {
+      reachedBottomYRef.current = currentY
+    }
+
+    const dy = reachedBottomYRef.current - currentY
+
+    if (dy > 0) {
+      setIsPulling(true)
+      const threshold = 80
+      let displayDistance = dy
+      if (dy > threshold) {
+        displayDistance = threshold + (dy - threshold) * 0.4
+      }
+      const finalDistance = Math.min(displayDistance, 150)
+      setPullDistance(finalDistance)
+
+      if (e.cancelable) {
+        e.preventDefault()
+      }
+    } else {
+      setIsPulling(false)
+      setPullDistance(0)
+    }
+  }, [index])
+
+  const handleTouchEnd = useCallback(() => {
+    if (isPulling) {
+      if (pullDistance >= 80) {
+        next()
+      }
+      setIsPulling(false)
+      setPullDistance(0)
+      reachedBottomYRef.current = null
+    }
+  }, [isPulling, pullDistance, next])
+
+  const renderSlide = useCallback(
+    (targetIndex: number) => {
+      if (state.status !== "ready") return null
+
+      const { raw, insights } = state
+      switch (SLIDE_IDS[targetIndex]) {
+        case "intro":
+          return <IntroSlide key="intro" raw={raw} insights={insights} />
+        case "heatmap":
+          return <HeatmapSlide key="heatmap" insights={insights} />
+        case "weekday":
+          return <WeekdaySlide key="weekday" insights={insights} />
+        case "chrono":
+          return <ChronoSlide key="chrono" insights={insights} />
+        case "course":
+          return <CourseArcSlide key="course" insights={insights} />
+        case "verdict":
+          return <VerdictSlide key="verdict" insights={insights} />
+        case "ranking":
+          return <RankingSlide key="rank" insights={insights} homepageStats={raw.homepageStats} />
+        default:
+          return null
+      }
+    },
+    [state],
+  )
+
+  useEffect(() => {
+    const currentSlideId = SLIDE_IDS[index]!
+    const currentImage = shareImageCacheRef.current.get(currentSlideId)
+    shareImageCacheRef.current.clear()
+    if (currentImage) {
+      shareImageCacheRef.current.set(currentSlideId, currentImage)
+    }
+  }, [index])
+
+  useEffect(() => {
+    if (state.status !== "ready" || isPrecomputing || precomputeIndex !== null) return
+
+    const currentSlideId = SLIDE_IDS[index]!
+    if (!shareImageCacheRef.current.has(currentSlideId)) {
+      setPrecomputeIndex(index)
+    }
+  }, [index, isPrecomputing, precomputeIndex, state.status])
+
+  useEffect(() => {
+    if (state.status !== "ready" || precomputeIndex === null) return
+
+    let cancelled = false
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number
+      cancelIdleCallback?: (handle: number) => void
+    }
+
+    const runCapture = async () => {
+      const node = precomputeCaptureRef.current
+      const slideId = SLIDE_IDS[precomputeIndex]!
+      if (!node) {
+        if (!cancelled) setPrecomputeIndex(null)
+        return
+      }
+
+      setIsPrecomputing(true)
+      try {
+        const dataUrl = await captureSlideImage(node)
+        if (!cancelled) {
+          shareImageCacheRef.current.set(slideId, dataUrl)
+        }
+      } catch (err) {
+        console.error(`Failed to precompute share image for ${slideId}:`, err)
+      } finally {
+        if (!cancelled) {
+          setIsPrecomputing(false)
+          setPrecomputeIndex(null)
+        }
+      }
+    }
+
+    let idleId: number | null = null
+    let timeoutId: number | null = null
+
+    if (showLoadingScreen && idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(() => void runCapture(), { timeout: 100 })
+    } else {
+      timeoutId = window.setTimeout(() => void runCapture(), showLoadingScreen ? 0 : 150)
+    }
+
+    return () => {
+      cancelled = true
+      if (idleId !== null && idleWindow.cancelIdleCallback) idleWindow.cancelIdleCallback(idleId)
+      if (timeoutId !== null) window.clearTimeout(timeoutId)
+    }
+  }, [precomputeIndex, showLoadingScreen, state.status])
 
   if (state.status === "error") {
     return (
@@ -121,6 +274,16 @@ export function WrappedDeck() {
         <div className="flex flex-1 flex-col items-center justify-center px-4">
           <TerminalLoadingLine />
         </div>
+        {state.status === "ready" && precomputeIndex !== null && (
+          <div
+            aria-hidden
+            className="pointer-events-none fixed -left-[200vw] top-0 w-screen bg-jutge-bg"
+          >
+            <div ref={precomputeCaptureRef} className="min-h-screen bg-jutge-bg">
+              {renderSlide(precomputeIndex)}
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -130,16 +293,8 @@ export function WrappedDeck() {
   const { raw, insights } = state
   const exportRaw =
     isSnapshotMode && snapshot ? { ...snapshot, period: raw.period } : raw
-
-  const slides = [
-    <IntroSlide key="intro" raw={raw} insights={insights} />,
-    <HeatmapSlide key="heatmap" insights={insights} />,
-    <WeekdaySlide key="weekday" insights={insights} />,
-    <ChronoSlide key="chrono" insights={insights} />,
-    <CourseArcSlide key="course" insights={insights} />,
-    <VerdictSlide key="verdict" insights={insights} />,
-    <RankingSlide key="rank" insights={insights} homepageStats={raw.homepageStats} />,
-  ]
+  const username = raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
+  const slideId = SLIDE_IDS[index]!
 
   return (
     <div
@@ -151,8 +306,6 @@ export function WrappedDeck() {
         if (e.clientX > mid) next()
         else prev()
       }}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
     >
       <header className="jutge-nav">
         <div className="jutge-nav-inner">
@@ -170,6 +323,15 @@ export function WrappedDeck() {
           </div>
           <div className="jutge-nav-end">
             <NavControls onDark compact />
+            <SlideShareButton
+              slideId={slideId}
+              insights={insights}
+              captureRef={slideCaptureRef}
+              imageCacheRef={shareImageCacheRef}
+              username={username}
+              variant="onDark"
+              compact
+            />
             <SnapshotDownloadButton raw={exportRaw} variant="onDark" compact />
             <button
               type="button"
@@ -218,7 +380,7 @@ export function WrappedDeck() {
         </div>
       </header>
 
-      <main className="relative flex-1 overflow-hidden overflow-y-auto bg-jutge-bg">
+      <main className="relative flex-1 overflow-hidden bg-jutge-bg">
         <AnimatePresence mode="wait">
           <motion.div
             key={index}
@@ -226,12 +388,83 @@ export function WrappedDeck() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 overflow-x-hidden overflow-y-auto"
+            className="absolute inset-0 overflow-x-hidden overflow-y-auto pb-32 sm:pb-0"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            {slides[index]}
+            <div
+              ref={slideCaptureRef}
+              data-slide-export={slideId}
+              className="min-h-full bg-jutge-bg"
+            >
+              {renderSlide(index)}
+            </div>
           </motion.div>
         </AnimatePresence>
+
+        {/* Pull-up indicator */}
+        <AnimatePresence>
+          {isPulling && pullDistance > 10 && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.15 }}
+              className="absolute bottom-0 left-0 right-0 z-50 flex flex-col items-center justify-end pb-6 pointer-events-none"
+              style={{
+                height: `${pullDistance}px`,
+                background: "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
+              }}
+            >
+              <div className="flex flex-col items-center gap-2 px-4 text-center">
+                {/* Arrow that grows and animates */}
+                <motion.div
+                  animate={{
+                    y: pullDistance >= 80 ? [0, -6, 0] : 0,
+                    scale: pullDistance >= 80 ? 1.2 : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
+                  }}
+                  transition={{
+                    y: {
+                      repeat: Infinity,
+                      duration: 0.6,
+                      ease: "easeInOut",
+                    },
+                    scale: { duration: 0.1 },
+                  }}
+                  className={`rounded-full p-2 ${
+                    pullDistance >= 80
+                      ? "bg-jutge-blue text-white"
+                      : "bg-white/10 text-white/70"
+                  }`}
+                >
+                  <ArrowUp className="h-5 w-5" />
+                </motion.div>
+
+                {/* Text feedback */}
+                <motion.span
+                  className={`text-xs font-semibold tracking-wide uppercase transition-colors duration-200 ${
+                    pullDistance >= 80 ? "text-jutge-blue font-bold" : "text-white/60"
+                  }`}
+                >
+                  {pullDistance >= 80 ? t("deck.releaseToNext") : t("deck.pullToNext")}
+                </motion.span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
+
+      {precomputeIndex !== null && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed -left-[200vw] top-0 w-screen bg-jutge-bg"
+        >
+          <div ref={precomputeCaptureRef} className="min-h-screen bg-jutge-bg">
+            {renderSlide(precomputeIndex)}
+          </div>
+        </div>
+      )}
 
       <footer className="flex min-w-0 items-center justify-between gap-2 border-t border-jutge-border bg-jutge-panel px-3 py-3 text-sm text-jutge-muted sm:px-4">
         <button

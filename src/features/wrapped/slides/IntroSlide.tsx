@@ -22,7 +22,7 @@ export function IntroSlide({ raw, insights }: Props) {
     >
       <div className="flex flex-col gap-6">
         <div className="flex min-w-0 flex-col items-start gap-6 lg:flex-row lg:items-center">
-          <div className="jutge-panel w-full min-w-0">
+          <div className="jutge-panel w-full min-w-0 lg:w-auto lg:min-w-[18rem] lg:flex-none">
             <div className="jutge-panel-body flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
               <div
                 className="h-24 w-24 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel sm:h-32 sm:w-32"
@@ -53,7 +53,7 @@ export function IntroSlide({ raw, insights }: Props) {
               </div>
             </div>
           </div>
-          <div className="grid w-full flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid min-w-0 w-full flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               icon={<ThumbsUp className="h-6 w-6" />}
               label={t("slides.intro.acceptedProblems")}
