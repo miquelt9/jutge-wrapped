@@ -215,7 +215,7 @@
   "snapshot": {
     "loading": "Loading snapshot…",
     "loadButton": "Load snapshot",
-    "downloadButton": "Download JSON",
+    "downloadButton": "JSON",
     "downloading": "Preparing download…",
     "invalidJson": "Invalid JSON file.",
     "readError": "Could not read snapshot file."
@@ -234,7 +234,7 @@
       "chrono": "My Jutge.org Wrapped! Peak hour: {{peakHour}}:00, Archetype: {{archetype}}!",
       "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
       "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
-      "ranking": "My Jutge.org Wrapped! Global leaderboard rank: #{{rank}}!"
+      "ranking": "My Jutge.org Wrapped! {{elite}}!"
     }
   },
   "cors": {

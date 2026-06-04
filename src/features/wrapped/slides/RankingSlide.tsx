@@ -10,35 +10,22 @@ type Props = {
 
 export function RankingSlide({ insights, homepageStats }: Props) {
   const { t, i18n } = useTranslation()
-  const { rank, journey, weekday, courseArc, verdicts, personalized } = insights
+  const { rank, journey, weekday, courseArc, verdicts } = insights
 
   return (
     <StoryLayout
       eyebrow={t("slides.ranking.eyebrow")}
-      title={`#${rank.rank}`}
-      subtitle={personalized.rankingSubtitle}
+      title={`${insights.level} · ${insights.displayName}`}
+      subtitle={insights.periodLabel}
     >
-      <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
-        <div className="jutge-metric-blue p-8">
-          <p className="font-mono text-sm opacity-90">{t("slides.ranking.globalLeaderboard")}</p>
-          <p className="jutge-score mt-2 text-4xl sm:text-6xl">#{rank.rank}</p>
-          <p className="mt-2 text-lg">
-            {insights.level} · {insights.displayName}
-          </p>
-          {personalized.usersAheadText && (
-            <p className="mt-3 text-sm opacity-90">{personalized.usersAheadText}</p>
-          )}
-          <div className="mt-6 h-3 border border-white/40 bg-white/20">
-            <div
-              className="h-full bg-white"
-              style={{ width: `${Math.min(100, rank.percentile)}%`, borderRadius: 0 }}
-            />
-          </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="jutge-metric-blue flex min-h-40 flex-col justify-center p-8 sm:min-h-40">
+          <p className="jutge-score text-2xl leading-tight sm:text-4xl">{rank.eliteLabel}</p>
         </div>
         <img
           src={`${import.meta.env.BASE_URL}jutge.png`}
           alt={t("slides.ranking.judgeAlt")}
-          className="mx-auto hidden h-36 border border-jutge-border bg-white object-contain p-2 lg:block"
+          className="mx-auto hidden h-40 w-40 border border-jutge-border bg-white object-contain p-2 lg:block"
           style={{ borderRadius: 0 }}
         />
       </div>

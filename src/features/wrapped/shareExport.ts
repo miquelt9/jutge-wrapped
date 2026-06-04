@@ -52,7 +52,7 @@ export function getSlideShareText(
       })
     case "ranking":
       return t("share.templates.ranking", {
-        rank: insights.rank.rank,
+        elite: insights.rank.eliteLabel,
       })
     default:
       return "Jutge.org Wrapped!"

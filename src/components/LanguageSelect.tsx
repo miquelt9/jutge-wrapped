@@ -12,9 +12,9 @@ export function LanguageSelect({ onDark = false, compact = false, className = ""
   const { i18n, t } = useTranslation()
 
   const selectClass = onDark
-    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-[3.25rem] shrink-0 px-1 text-xs sm:w-auto sm:max-w-[4.25rem]" : ""}`
+    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-[3.25rem] shrink-0 px-1 text-xs sm:w-auto sm:min-w-[4.25rem] sm:max-w-none sm:px-2 sm:text-sm" : ""}`
     : compact
-      ? "jutge-theme-select jutge-input w-[3.25rem] shrink-0 px-1 py-1 text-xs sm:w-auto sm:max-w-[4.25rem]"
+      ? "jutge-theme-select jutge-input w-[3.25rem] shrink-0 px-1 py-1 text-xs sm:w-auto sm:min-w-[4.25rem] sm:max-w-none sm:px-2 sm:py-1.5 sm:text-sm"
       : "jutge-theme-select jutge-input w-auto min-w-[9rem] py-1.5"
 
   return (

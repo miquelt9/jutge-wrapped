@@ -14,9 +14,9 @@ export function ThemeSelect({ onDark = false, compact = false, className = "" }:
   const { theme, setTheme } = useTheme()
 
   const selectClass = onDark
-    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-full min-w-[5.5rem] max-w-[9rem] px-1.5 text-xs sm:w-auto sm:min-w-0 sm:max-w-[4.25rem] sm:px-1" : ""}`
+    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-full min-w-[5.5rem] max-w-[9rem] px-1.5 text-xs sm:w-auto sm:min-w-[4.75rem] sm:max-w-none sm:px-2 sm:text-sm" : ""}`
     : compact
-      ? "jutge-theme-select jutge-input w-full min-w-[5.5rem] max-w-[9rem] px-1.5 py-1 text-xs sm:w-auto sm:min-w-0 sm:max-w-[4.25rem] sm:px-1"
+      ? "jutge-theme-select jutge-input w-full min-w-[5.5rem] max-w-[9rem] px-1.5 py-1 text-xs sm:w-auto sm:min-w-[4.75rem] sm:max-w-none sm:px-2 sm:py-1.5 sm:text-sm"
       : "jutge-theme-select jutge-input w-auto min-w-[9rem] py-1.5"
 
   const compactThemeLabel: Record<ThemeId, string> = {

@@ -329,6 +329,7 @@ export function WrappedDeck() {
               captureRef={slideCaptureRef}
               imageCacheRef={shareImageCacheRef}
               username={username}
+              className="sm:hidden"
               variant="onDark"
               compact
             />
