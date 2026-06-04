@@ -32,11 +32,14 @@ export function WrappedProvider({ children }: { children: ReactNode }) {
     [period, setPeriod, clearPeriod],
   )
 
-  return <WrappedContext.Provider value={value}>{children}</WrappedContext.Provider>
+  return (
+    <WrappedContext.Provider value={value}>{children}</WrappedContext.Provider>
+  )
 }
 
 export function useWrappedPeriod() {
   const ctx = useContext(WrappedContext)
-  if (!ctx) throw new Error("useWrappedPeriod must be used within WrappedProvider")
+  if (!ctx)
+    throw new Error("useWrappedPeriod must be used within WrappedProvider")
   return ctx
 }

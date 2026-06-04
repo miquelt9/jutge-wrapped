@@ -2,9 +2,20 @@ import { useEffect, useState, type CSSProperties } from "react"
 import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { formatSubmissions } from "@/i18n/plurals"
-import type { HeatmapInsights, HeatmapYearBlock } from "@/features/wrapped/types"
+import type {
+  HeatmapInsights,
+  HeatmapYearBlock,
+} from "@/features/wrapped/types"
 
-const ROW_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const
+const ROW_KEYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const
 const CELL_PX_DESKTOP = 12
 const CELL_GAP_PX_DESKTOP = 3
 const CELL_PX_MOBILE = 14
@@ -25,8 +36,16 @@ function useHeatmapCellMetrics() {
     const update = () =>
       setMetrics(
         mq.matches
-          ? { cellPx: CELL_PX_MOBILE, gapPx: CELL_GAP_PX_MOBILE, isMobile: true }
-          : { cellPx: CELL_PX_DESKTOP, gapPx: CELL_GAP_PX_DESKTOP, isMobile: false },
+          ? {
+              cellPx: CELL_PX_MOBILE,
+              gapPx: CELL_GAP_PX_MOBILE,
+              isMobile: true,
+            }
+          : {
+              cellPx: CELL_PX_DESKTOP,
+              gapPx: CELL_GAP_PX_DESKTOP,
+              isMobile: false,
+            },
       )
     update()
     mq.addEventListener("change", update)
@@ -53,7 +72,11 @@ function heatColor(value: number, max: number): CSSProperties {
   }
 }
 
-function cellAriaLabel(value: number, dateLabel: string | null, t: TFunction): string {
+function cellAriaLabel(
+  value: number,
+  dateLabel: string | null,
+  t: TFunction,
+): string {
   if (!dateLabel) return ""
   if (value === 0) return t("heatmap.noSubmissionsTooltip", { date: dateLabel })
   return t("heatmap.submissionTooltip", {
@@ -101,7 +124,7 @@ function HeatmapCell({
       tabIndex={exportMode ? -1 : 0}
     >
       {!exportMode && isHovered && dateLabel && (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded border border-jutge-border bg-jutge-panel px-1.5 py-0.5 font-mono text-[9px] leading-tight text-jutge-text shadow-sm">
+        <span className="border-jutge-border bg-jutge-panel text-jutge-text pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 rounded border px-1.5 py-0.5 font-mono text-[9px] leading-tight whitespace-nowrap shadow-sm">
           {label}
         </span>
       )}
@@ -151,24 +174,30 @@ function MobileWeekHeatmapGrid({
   return (
     <div className="flex w-full max-w-full flex-col items-center gap-2">
       {showYearLabel && (
-        <h3 className="w-full text-center font-mono text-sm font-bold text-jutge-text">
+        <h3 className="text-jutge-text w-full text-center font-mono text-sm font-bold">
           {block.year}
         </h3>
       )}
       <div className="w-full max-w-full px-1 pt-2 pb-4">
-        <div className="mx-auto flex w-fit min-w-0 flex-col" style={{ gap: gapPx }}>
+        <div
+          className="mx-auto flex w-fit min-w-0 flex-col"
+          style={{ gap: gapPx }}
+        >
           <div className="flex items-center" style={{ gap: gapPx }}>
             <span
               aria-hidden
               className="shrink-0"
-              style={{ width: MOBILE_MONTH_LABEL_WIDTH_PX, minWidth: MOBILE_MONTH_LABEL_WIDTH_PX }}
+              style={{
+                width: MOBILE_MONTH_LABEL_WIDTH_PX,
+                minWidth: MOBILE_MONTH_LABEL_WIDTH_PX,
+              }}
             />
             {ROW_KEYS.map((rowKey) => {
               const label = t(`weekdaysShort.${rowKey}`)
               return (
                 <span
                   key={rowKey}
-                  className="flex items-center justify-center font-mono text-[9px] font-bold uppercase text-jutge-muted"
+                  className="text-jutge-muted flex items-center justify-center font-mono text-[9px] font-bold uppercase"
                   style={{ width: cellPx, minWidth: cellPx }}
                 >
                   {shortWeekdayLabel(label)}
@@ -178,10 +207,17 @@ function MobileWeekHeatmapGrid({
           </div>
 
           {Array.from({ length: grid[0]?.length ?? 0 }, (_, weekIdx) => (
-            <div key={`${block.year}-${weekIdx}`} className="flex items-center" style={{ gap: gapPx }}>
+            <div
+              key={`${block.year}-${weekIdx}`}
+              className="flex items-center"
+              style={{ gap: gapPx }}
+            >
               <span
-                className="shrink-0 truncate pr-1 text-right text-[10px] font-bold uppercase tracking-wide text-jutge-muted"
-                style={{ width: MOBILE_MONTH_LABEL_WIDTH_PX, minWidth: MOBILE_MONTH_LABEL_WIDTH_PX }}
+                className="text-jutge-muted shrink-0 truncate pr-1 text-right text-[10px] font-bold tracking-wide uppercase"
+                style={{
+                  width: MOBILE_MONTH_LABEL_WIDTH_PX,
+                  minWidth: MOBILE_MONTH_LABEL_WIDTH_PX,
+                }}
               >
                 {monthLabels[weekIdx] ?? ""}
               </span>
@@ -211,7 +247,12 @@ function MobileWeekHeatmapGrid({
   )
 }
 
-function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }: WeekHeatmapGridProps) {
+function WeekHeatmapGrid({
+  block,
+  maxValue,
+  showYearLabel,
+  exportMode = false,
+}: WeekHeatmapGridProps) {
   const { t } = useTranslation()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const responsiveMetrics = useHeatmapCellMetrics()
@@ -221,7 +262,7 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }:
   const { grid, labels, monthLabels } = block
 
   if (grid.length === 0 || !grid[0]?.length) {
-    return <p className="text-sm text-jutge-muted">{t("heatmap.noActivity")}</p>
+    return <p className="text-jutge-muted text-sm">{t("heatmap.noActivity")}</p>
   }
 
   if (isMobile) {
@@ -246,11 +287,11 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }:
       className={
         exportMode
           ? "flex max-w-full flex-col items-center gap-2"
-          : "flex w-full min-w-0 max-w-full flex-col items-center gap-2 sm:w-auto"
+          : "flex w-full max-w-full min-w-0 flex-col items-center gap-2 sm:w-auto"
       }
     >
       {showYearLabel && (
-        <h3 className="w-full text-center font-mono text-sm font-bold text-jutge-text">
+        <h3 className="text-jutge-text w-full text-center font-mono text-sm font-bold">
           {block.year}
         </h3>
       )}
@@ -272,7 +313,7 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }:
                 label ? (
                   <span
                     key={colIdx}
-                    className="pointer-events-none absolute bottom-0 origin-bottom-left truncate font-mono text-[10px] leading-none text-jutge-muted"
+                    className="text-jutge-muted pointer-events-none absolute bottom-0 origin-bottom-left truncate font-mono text-[10px] leading-none"
                     style={{
                       left: colIdx * (cellPx + gapPx),
                       maxWidth: cellPx + gapPx,
@@ -287,10 +328,13 @@ function WeekHeatmapGrid({ block, maxValue, showYearLabel, exportMode = false }:
           </div>
           {grid.map((row, rowIdx) => (
             <div key={ROW_KEYS[rowIdx]} className="flex items-center gap-2">
-              <span className="w-8 shrink-0 text-[11px] text-jutge-muted">
+              <span className="text-jutge-muted w-8 shrink-0 text-[11px]">
                 {t(`weekdaysShort.${ROW_KEYS[rowIdx]}`)}
               </span>
-              <div className="flex shrink-0" style={{ width: gridWidthPx, gap: gapPx }}>
+              <div
+                className="flex shrink-0"
+                style={{ width: gridWidthPx, gap: gapPx }}
+              >
                 {row.map((value, colIdx) => {
                   const dateLabel = labels[rowIdx]?.[colIdx] ?? null
                   const cellId = `${block.year}-${rowIdx}-${colIdx}`
@@ -328,7 +372,7 @@ export function ActivityCalendar({
   const { t } = useTranslation()
 
   if (heatmap.yearBlocks.length === 0) {
-    return <p className="text-sm text-jutge-muted">{t("heatmap.noActivity")}</p>
+    return <p className="text-jutge-muted text-sm">{t("heatmap.noActivity")}</p>
   }
 
   const showYearLabels = heatmap.calendarMode === "multiYear"
@@ -339,7 +383,7 @@ export function ActivityCalendar({
       className={
         exportMode
           ? "flex max-w-full flex-col items-center gap-8"
-          : "flex w-full min-w-0 max-w-full flex-col items-center gap-8 sm:w-auto"
+          : "flex w-full max-w-full min-w-0 flex-col items-center gap-8 sm:w-auto"
       }
     >
       {heatmap.yearBlocks.map((block) => (

@@ -11,6 +11,11 @@ This is an unofficial fan project and is not affiliated with Jutge.org or the UP
 - Framer Motion
 - Lucide React
 
+## Developer docs
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Architecture overview](docs/ARCHITECTURE.md)
+
 ## Security
 
 - Credentials are sent only to the official Jutge API at login.
@@ -22,6 +27,7 @@ This is an unofficial fan project and is not affiliated with Jutge.org or the UP
 
 ```bash
 npm install
+nvm use
 npm run dev
 ```
 
@@ -32,11 +38,22 @@ After login, choose a date window:
 
 Use **Dates** in the deck header to change the window without logging out again.
 
-Optional env vars (`.env`):
+Optional env vars (`.env` from `.env.example`):
 
 ```env
 VITE_JUTGE_API_URL=https://api.jutge.org/api
 VITE_JUTGE_DOMAIN=
+VITE_SNAPSHOT_PATH=
+VITE_DEV_HTTPS=false
+```
+
+Useful local checks:
+
+```bash
+npm run typecheck
+npm run lint
+npm run test
+npm run build
 ```
 
 ## Export snapshot (design / debugging)

@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { downloadToBlobUrl, fetchStudentAvatar, mapApiError } from "@/api/client"
+import {
+  downloadToBlobUrl,
+  fetchStudentAvatar,
+  mapApiError,
+} from "@/api/client"
 import type { JutgeApiClient, Submission } from "@/api/client"
 import { buildWrappedInsights } from "./selectors"
 import type { WrappedRawData } from "./types"
@@ -27,7 +31,11 @@ export type WrappedLoadErrorKind =
 export type WrappedLoadState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ready"; raw: WrappedRawData; insights: ReturnType<typeof buildWrappedInsights> }
+  | {
+      status: "ready"
+      raw: WrappedRawData
+      insights: ReturnType<typeof buildWrappedInsights>
+    }
   | { status: "error"; message: string; kind: WrappedLoadErrorKind }
 
 export function useWrappedData(
@@ -66,7 +74,9 @@ export function useWrappedData(
 
     if (snapshot) {
       revokeAvatar()
-      const hasSubmissionList = Boolean(snapshot.submissions && snapshot.submissions.length > 0)
+      const hasSubmissionList = Boolean(
+        snapshot.submissions && snapshot.submissions.length > 0,
+      )
       const dashboard = dashboardForWrappedPeriod(
         {
           dashboard: snapshot.dashboard,
@@ -113,16 +123,23 @@ export function useWrappedData(
     readyRawRef.current = null
 
     try {
-      const [profile, avatarDownload, tables, hexColors, homepageStats, level, absoluteRanking] =
-        await Promise.all([
-          client.student.profile.get(),
-          fetchStudentAvatar(client),
-          client.tables.get(),
-          client.misc.getHexColors(),
-          client.misc.getHomepageStats(),
-          client.student.dashboard.getLevel(),
-          client.student.dashboard.getAbsoluteRanking(),
-        ])
+      const [
+        profile,
+        avatarDownload,
+        tables,
+        hexColors,
+        homepageStats,
+        level,
+        absoluteRanking,
+      ] = await Promise.all([
+        client.student.profile.get(),
+        fetchStudentAvatar(client),
+        client.tables.get(),
+        client.misc.getHexColors(),
+        client.misc.getHomepageStats(),
+        client.student.dashboard.getLevel(),
+        client.student.dashboard.getAbsoluteRanking(),
+      ])
 
       let dashboard
       let periodSubmissions: Submission[] | undefined
@@ -130,7 +147,9 @@ export function useWrappedData(
         dashboard = await client.student.dashboard.getDashboard()
       } else {
         const allSubmissions = await client.student.submissions.getAll()
-        const filtered = allSubmissions.filter((s) => submissionInPeriod(s, period))
+        const filtered = allSubmissions.filter((s) =>
+          submissionInPeriod(s, period),
+        )
         if (filtered.length === 0) {
           setState({
             status: "error",
@@ -146,7 +165,9 @@ export function useWrappedData(
         periodSubmissions = filtered
       }
 
-      const avatarUrl = avatarDownload ? downloadToBlobUrl(avatarDownload) : null
+      const avatarUrl = avatarDownload
+        ? downloadToBlobUrl(avatarDownload)
+        : null
       if (avatarUrl) avatarUrlRef.current = avatarUrl
 
       const raw: WrappedRawData = {
@@ -170,7 +191,11 @@ export function useWrappedData(
       })
     } catch (error) {
       const mapped = mapApiError(error)
-      setState({ status: "error", message: translateApiError(mapped), kind: mapped.kind })
+      setState({
+        status: "error",
+        message: translateApiError(mapped),
+        kind: mapped.kind,
+      })
     }
   }, [client, period, snapshot, revokeAvatar])
 
@@ -193,14 +218,23 @@ export function useWrappedData(
           return { ...prev, message: invalidRangeMessage(period) }
         }
         if (prev.kind === "empty_range") {
-          const hasList = Boolean(snapshot?.submissions && snapshot.submissions.length > 0)
+          const hasList = Boolean(
+            snapshot?.submissions && snapshot.submissions.length > 0,
+          )
           return {
             ...prev,
-            message: emptyRangeMessage(period, snapshot ? "snapshot" : "live", hasList),
+            message: emptyRangeMessage(
+              period,
+              snapshot ? "snapshot" : "live",
+              hasList,
+            ),
           }
         }
         if (prev.kind === "network") {
-          return { ...prev, message: translateApiError({ kind: "network", message: "" }) }
+          return {
+            ...prev,
+            message: translateApiError({ kind: "network", message: "" }),
+          }
         }
       }
       return prev

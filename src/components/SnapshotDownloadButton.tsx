@@ -37,7 +37,9 @@ export function SnapshotDownloadButton({
       ? "jutge-btn-default border-white/30 bg-transparent text-white hover:bg-white/10"
       : "jutge-btn-default"
 
-  const label = downloading ? t("snapshot.downloading") : t("snapshot.downloadButton")
+  const label = downloading
+    ? t("snapshot.downloading")
+    : t("snapshot.downloadButton")
 
   return (
     <button
@@ -52,7 +54,11 @@ export function SnapshotDownloadButton({
       className={`${btnClass} ${className} flex shrink-0 items-center gap-1 disabled:opacity-40`}
     >
       <Download className="h-4 w-4 shrink-0" />
-      <span className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}>{label}</span>
+      <span
+        className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}
+      >
+        {label}
+      </span>
     </button>
   )
 }

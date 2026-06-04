@@ -17,7 +17,7 @@ export function CorsOverlay({ kind, message, onDismiss }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
       <div className="jutge-panel max-w-lg">
         <div className="jutge-panel-heading flex items-start justify-between gap-4">
-          <div className="flex items-center gap-2 text-jutge-orange">
+          <div className="text-jutge-orange flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 shrink-0" />
             <span>{t("cors.title")}</span>
           </div>
@@ -32,9 +32,9 @@ export function CorsOverlay({ kind, message, onDismiss }: Props) {
             </button>
           )}
         </div>
-        <div className="jutge-panel-body space-y-3 text-sm text-jutge-text">
+        <div className="jutge-panel-body text-jutge-text space-y-3 text-sm">
           <p>{message}</p>
-          <ul className="list-inside list-disc text-jutge-muted">
+          <ul className="text-jutge-muted list-inside list-disc">
             <li>{t("cors.hintCredentials")}</li>
             <li>
               <Trans

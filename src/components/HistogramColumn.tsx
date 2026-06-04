@@ -36,7 +36,7 @@ export function HistogramColumn({
     >
       <div className="relative flex w-full flex-col items-center">
         {showCount && (
-          <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-0.5 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] font-bold leading-none text-jutge-text">
+          <span className="text-jutge-text pointer-events-none absolute bottom-full left-1/2 z-10 mb-0.5 -translate-x-1/2 font-mono text-[10px] leading-none font-bold whitespace-nowrap">
             {count}
           </span>
         )}

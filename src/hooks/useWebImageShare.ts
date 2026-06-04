@@ -27,8 +27,10 @@ export const useWebImageShare = (): UseWebImageShareReturn => {
   const [isSharing, setIsSharing] = useState(false)
 
   const [{ canShare, isSecureContext }] = useState(() => {
-    const hasShare = typeof navigator !== "undefined" && typeof navigator.share === "function"
-    const isSecureContext = typeof window !== "undefined" && window.isSecureContext
+    const hasShare =
+      typeof navigator !== "undefined" && typeof navigator.share === "function"
+    const isSecureContext =
+      typeof window !== "undefined" && window.isSecureContext
     return { canShare: hasShare && isSecureContext, isSecureContext }
   })
 
@@ -43,7 +45,10 @@ export const useWebImageShare = (): UseWebImageShareReturn => {
       const { fileName = "share-image.png" } = options
       try {
         if (typeof navigator.share !== "function") {
-          return { success: false, error: new Error("Native share not supported") }
+          return {
+            success: false,
+            error: new Error("Native share not supported"),
+          }
         }
 
         const file = imageUrl.startsWith("data:")
@@ -53,16 +58,22 @@ export const useWebImageShare = (): UseWebImageShareReturn => {
               const blob = await response.blob()
               const fileType = blob.type || "image/png"
               const extension = fileType.split("/")[1] || "png"
-              return new File([blob], `share-image.${extension}`, { type: fileType })
+              return new File([blob], `share-image.${extension}`, {
+                type: fileType,
+              })
             })()
 
         const shareData: ShareData = { files: [file], title, text }
         const filesOnlyData: ShareData = { files: [file] }
 
         const canFilesOnly =
-          typeof navigator.canShare === "function" ? navigator.canShare(filesOnlyData) : true
+          typeof navigator.canShare === "function"
+            ? navigator.canShare(filesOnlyData)
+            : true
         const canWithMeta =
-          typeof navigator.canShare === "function" ? navigator.canShare(shareData) : false
+          typeof navigator.canShare === "function"
+            ? navigator.canShare(shareData)
+            : false
 
         const payload = canWithMeta ? shareData : filesOnlyData
         await navigator.share(canFilesOnly ? payload : filesOnlyData)

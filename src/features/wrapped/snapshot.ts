@@ -52,7 +52,9 @@ function isWrappedRawData(value: unknown): value is WrappedRawData {
   )
 }
 
-function avatarFromExport(avatar: ExportedJutgeSnapshot["avatar"]): string | null {
+function avatarFromExport(
+  avatar: ExportedJutgeSnapshot["avatar"],
+): string | null {
   if (!avatar?.base64) return null
   const binary = atob(avatar.base64)
   const bytes = new Uint8Array(binary.length)
@@ -94,7 +96,8 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
 
 function uint8ArrayToBase64(bytes: Uint8Array): string {
   let binary = ""
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!)
+  for (let i = 0; i < bytes.length; i++)
+    binary += String.fromCharCode(bytes[i]!)
   return btoa(binary)
 }
 
@@ -133,16 +136,23 @@ export function serializeSnapshot(
 
 export function snapshotDownloadFilename(raw: WrappedRawData): string {
   const user = raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
-  const safeUser = user.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40)
+  const safeUser = user
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
   const periodPart =
-    raw.period.start && raw.period.end ? `${raw.period.start}_${raw.period.end}` : "all-time"
+    raw.period.start && raw.period.end
+      ? `${raw.period.start}_${raw.period.end}`
+      : "all-time"
   return `jutge-wrapped-${safeUser || "user"}-${periodPart}.json`
 }
 
 export async function downloadSnapshotJson(raw: WrappedRawData): Promise<void> {
   const avatar = await avatarUrlToExport(raw.avatarUrl)
   const payload = serializeSnapshot(raw, avatar)
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
   anchor.href = url

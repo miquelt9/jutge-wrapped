@@ -6,10 +6,7 @@ import fs from "node:fs"
 
 const SNAPSHOT_PATH =
   process.argv[2] ??
-  new URL(
-    "../artifacts/snapshot-1780343576383.json",
-    import.meta.url,
-  ).pathname
+  new URL("../artifacts/snapshot-1780343576383.json", import.meta.url).pathname
 
 const AY_START = "2025-09-01"
 const AY_END = "2026-07-31"
@@ -141,7 +138,9 @@ const existingInAy = snap.dashboard.heatmap.filter((c) => {
   return iso >= AY_START && iso <= AY_END
 })
 if (existingInAy.length > 0) {
-  console.warn(`Removing ${existingInAy.length} existing cells in ${AY_START}…${AY_END}`)
+  console.warn(
+    `Removing ${existingInAy.length} existing cells in ${AY_START}…${AY_END}`,
+  )
 }
 const withoutAy = snap.dashboard.heatmap.filter((c) => {
   const iso = isoFromTs(c.date)
@@ -154,7 +153,9 @@ const { cells: newCells, total: newSubmissions } = generateAyHeatmap(
   rng,
 )
 
-const mergedHeatmap = [...withoutAy, ...newCells].sort((a, b) => a.date - b.date)
+const mergedHeatmap = [...withoutAy, ...newCells].sort(
+  (a, b) => a.date - b.date,
+)
 const heatmapTotal = mergedHeatmap.reduce((s, c) => s + c.value, 0)
 
 snap.dashboard.heatmap = mergedHeatmap
@@ -164,7 +165,10 @@ const dist = snap.dashboard.distributions
 dist.verdicts = addProportional(dist.verdicts, newSubmissions)
 dist.compilers = addProportional(dist.compilers, newSubmissions)
 dist.proglangs = addProportional(dist.proglangs, newSubmissions)
-dist.submissions_by_hour = addProportional(dist.submissions_by_hour, newSubmissions)
+dist.submissions_by_hour = addProportional(
+  dist.submissions_by_hour,
+  newSubmissions,
+)
 dist.submissions_by_weekday = addProportional(
   dist.submissions_by_weekday,
   newSubmissions,

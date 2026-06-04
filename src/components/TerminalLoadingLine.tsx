@@ -48,7 +48,7 @@ export function TerminalLoadingLine() {
 
   return (
     <div className="jutge-panel max-w-xl">
-      <div className="jutge-panel-body font-mono text-sm text-jutge-text">
+      <div className="jutge-panel-body text-jutge-text font-mono text-sm">
         <span className="text-jutge-blue">&gt; </span>
         {`${fullText.slice(0, visibleChars)}${suffix}`}
       </div>

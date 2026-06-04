@@ -8,7 +8,10 @@ type Props = {
   variant?: "default" | "onDark"
 }
 
-export function SnapshotLoadButton({ className = "", variant = "default" }: Props) {
+export function SnapshotLoadButton({
+  className = "",
+  variant = "default",
+}: Props) {
   const { t } = useTranslation()
   const { loadFromFile, snapshotError, clearError } = useSnapshot()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,7 +55,9 @@ export function SnapshotLoadButton({ className = "", variant = "default" }: Prop
         <FileJson className="h-4 w-4" />
         {loading ? t("snapshot.loading") : t("snapshot.loadButton")}
       </button>
-      {snapshotError && <p className="jutge-alert-danger mt-2">{snapshotError}</p>}
+      {snapshotError && (
+        <p className="jutge-alert-danger mt-2">{snapshotError}</p>
+      )}
     </div>
   )
 }

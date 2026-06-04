@@ -151,15 +151,15 @@ body {
 
 @layer components {
   .jutge-page {
-    @apply min-h-full overflow-x-hidden bg-jutge-bg text-jutge-text;
+    @apply bg-jutge-bg text-jutge-text min-h-full overflow-x-hidden;
   }
 
   .jutge-nav {
-    @apply shrink-0 bg-jutge-nav text-white;
+    @apply bg-jutge-nav shrink-0 text-white;
   }
 
   .jutge-nav-inner {
-    @apply flex min-w-0 w-full items-center justify-between gap-2 px-4 py-3;
+    @apply flex w-full min-w-0 items-center justify-between gap-2 px-4 py-3;
   }
 
   .jutge-nav-start {
@@ -171,13 +171,13 @@ body {
   }
 
   .jutge-panel {
-    @apply min-w-0 max-w-full border border-jutge-border bg-jutge-panel;
+    @apply border-jutge-border bg-jutge-panel max-w-full min-w-0 border;
     border-radius: var(--jutge-radius);
     box-shadow: none;
   }
 
   .jutge-panel-heading {
-    @apply border-b border-jutge-border px-4 py-3 text-sm font-bold;
+    @apply border-jutge-border border-b px-4 py-3 text-sm font-bold;
   }
 
   [data-theme="fib"] .jutge-panel-heading {
@@ -203,7 +203,7 @@ body {
   }
 
   .jutge-theme-select {
-    @apply border border-jutge-border px-2 py-1.5 text-sm text-jutge-text outline-none;
+    @apply border-jutge-border text-jutge-text border px-2 py-1.5 text-sm outline-none;
     border-radius: var(--jutge-radius);
     background: var(--jutge-input-bg);
     box-shadow: none;
@@ -229,24 +229,24 @@ body {
   }
 
   .jutge-panel-body {
-    @apply min-w-0 max-w-full p-4;
+    @apply max-w-full min-w-0 p-4;
   }
 
   .jutge-chart-panel-body {
-    @apply min-w-0 max-w-full overflow-x-hidden p-4;
+    @apply max-w-full min-w-0 overflow-x-hidden p-4;
   }
 
   .jutge-eyebrow {
-    @apply text-xs font-bold uppercase tracking-wide text-jutge-muted;
+    @apply text-jutge-muted text-xs font-bold tracking-wide uppercase;
   }
 
   .jutge-title {
     font-family: var(--font-score);
-    @apply text-4xl font-bold leading-tight text-jutge-text md:text-[40px];
+    @apply text-jutge-text text-4xl leading-tight font-bold md:text-[40px];
   }
 
   .jutge-subtitle {
-    @apply max-w-2xl text-base text-jutge-muted md:text-lg;
+    @apply text-jutge-muted max-w-2xl text-base md:text-lg;
   }
 
   .jutge-score {
@@ -255,7 +255,7 @@ body {
   }
 
   .jutge-input {
-    @apply w-full border border-jutge-border px-3 py-2 text-jutge-text outline-none;
+    @apply border-jutge-border text-jutge-text w-full border px-3 py-2 outline-none;
     border-radius: var(--jutge-radius);
     background: var(--jutge-input-bg);
   }
@@ -266,7 +266,7 @@ body {
   }
 
   .jutge-btn-primary {
-    @apply border border-jutge-blue-border px-4 py-2 font-bold text-white;
+    @apply border-jutge-blue-border border px-4 py-2 font-bold text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-blue);
   }
@@ -280,7 +280,7 @@ body {
   }
 
   .jutge-btn-default {
-    @apply border border-jutge-border px-3 py-1.5 text-sm text-jutge-text;
+    @apply border-jutge-border text-jutge-text border px-3 py-1.5 text-sm;
     border-radius: var(--jutge-radius);
     background: var(--jutge-panel);
   }
@@ -290,28 +290,28 @@ body {
   }
 
   .jutge-metric-green {
-    @apply border border-jutge-green-border text-white;
+    @apply border-jutge-green-border border text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-green);
     box-shadow: none;
   }
 
   .jutge-metric-red {
-    @apply border border-jutge-red-border text-white;
+    @apply border-jutge-red-border border text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-red);
     box-shadow: none;
   }
 
   .jutge-metric-orange {
-    @apply border border-jutge-orange-border text-white;
+    @apply border-jutge-orange-border border text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-orange);
     box-shadow: none;
   }
 
   .jutge-metric-blue {
-    @apply border border-jutge-blue-border text-white;
+    @apply border-jutge-blue-border border text-white;
     border-radius: var(--jutge-radius);
     background: var(--jutge-blue);
     box-shadow: none;
@@ -326,14 +326,14 @@ body {
   }
 
   .jutge-metric-neutral {
-    @apply border border-jutge-border text-jutge-text;
+    @apply border-jutge-border text-jutge-text border;
     border-radius: var(--jutge-radius);
     background: var(--jutge-metric-neutral-bg);
     box-shadow: none;
   }
 
   .jutge-alert-danger {
-    @apply border border-jutge-red-border px-3 py-2 text-sm;
+    @apply border-jutge-red-border border px-3 py-2 text-sm;
     border-radius: var(--jutge-radius);
     background: var(--jutge-alert-danger-bg);
     color: var(--jutge-alert-danger-text);

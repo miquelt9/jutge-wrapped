@@ -25,7 +25,7 @@ export function IntroSlide({ raw, insights }: Props) {
           <div className="jutge-panel w-full min-w-0 lg:w-auto lg:min-w-[18rem] lg:flex-none">
             <div className="jutge-panel-body flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
               <div
-                className="h-24 w-24 shrink-0 overflow-hidden border border-jutge-border bg-jutge-panel sm:h-32 sm:w-32"
+                className="border-jutge-border bg-jutge-panel h-24 w-24 shrink-0 overflow-hidden border sm:h-32 sm:w-32"
                 style={{ borderRadius: 0 }}
               >
                 {raw.avatarUrl ? (
@@ -43,17 +43,17 @@ export function IntroSlide({ raw, insights }: Props) {
                 )}
               </div>
               <div className="min-w-0 text-center sm:text-left">
-                <p className="text-xs font-bold uppercase text-jutge-muted">
+                <p className="text-jutge-muted text-xs font-bold uppercase">
                   {t("slides.intro.judgeLevel")}
                 </p>
-                <p className="jutge-score text-2xl text-jutge-blue">{level}</p>
-                <p className="mt-1 text-sm text-jutge-muted">
+                <p className="jutge-score text-jutge-blue text-2xl">{level}</p>
+                <p className="text-jutge-muted mt-1 text-sm">
                   {raw.profile.name || raw.profile.email}
                 </p>
               </div>
             </div>
           </div>
-          <div className="grid min-w-0 w-full flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid w-full min-w-0 flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               icon={<ThumbsUp className="h-6 w-6" />}
               label={t("slides.intro.acceptedProblems")}
@@ -82,16 +82,20 @@ export function IntroSlide({ raw, insights }: Props) {
           </div>
         </div>
         {personalized.introActivity && (
-          <p className="text-sm text-jutge-muted">{personalized.introActivity}</p>
+          <p className="text-jutge-muted text-sm">
+            {personalized.introActivity}
+          </p>
         )}
         {hero && (
-          <div className="jutge-panel border-l-4 border-l-jutge-blue">
+          <div className="jutge-panel border-l-jutge-blue border-l-4">
             <div className="jutge-panel-body">
-              <p className="text-xs font-bold uppercase text-jutge-muted">
+              <p className="text-jutge-muted text-xs font-bold uppercase">
                 {t("personalization.hero.label")}
               </p>
-              <p className="jutge-score mt-1 text-lg text-jutge-text">{hero.headline}</p>
-              <p className="mt-1 text-sm text-jutge-muted">{hero.detail}</p>
+              <p className="jutge-score text-jutge-text mt-1 text-lg">
+                {hero.headline}
+              </p>
+              <p className="text-jutge-muted mt-1 text-sm">{hero.detail}</p>
             </div>
           </div>
         )}
@@ -124,7 +128,9 @@ function MetricCard({
     <div className={`p-5 ${cls}`}>
       {icon}
       <p className="mt-3 text-xs font-bold uppercase opacity-90">{label}</p>
-      <p className={`jutge-score mt-1 ${text ? "text-2xl" : "text-4xl"}`}>{value}</p>
+      <p className={`jutge-score mt-1 ${text ? "text-2xl" : "text-4xl"}`}>
+        {value}
+      </p>
     </div>
   )
 }

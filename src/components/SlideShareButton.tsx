@@ -32,9 +32,12 @@ export function SlideShareButton({
   compact = false,
 }: Props) {
   const { t } = useTranslation()
-  const { shareImage, isSharing, canShare, isSecureContext } = useWebImageShare()
+  const { shareImage, isSharing, canShare, isSecureContext } =
+    useWebImageShare()
   const [isBusy, setIsBusy] = useState(false)
-  const [imageReady, setImageReady] = useState(() => imageCacheRef.current.has(slideId))
+  const [imageReady, setImageReady] = useState(() =>
+    imageCacheRef.current.has(slideId),
+  )
 
   useEffect(() => {
     if (imageCacheRef.current.has(slideId)) {
@@ -134,7 +137,11 @@ export function SlideShareButton({
       className={`${btnClass} ${className} flex shrink-0 items-center gap-1 disabled:opacity-40`}
     >
       {icon}
-      <span className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}>{label}</span>
+      <span
+        className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}
+      >
+        {label}
+      </span>
     </button>
   )
 }

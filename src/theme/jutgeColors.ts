@@ -72,7 +72,10 @@ function relativeLuminance([r, g, b]: [number, number, number]): number {
   return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-function contrastRatio(fg: [number, number, number], bg: [number, number, number]): number {
+function contrastRatio(
+  fg: [number, number, number],
+  bg: [number, number, number],
+): number {
   const l1 = relativeLuminance(fg)
   const l2 = relativeLuminance(bg)
   const lighter = Math.max(l1, l2)

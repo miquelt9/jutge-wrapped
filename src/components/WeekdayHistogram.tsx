@@ -1,7 +1,10 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistogramColumn, histogramBarMaxHeight } from "@/components/HistogramColumn"
+import {
+  HistogramColumn,
+  histogramBarMaxHeight,
+} from "@/components/HistogramColumn"
 import type { DistributionItem } from "@/features/wrapped/types"
 
 const CHART_HEIGHT_PX = 168
@@ -19,9 +22,9 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
   const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
-    <div className="min-w-0 w-full">
+    <div className="w-full min-w-0">
       <div
-        className="flex min-w-0 items-end justify-between gap-1 border-b border-jutge-border px-1 sm:gap-2"
+        className="border-jutge-border flex min-w-0 items-end justify-between gap-1 border-b px-1 sm:gap-2"
         style={{ height: CHART_HEIGHT_PX }}
       >
         {days.map((day, index) => {
@@ -41,9 +44,11 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
               onHover={setHoveredId}
             >
               <motion.div
-                className="w-full min-w-0 max-w-[56px] sm:min-w-[20px]"
+                className="w-full max-w-[56px] min-w-0 sm:min-w-[20px]"
                 style={{
-                  backgroundColor: isPeak ? "var(--jutge-green)" : "var(--jutge-blue)",
+                  backgroundColor: isPeak
+                    ? "var(--jutge-green)"
+                    : "var(--jutge-blue)",
                   borderRadius: 0,
                 }}
                 initial={{ height: reduceMotion ? barHeight : 0 }}
@@ -66,10 +71,14 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
             <span
               key={day.key}
               className={`flex-1 text-center font-mono text-[11px] ${
-                isPeak || isHovered ? "font-bold text-jutge-text" : "text-jutge-muted"
+                isPeak || isHovered
+                  ? "text-jutge-text font-bold"
+                  : "text-jutge-muted"
               }`}
             >
-              {t(`weekdaysShort.${day.key}`, { defaultValue: day.label.slice(0, 3) })}
+              {t(`weekdaysShort.${day.key}`, {
+                defaultValue: day.label.slice(0, 3),
+              })}
             </span>
           )
         })}

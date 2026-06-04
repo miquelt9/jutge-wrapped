@@ -1,6 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { DISTRIBUTION_DONUT_SIZE, DistributionDonut } from "@/components/DistributionDonut"
+import {
+  DISTRIBUTION_DONUT_SIZE,
+  DistributionDonut,
+} from "@/components/DistributionDonut"
 import { compilerColor } from "@/theme/jutgeColors"
 import type { DistributionItem } from "@/features/wrapped/types"
 
@@ -9,7 +12,10 @@ type Props = {
   size?: number
 }
 
-export function CompilerDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) {
+export function CompilerDonut({
+  items,
+  size = DISTRIBUTION_DONUT_SIZE,
+}: Props) {
   const { t } = useTranslation()
   const getColor = useCallback(
     (item: DistributionItem) => compilerColor(item.key, item.color),

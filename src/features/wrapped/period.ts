@@ -1,4 +1,9 @@
-import type { AllTables, Dashboard, HeatmapCalendar, Submission } from "@/api/client"
+import type {
+  AllTables,
+  Dashboard,
+  HeatmapCalendar,
+  Submission,
+} from "@/api/client"
 import i18n from "@/i18n/config"
 
 export type WrappedPeriod = {
@@ -37,7 +42,9 @@ export function filterDashboardByPeriod(
 ): Dashboard {
   if (isAllTimePeriod(period)) return dashboard
 
-  const heatmap = dashboard.heatmap.filter((c) => heatmapCellInPeriod(c, period))
+  const heatmap = dashboard.heatmap.filter((c) =>
+    heatmapCellInPeriod(c, period),
+  )
   const totalSubmissions = heatmap.reduce((sum, c) => sum + c.value, 0)
 
   return {
@@ -56,7 +63,8 @@ export function isValidDateRange(start: string, end: string): boolean {
 
 export function isValidBoundedPeriod(period: WrappedPeriod): boolean {
   if (isAllTimePeriod(period)) return true
-  if (period.start && period.end) return isValidDateRange(period.start, period.end)
+  if (period.start && period.end)
+    return isValidDateRange(period.start, period.end)
   return true
 }
 
@@ -91,7 +99,9 @@ export function dashboardForWrappedPeriod(
   if (isAllTimePeriod(period)) return source.dashboard
 
   if (source.submissions && source.submissions.length > 0) {
-    const filtered = source.submissions.filter((s) => submissionInPeriod(s, period))
+    const filtered = source.submissions.filter((s) =>
+      submissionInPeriod(s, period),
+    )
     if (filtered.length > 0) {
       return aggregateDashboardFromSubmissions(filtered, source.tables)
     }
@@ -180,7 +190,8 @@ export function aggregateDashboardFromSubmissions(
     submissionsByHour[hourKey] = (submissionsByHour[hourKey] ?? 0) + 1
 
     const weekdayKey = WEEKDAY_KEYS[t.getDay()]!
-    submissionsByWeekday[weekdayKey] = (submissionsByWeekday[weekdayKey] ?? 0) + 1
+    submissionsByWeekday[weekdayKey] =
+      (submissionsByWeekday[weekdayKey] ?? 0) + 1
 
     problemsAttempted.add(sub.problem_id)
     if (sub.veredict === "AC") problemsWithAc.add(sub.problem_id)
@@ -249,7 +260,10 @@ export function heatmapBounds(heatmap: HeatmapCalendar): {
     const d = new Date(ts > 1e12 ? ts : ts * 1000)
     return d.toISOString().slice(0, 10)
   }
-  return { min: toIso(sorted[0]!.date), max: toIso(sorted[sorted.length - 1]!.date) }
+  return {
+    min: toIso(sorted[0]!.date),
+    max: toIso(sorted[sorted.length - 1]!.date),
+  }
 }
 
 export function formatPeriodLabel(period: WrappedPeriod): string {

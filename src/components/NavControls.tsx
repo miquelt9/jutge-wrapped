@@ -8,7 +8,11 @@ type Props = {
   className?: string
 }
 
-export function NavControls({ onDark = false, compact = false, className = "" }: Props) {
+export function NavControls({
+  onDark = false,
+  compact = false,
+  className = "",
+}: Props) {
   if (!compact) {
     return (
       <div className={`flex min-w-0 items-center gap-2 ${className}`}>
@@ -27,7 +31,11 @@ export function NavControls({ onDark = false, compact = false, className = "" }:
         compact
         className="order-1 min-w-0 flex-1 sm:order-2 sm:flex-none"
       />
-      <LanguageSelect onDark={onDark} compact className="order-2 shrink-0 sm:order-1" />
+      <LanguageSelect
+        onDark={onDark}
+        compact
+        className="order-2 shrink-0 sm:order-1"
+      />
     </div>
   )
 }

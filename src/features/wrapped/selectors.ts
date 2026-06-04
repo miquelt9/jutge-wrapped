@@ -97,9 +97,7 @@ export function distributionToItems(
         count,
         percent: Math.round((count / total) * 1000) / 10,
         color:
-          category === "compilers"
-            ? compilerColor(key, apiColor)
-            : apiColor,
+          category === "compilers" ? compilerColor(key, apiColor) : apiColor,
         emoji: tables?.verdicts[key]?.emoji,
         description: tables?.verdicts[key]?.description,
       }
@@ -126,7 +124,10 @@ function heatmapSpanWeeks(heatmap: HeatmapCalendar): number {
   return Math.floor((maxTs - minTs) / (7 * DAY_SECONDS)) + 1
 }
 
-function buildWeekMonthLabels(minTs: number, weekCount: number): (string | null)[] {
+function buildWeekMonthLabels(
+  minTs: number,
+  weekCount: number,
+): (string | null)[] {
   const labels: (string | null)[] = []
   let prevMonth: number | null = null
   for (let w = 0; w < weekCount; w++) {
@@ -151,7 +152,9 @@ function mondayBasedDow(ts: number): number {
   return (new Date(heatmapTimestampToMs(ts)).getUTCDay() + 6) % 7
 }
 
-function buildPeakMonth(heatmap: HeatmapCalendar): HeatmapInsights["peakMonth"] {
+function buildPeakMonth(
+  heatmap: HeatmapCalendar,
+): HeatmapInsights["peakMonth"] {
   if (heatmap.length === 0) return null
 
   const valueByMonth = new Map<string, number>()
@@ -180,7 +183,9 @@ function buildCalendarGridForRange(
   maxTs: number,
 ): Omit<HeatmapYearBlock, "year"> {
   const weekCount = Math.floor((maxTs - minTs) / (7 * DAY_SECONDS)) + 1
-  const grid: number[][] = Array.from({ length: 7 }, () => Array(weekCount).fill(0))
+  const grid: number[][] = Array.from({ length: 7 }, () =>
+    Array(weekCount).fill(0),
+  )
   const labels: (string | null)[][] = Array.from({ length: 7 }, () =>
     Array(weekCount).fill(null),
   )
@@ -222,7 +227,10 @@ function gridSpanWeeks(minTs: number, maxTs: number): number {
   return Math.floor((maxTs - minTs) / (7 * DAY_SECONDS)) + 1
 }
 
-function buildYearBlocks(heatmap: HeatmapCalendar, period?: WrappedPeriod): HeatmapYearBlock[] {
+function buildYearBlocks(
+  heatmap: HeatmapCalendar,
+  period?: WrappedPeriod,
+): HeatmapYearBlock[] {
   const bounds = periodGridBounds(heatmap, period)
   if (!bounds) return []
 
@@ -307,7 +315,11 @@ export function buildHeatmapInsights(
     calendarMode,
     longestStreak,
     peakDay: peakCell
-      ? { date: formatDate(peakCell.date), count: peakCell.value, timestamp: peakCell.date }
+      ? {
+          date: formatDate(peakCell.date),
+          count: peakCell.value,
+          timestamp: peakCell.date,
+        }
       : null,
     peakWeek,
     peakMonth: buildPeakMonth(dashboard.heatmap),
@@ -375,22 +387,29 @@ export function buildChronoInsights(dashboard: Dashboard): ChronoInsights {
     .filter((h) => h.hour >= 0 && h.hour <= 4)
     .reduce((s, h) => s + h.count, 0)
 
-  const morning = hours.filter((h) => h.hour >= 5 && h.hour < 12).reduce((s, h) => s + h.count, 0)
-  const afternoon = hours.filter((h) => h.hour >= 12 && h.hour < 18).reduce((s, h) => s + h.count, 0)
-  const evening = hours.filter((h) => h.hour >= 18 && h.hour <= 23).reduce((s, h) => s + h.count, 0)
+  const morning = hours
+    .filter((h) => h.hour >= 5 && h.hour < 12)
+    .reduce((s, h) => s + h.count, 0)
+  const afternoon = hours
+    .filter((h) => h.hour >= 12 && h.hour < 18)
+    .reduce((s, h) => s + h.count, 0)
+  const evening = hours
+    .filter((h) => h.hour >= 18 && h.hour <= 23)
+    .reduce((s, h) => s + h.count, 0)
 
   let archetypeKey = "balancedGrinder"
   const maxBucket = Math.max(morning, afternoon, evening, nightSubmissions)
-  if (nightSubmissions === maxBucket && nightSubmissions > 50) archetypeKey = "nightOwl"
+  if (nightSubmissions === maxBucket && nightSubmissions > 50)
+    archetypeKey = "nightOwl"
   else if (morning === maxBucket) archetypeKey = "earlyRiser"
   else if (evening === maxBucket) archetypeKey = "eveningCoder"
   else if (afternoon === maxBucket) archetypeKey = "afternoonOperator"
   const archetype = i18n.t(`chrono.archetypes.${archetypeKey}`)
 
-  const peak = hours.reduce(
-    (best, h) => (h.count > best.count ? h : best),
-    { hour: 0, count: 0 },
-  )
+  const peak = hours.reduce((best, h) => (h.count > best.count ? h : best), {
+    hour: 0,
+    count: 0,
+  })
 
   const subsTotal = dashboard.stats.number_of_submissions || 1
   const narrative =
@@ -434,8 +453,11 @@ export function buildCourseArcInsights(
     .filter((c) => COURSE_COMPILERS.has(c.key))
     .reduce((s, c) => s + c.count, 0)
 
-  const otherLanguages = proglangs.filter((p) => p.key !== proglangs[0]?.key).slice(0, 3)
-  const courseCompilerShare = Math.round((courseCompilerCount / total) * 1000) / 10
+  const otherLanguages = proglangs
+    .filter((p) => p.key !== proglangs[0]?.key)
+    .slice(0, 3)
+  const courseCompilerShare =
+    Math.round((courseCompilerCount / total) * 1000) / 10
   const topProglang = proglangs[0] ?? null
   const topCompiler = compilers[0] ?? null
 
@@ -568,7 +590,9 @@ function buildHeroMoment(
   let firstAc: { problemId: string; timeMs: number } | null = null
 
   for (const [problemId, subs] of byProblem) {
-    const sorted = [...subs].sort((a, b) => submissionTimeMs(a) - submissionTimeMs(b))
+    const sorted = [...subs].sort(
+      (a, b) => submissionTimeMs(a) - submissionTimeMs(b),
+    )
     const total = sorted.length
     if (!mostAttempted || total > mostAttempted.total) {
       mostAttempted = { problemId, total }
@@ -767,10 +791,14 @@ function buildPersonalizedInsights(
   }
 }
 
-export function buildRankInsights(rank: number, homepage: HomepageStats): RankInsights {
+export function buildRankInsights(
+  rank: number,
+  homepage: HomepageStats,
+): RankInsights {
   const platformUserCount = homepage.users || 1
   const usersAhead = Math.max(0, rank - 1)
-  const percentile = Math.round((1 - usersAhead / platformUserCount) * 1000) / 10
+  const percentile =
+    Math.round((1 - usersAhead / platformUserCount) * 1000) / 10
   const topPercent = Math.round((rank / platformUserCount) * 10000) / 100
   return {
     rank,
@@ -782,8 +810,17 @@ export function buildRankInsights(rank: number, homepage: HomepageStats): RankIn
 }
 
 export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
-  const { profile, dashboard, level, absoluteRanking, homepageStats, hexColors, tables } = raw
-  const displayName = profile.nickname || profile.name || profile.email.split("@")[0] || "Coder"
+  const {
+    profile,
+    dashboard,
+    level,
+    absoluteRanking,
+    homepageStats,
+    hexColors,
+    tables,
+  } = raw
+  const displayName =
+    profile.nickname || profile.name || profile.email.split("@")[0] || "Coder"
 
   const proglangs = distributionToItems(
     dashboard.distributions.proglangs,

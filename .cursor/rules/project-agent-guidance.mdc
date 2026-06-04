@@ -1,0 +1,14 @@
+---
+description: Project-wide guidance for agents working in jutge-wrapped
+alwaysApply: true
+---
+
+# Jutge Wrapped Guidance
+
+- Read `CONTRIBUTING.md` and `docs/ARCHITECTURE.md` before making structural changes.
+- Put slide UI in `src/features/wrapped/slides/*`, wrapped business logic in `src/features/wrapped/*`, and app-wide state changes in `src/context/*` or `src/App.tsx`.
+- Keep `src/components/*` generic unless a component is intentionally wrapped-specific.
+- Do not hand-edit generated clients in `src/api/jutgeClient.ts` or `jutge_api_client.ts` unless the change is an intentional sync/regeneration.
+- Update `src/i18n/locales/en.json`, `src/i18n/locales/es.json`, and `src/i18n/locales/ca.json` together when UI copy changes.
+- Do not commit `.env` files, secrets, or anything under `artifacts/`.
+- Before finishing substantial work, run `npm run lint`, `npm run test`, and `npm run build`.

@@ -1,0 +1,6 @@
+artifacts
+coverage
+dist
+node_modules
+src/api/jutgeClient.ts
+jutge_api_client.ts

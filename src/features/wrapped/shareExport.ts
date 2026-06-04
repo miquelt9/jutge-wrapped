@@ -60,7 +60,11 @@ export function getSlideShareText(
 }
 
 export function exportFilename(username: string, slideId: SlideId): string {
-  const safe = username.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "user"
+  const safe =
+    username
+      .replace(/[^a-zA-Z0-9_-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || "user"
   return `jutge-wrapped-${safe}-${slideId}.png`
 }
 

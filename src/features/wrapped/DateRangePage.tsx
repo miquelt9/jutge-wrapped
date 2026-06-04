@@ -34,14 +34,22 @@ function buildPresetOption(
   t: TFunction,
 ): PresetOption {
   const clipped = clipPeriodToBounds(start, end, bounds)
-  const period: WrappedPeriod = { start: clipped.start, end: clipped.end, label }
+  const period: WrappedPeriod = {
+    start: clipped.start,
+    end: clipped.end,
+    label,
+  }
 
   if (!isValidDateRange(clipped.start, clipped.end)) {
     return {
       label,
       period,
       disabled: true,
-      hint: t("dateRange.presetNoOverlap", { min: bounds.min, max: bounds.max, label }),
+      hint: t("dateRange.presetNoOverlap", {
+        min: bounds.min,
+        max: bounds.max,
+        label,
+      }),
     }
   }
 
@@ -68,7 +76,9 @@ export function DateRangePage() {
   const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { setPeriod } = useWrappedPeriod()
   const [heatmap, setHeatmap] = useState<HeatmapCalendar | null>(null)
-  const [bounds, setBounds] = useState<{ min: string; max: string } | null>(null)
+  const [bounds, setBounds] = useState<{ min: string; max: string } | null>(
+    null,
+  )
   const [loadingBounds, setLoadingBounds] = useState(true)
   const [start, setStart] = useState("")
   const [end, setEnd] = useState("")
@@ -160,12 +170,17 @@ export function DateRangePage() {
       options.push({
         label: String(year),
         period: {
-          start: clipPeriodToBounds(`${year}-01-01`, `${year}-12-31`, bounds).start,
+          start: clipPeriodToBounds(`${year}-01-01`, `${year}-12-31`, bounds)
+            .start,
           end: clipPeriodToBounds(`${year}-01-01`, `${year}-12-31`, bounds).end,
           label: String(year),
         },
         disabled: true,
-        hint: t("dateRange.presetNoOverlap", { min: bounds.min, max: bounds.max, label: year }),
+        hint: t("dateRange.presetNoOverlap", {
+          min: bounds.min,
+          max: bounds.max,
+          label: year,
+        }),
       })
     }
 
@@ -185,7 +200,12 @@ export function DateRangePage() {
     )
 
     const academic = getCurrentAcademicYearRange()
-    const academicPreset = clipPeriodPreset(academic.start, academic.end, bounds, academic.label)
+    const academicPreset = clipPeriodPreset(
+      academic.start,
+      academic.end,
+      bounds,
+      academic.label,
+    )
     if (academicPreset) {
       options.push(
         buildPresetOption(
@@ -222,7 +242,9 @@ export function DateRangePage() {
       <header className="jutge-nav">
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start min-w-0">
-            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <span className="truncate font-bold text-white">
+              {t("common.brand")}
+            </span>
             <span className="hidden truncate text-sm text-white/70 sm:inline">
               {t("dateRange.headerSuffix")}
             </span>
@@ -237,7 +259,9 @@ export function DateRangePage() {
                 className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
-                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+                <span className="sr-only sm:not-sr-only sm:inline">
+                  {t("deck.exit")}
+                </span>
               </button>
             )}
             <NavControls onDark compact />
@@ -252,18 +276,21 @@ export function DateRangePage() {
             {t("dateRange.heading")}
           </div>
           <div className="jutge-panel-body">
-            <p className="text-sm text-jutge-muted">{t("dateRange.intro")}</p>
+            <p className="text-jutge-muted text-sm">{t("dateRange.intro")}</p>
 
             {loadingBounds ? (
-              <div className="mt-6 flex items-center gap-2 text-sm text-jutge-muted">
-                <Loader2 className="h-4 w-4 animate-spin" /> {t("dateRange.loadingBounds")}
+              <div className="text-jutge-muted mt-6 flex items-center gap-2 text-sm">
+                <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                {t("dateRange.loadingBounds")}
               </div>
             ) : (
               <>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <PresetButton
                     label={allTimeLabel}
-                    onClick={() => setPreset({ start: null, end: null, label: allTimeLabel })}
+                    onClick={() =>
+                      setPreset({ start: null, end: null, label: allTimeLabel })
+                    }
                   />
                   {presetOptions.map((preset) => (
                     <PresetButton
@@ -278,7 +305,7 @@ export function DateRangePage() {
 
                 <form
                   onSubmit={handleCustomSubmit}
-                  className="mt-8 space-y-4 border-t border-jutge-border pt-6"
+                  className="border-jutge-border mt-8 space-y-4 border-t pt-6"
                 >
                   <p className="jutge-eyebrow">{t("dateRange.customRange")}</p>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -308,7 +335,9 @@ export function DateRangePage() {
                     </label>
                   </div>
                   {start && end && start > end && (
-                    <p className="jutge-alert-danger">{t("dateRange.invalidRange")}</p>
+                    <p className="jutge-alert-danger">
+                      {t("dateRange.invalidRange")}
+                    </p>
                   )}
                   <button
                     type="submit"
@@ -319,8 +348,10 @@ export function DateRangePage() {
                   </button>
                 </form>
 
-                <div className="mt-8 border-t border-jutge-border pt-6">
-                  <p className="text-xs text-jutge-muted">{t("dateRange.loadSnapshotHint")}</p>
+                <div className="border-jutge-border mt-8 border-t pt-6">
+                  <p className="text-jutge-muted text-xs">
+                    {t("dateRange.loadSnapshotHint")}
+                  </p>
                   <SnapshotLoadButton className="mt-3" />
                 </div>
               </>

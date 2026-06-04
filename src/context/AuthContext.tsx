@@ -32,7 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [client, setClient] = useState<JutgeApiClient | null>(null)
   const [status, setStatus] = useState<AuthStatus>("anonymous")
   const [userUid, setUserUid] = useState<string | null>(null)
-  const [tokenExpiresAt, setTokenExpiresAt] = useState<string | number | null>(null)
+  const [tokenExpiresAt, setTokenExpiresAt] = useState<string | number | null>(
+    null,
+  )
   const [error, setError] = useState<MappedApiError | null>(null)
 
   const login = useCallback(async (email: string, password: string) => {

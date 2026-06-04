@@ -17,18 +17,24 @@ export function ChronoSlide({ insights }: Props) {
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
         <div className="jutge-panel">
-          <div className="jutge-panel-heading">{t("slides.chrono.chartHeading")}</div>
+          <div className="jutge-panel-heading">
+            {t("slides.chrono.chartHeading")}
+          </div>
           <div className="jutge-chart-panel-body">
             <ChronoHistogram hours={chrono.hours} />
           </div>
         </div>
         <div className="jutge-metric-blue p-6">
-          <p className="text-xs font-bold uppercase opacity-90">{t("slides.chrono.peakHour")}</p>
+          <p className="text-xs font-bold uppercase opacity-90">
+            {t("slides.chrono.peakHour")}
+          </p>
           <p className="jutge-score mt-2 text-4xl">
             {String(chrono.peakHour).padStart(2, "0")}:00
           </p>
           <p className="mt-2 text-sm opacity-90">
-            {t("slides.chrono.submissionsAtPeak", { count: chrono.peakHourCount })}
+            {t("slides.chrono.submissionsAtPeak", {
+              count: chrono.peakHourCount,
+            })}
           </p>
         </div>
       </div>

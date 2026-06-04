@@ -65,7 +65,9 @@ export function HeatmapSlide({ insights }: Props) {
           )}
         </div>
         <div className="jutge-panel">
-          <div className="jutge-panel-heading">{t("slides.heatmap.calendarHeading")}</div>
+          <div className="jutge-panel-heading">
+            {t("slides.heatmap.calendarHeading")}
+          </div>
           <div className="jutge-chart-panel-body flex justify-center px-1 py-6 sm:px-2 sm:py-8 md:py-10">
             <ActivityCalendar heatmap={heatmap} />
           </div>

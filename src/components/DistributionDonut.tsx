@@ -122,7 +122,15 @@ export function DistributionDonut({
   const pickArc = useCallback(
     (clientX: number, clientY: number, svg: SVGSVGElement | null) => {
       if (!svg) return null
-      return hitTest(clientX, clientY, svg.getBoundingClientRect(), size, radius, strokeWidth, arcs)
+      return hitTest(
+        clientX,
+        clientY,
+        svg.getBoundingClientRect(),
+        size,
+        radius,
+        strokeWidth,
+        arcs,
+      )
     },
     [arcs, radius, size, strokeWidth],
   )
@@ -210,21 +218,24 @@ export function DistributionDonut({
               transition={{ duration: 0.2 }}
             >
               <p
-                className="jutge-score max-w-full truncate font-bold leading-tight sm:whitespace-nowrap"
+                className="jutge-score max-w-full truncate leading-tight font-bold sm:whitespace-nowrap"
                 style={{
-                  fontSize: centerTitleFontSize(size, formatCenterLabel(selected)),
+                  fontSize: centerTitleFontSize(
+                    size,
+                    formatCenterLabel(selected),
+                  ),
                   color: getColor(selected),
                 }}
               >
                 {formatCenterLabel(selected)}
               </p>
               <p
-                className="jutge-score mt-1 font-bold text-jutge-text sm:whitespace-nowrap"
+                className="jutge-score text-jutge-text mt-1 font-bold sm:whitespace-nowrap"
                 style={{ fontSize: size * 0.082 }}
               >
                 {formatCenterPercent(selected.percent)}
               </p>
-              <p className="mt-1.5 text-[11px] text-jutge-muted">
+              <p className="text-jutge-muted mt-1.5 text-[11px]">
                 {selected.count} of {total}
               </p>
             </motion.div>
@@ -253,7 +264,8 @@ export function DistributionDonut({
                     duration: 0.2,
                   }}
                 >
-                  <span className="font-bold">{item.count}</span> {formatCenterLabel(item)}
+                  <span className="font-bold">{item.count}</span>{" "}
+                  {formatCenterLabel(item)}
                 </motion.p>
               ))}
             </motion.div>

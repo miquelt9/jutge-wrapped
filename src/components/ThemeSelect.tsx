@@ -9,7 +9,11 @@ type Props = {
   className?: string
 }
 
-export function ThemeSelect({ onDark = false, compact = false, className = "" }: Props) {
+export function ThemeSelect({
+  onDark = false,
+  compact = false,
+  className = "",
+}: Props) {
   const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
 
@@ -27,8 +31,12 @@ export function ThemeSelect({ onDark = false, compact = false, className = "" }:
   }
 
   return (
-    <label className={`inline-flex min-w-0 items-center gap-2 text-sm ${className}`}>
-      <span className={onDark || compact ? "sr-only" : "font-bold text-jutge-text"}>
+    <label
+      className={`inline-flex min-w-0 items-center gap-2 text-sm ${className}`}
+    >
+      <span
+        className={onDark || compact ? "sr-only" : "text-jutge-text font-bold"}
+      >
         {t("theme.label")}
       </span>
       <select

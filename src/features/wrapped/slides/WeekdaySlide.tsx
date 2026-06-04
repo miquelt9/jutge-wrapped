@@ -18,15 +18,21 @@ export function WeekdaySlide({ insights }: Props) {
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_220px]">
         <div className="jutge-panel">
-          <div className="jutge-panel-heading">{t("slides.weekday.chartHeading")}</div>
+          <div className="jutge-panel-heading">
+            {t("slides.weekday.chartHeading")}
+          </div>
           <div className="jutge-chart-panel-body">
             <WeekdayHistogram days={weekday.weekdays} peakKey={peak?.key} />
           </div>
         </div>
         {peak && (
           <div className="jutge-metric-green flex flex-col justify-center p-6">
-            <p className="text-xs font-bold uppercase opacity-90">{t("slides.weekday.busiestDay")}</p>
-            <p className="jutge-score mt-2 text-4xl leading-tight">{peak.label}</p>
+            <p className="text-xs font-bold uppercase opacity-90">
+              {t("slides.weekday.busiestDay")}
+            </p>
+            <p className="jutge-score mt-2 text-4xl leading-tight">
+              {peak.label}
+            </p>
             <p className="mt-3 text-sm opacity-90">
               {t("slides.weekday.submissionsShare", {
                 count: peak.count,

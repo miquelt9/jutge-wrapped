@@ -36,8 +36,12 @@ export function LoginPage() {
       <header className="jutge-nav">
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start min-w-0">
-            <span className="truncate font-bold text-white">{t("common.brand")}</span>
-            <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+            <span className="truncate font-bold text-white">
+              {t("common.brand")}
+            </span>
+            <span className="hidden text-sm text-white/70 sm:inline">
+              {t("common.wrapped")}
+            </span>
           </div>
           <div className="jutge-nav-end">
             <NavControls onDark compact />
@@ -57,10 +61,10 @@ export function LoginPage() {
         <div className="jutge-panel w-full max-w-md">
           <div className="jutge-panel-heading">{t("login.signIn")}</div>
           <div className="jutge-panel-body">
-            <h1 className="text-center text-lg font-black text-jutge-text sm:text-xl">
+            <h1 className="text-jutge-text text-center text-lg font-black sm:text-xl">
               {t("login.underDevelopmentTitle")}
             </h1>
-            <p className="text-sm text-jutge-muted">{t("login.intro")}</p>
+            <p className="text-jutge-muted text-sm">{t("login.intro")}</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <label className="block text-sm">
@@ -100,31 +104,36 @@ export function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs text-jutge-muted">
+            <div className="text-jutge-muted mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs">
               <span className="flex items-center gap-1">
                 <Shield className="h-3.5 w-3.5" /> {t("login.sessionMemory")}
               </span>
               <span className="flex items-center gap-1">
-                <Lock className="h-3.5 w-3.5" /> {t("login.noCredentialPersistence")}
+                <Lock className="h-3.5 w-3.5" />{" "}
+                {t("login.noCredentialPersistence")}
               </span>
             </div>
 
-            <div className="mt-4 flex items-center gap-1 text-left text-xs text-jutge-muted">
+            <div className="text-jutge-muted mt-4 flex items-center gap-1 text-left text-xs">
               <Info className="h-3.5 w-3.5 shrink-0" aria-hidden />
               <p>{t("common.disclaimer")}</p>
             </div>
 
             <div className="relative mt-8">
               <div className="absolute inset-0 flex items-center" aria-hidden>
-                <div className="w-full border-t border-jutge-border" />
+                <div className="border-jutge-border w-full border-t" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                <span className="bg-jutge-panel px-2 text-jutge-muted">{t("login.or")}</span>
+              <div className="relative flex justify-center text-xs tracking-wide uppercase">
+                <span className="bg-jutge-panel text-jutge-muted px-2">
+                  {t("login.or")}
+                </span>
               </div>
             </div>
 
             <div className="mt-6">
-              <p className="text-xs text-jutge-muted">{t("login.loadSnapshotHint")}</p>
+              <p className="text-jutge-muted text-xs">
+                {t("login.loadSnapshotHint")}
+              </p>
               <SnapshotLoadButton className="mt-3" />
             </div>
 
@@ -133,7 +142,7 @@ export function LoginPage() {
                 href={GITHUB_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-jutge-muted transition-colors hover:text-jutge-text"
+                className="text-jutge-muted hover:text-jutge-text inline-flex items-center gap-1.5 text-xs transition-colors"
               >
                 <Github className="h-3.5 w-3.5" aria-hidden />
                 {t("login.viewOnGitHub")}
@@ -148,7 +157,7 @@ export function LoginPage() {
           href={GITHUB_REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs text-jutge-muted transition-colors hover:text-jutge-text"
+          className="text-jutge-muted hover:text-jutge-text inline-flex items-center gap-1.5 text-xs transition-colors"
         >
           <Github className="h-3.5 w-3.5" aria-hidden />
           {t("login.viewOnGitHub")}

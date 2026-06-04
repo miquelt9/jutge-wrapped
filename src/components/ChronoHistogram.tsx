@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistogramColumn, histogramBarMaxHeight } from "@/components/HistogramColumn"
+import {
+  HistogramColumn,
+  histogramBarMaxHeight,
+} from "@/components/HistogramColumn"
 
 const CHART_HEIGHT_PX = 140
 
@@ -17,15 +20,17 @@ export function ChronoHistogram({ hours }: Props) {
   const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
-    <div className="min-w-0 w-full">
+    <div className="w-full min-w-0">
       <div
-        className="flex min-w-0 items-end justify-between gap-px border-b border-jutge-border"
+        className="border-jutge-border flex min-w-0 items-end justify-between gap-px border-b"
         style={{ height: CHART_HEIGHT_PX }}
       >
         {hours.map(({ hour, count }, index) => {
           const columnId = String(hour)
           const barHeight =
-            count === 0 ? 0 : Math.max(3, Math.round((count / maxCount) * barMaxHeight))
+            count === 0
+              ? 0
+              : Math.max(3, Math.round((count / maxCount) * barMaxHeight))
 
           return (
             <HistogramColumn
@@ -39,7 +44,8 @@ export function ChronoHistogram({ hours }: Props) {
               <motion.div
                 className="w-full min-w-[4px]"
                 style={{
-                  backgroundColor: count > 0 ? "var(--jutge-blue)" : "transparent",
+                  backgroundColor:
+                    count > 0 ? "var(--jutge-blue)" : "transparent",
                   borderRadius: 0,
                 }}
                 initial={{ height: reduceMotion ? barHeight : 0 }}
@@ -61,7 +67,7 @@ export function ChronoHistogram({ hours }: Props) {
             <span
               key={hour}
               className={`flex-1 text-center font-mono text-[9px] ${
-                isHovered ? "font-bold text-jutge-text" : "text-jutge-muted"
+                isHovered ? "text-jutge-text font-bold" : "text-jutge-muted"
               }`}
             >
               {String(hour).padStart(2, "0")}

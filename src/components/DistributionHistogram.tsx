@@ -30,7 +30,7 @@ export function DistributionHistogram({
   return (
     <div>
       <div
-        className="flex items-end justify-between gap-2 border-b border-jutge-border px-1"
+        className="border-jutge-border flex items-end justify-between gap-2 border-b px-1"
         style={{ height: CHART_HEIGHT_PX }}
       >
         {bars.map((item, index) => {
@@ -38,7 +38,10 @@ export function DistributionHistogram({
           const barHeight =
             item.count === 0
               ? 0
-              : Math.max(6, Math.round((item.count / maxCount) * CHART_HEIGHT_PX))
+              : Math.max(
+                  6,
+                  Math.round((item.count / maxCount) * CHART_HEIGHT_PX),
+                )
           const fill = coloredBars
             ? (item.color ?? "var(--jutge-orange)")
             : isPeak
@@ -52,16 +55,18 @@ export function DistributionHistogram({
               style={{ height: CHART_HEIGHT_PX }}
             >
               {isPeak && (
-                <span className="mb-1 font-mono text-[10px] font-bold text-jutge-text">
+                <span className="text-jutge-text mb-1 font-mono text-[10px] font-bold">
                   {item.count}
                 </span>
               )}
               <motion.div
-                className="w-full min-w-[18px] max-w-[64px]"
+                className="w-full max-w-[64px] min-w-[18px]"
                 style={{
                   backgroundColor: fill,
                   borderRadius: 0,
-                  boxShadow: isPeak ? "inset 0 0 0 2px var(--jutge-nav)" : undefined,
+                  boxShadow: isPeak
+                    ? "inset 0 0 0 2px var(--jutge-nav)"
+                    : undefined,
                 }}
                 initial={{ height: reduceMotion ? barHeight : 0 }}
                 animate={{ height: barHeight }}
@@ -83,7 +88,7 @@ export function DistributionHistogram({
             <span
               key={item.key}
               className={`flex-1 truncate text-center font-mono text-[10px] leading-tight sm:text-[11px] ${
-                isPeak ? "font-bold text-jutge-text" : "text-jutge-muted"
+                isPeak ? "text-jutge-text font-bold" : "text-jutge-muted"
               }`}
               title={item.label}
             >

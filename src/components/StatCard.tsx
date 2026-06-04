@@ -2,7 +2,14 @@ type Props = {
   label: string
   value: string
   hint?: string
-  variant?: "default" | "green" | "red" | "orange" | "blue" | "primary" | "neutral"
+  variant?:
+    | "default"
+    | "green"
+    | "red"
+    | "orange"
+    | "blue"
+    | "primary"
+    | "neutral"
 }
 
 const variantClass = {
@@ -16,8 +23,7 @@ const variantClass = {
 } as const
 
 export function StatCard({ label, value, hint, variant = "default" }: Props) {
-  const isColoredMetric =
-    variant !== "default" && variant !== "neutral"
+  const isColoredMetric = variant !== "default" && variant !== "neutral"
   return (
     <div className={`p-4 ${variantClass[variant]}`}>
       <p

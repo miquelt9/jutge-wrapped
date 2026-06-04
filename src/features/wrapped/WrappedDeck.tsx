@@ -2,7 +2,13 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowUp, Calendar, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
+import {
+  ArrowUp,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+} from "lucide-react"
 import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
 import { SlideShareButton } from "@/components/SlideShareButton"
 import { useAuth } from "@/context/AuthContext"
@@ -37,9 +43,15 @@ export function WrappedDeck() {
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
   const [isPrecomputing, setIsPrecomputing] = useState(false)
   const loadingLine = t("deck.loadingLine")
-  const { showLoadingScreen } = useDeckLoadingUX(state.status, loadingLine.length)
+  const { showLoadingScreen } = useDeckLoadingUX(
+    state.status,
+    loadingLine.length,
+  )
 
-  const next = useCallback(() => setIndex((i) => Math.min(i + 1, SLIDE_COUNT - 1)), [])
+  const next = useCallback(
+    () => setIndex((i) => Math.min(i + 1, SLIDE_COUNT - 1)),
+    [],
+  )
   const prev = useCallback(() => setIndex((i) => Math.max(i - 1, 0)), [])
 
   useEffect(() => {
@@ -64,45 +76,50 @@ export function WrappedDeck() {
     reachedBottomYRef.current = null
   }, [])
 
-  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    const container = e.currentTarget
-    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 4
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const container = e.currentTarget
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 4
 
-    if (!isAtBottom) {
-      setIsPulling(false)
-      setPullDistance(0)
-      reachedBottomYRef.current = null
-      return
-    }
-
-    if (index === SLIDE_COUNT - 1) return
-
-    const currentY = e.touches[0]?.clientY ?? 0
-
-    if (reachedBottomYRef.current === null) {
-      reachedBottomYRef.current = currentY
-    }
-
-    const dy = reachedBottomYRef.current - currentY
-
-    if (dy > 0) {
-      setIsPulling(true)
-      const threshold = 80
-      let displayDistance = dy
-      if (dy > threshold) {
-        displayDistance = threshold + (dy - threshold) * 0.4
+      if (!isAtBottom) {
+        setIsPulling(false)
+        setPullDistance(0)
+        reachedBottomYRef.current = null
+        return
       }
-      const finalDistance = Math.min(displayDistance, 150)
-      setPullDistance(finalDistance)
 
-      if (e.cancelable) {
-        e.preventDefault()
+      if (index === SLIDE_COUNT - 1) return
+
+      const currentY = e.touches[0]?.clientY ?? 0
+
+      if (reachedBottomYRef.current === null) {
+        reachedBottomYRef.current = currentY
       }
-    } else {
-      setIsPulling(false)
-      setPullDistance(0)
-    }
-  }, [index])
+
+      const dy = reachedBottomYRef.current - currentY
+
+      if (dy > 0) {
+        setIsPulling(true)
+        const threshold = 80
+        let displayDistance = dy
+        if (dy > threshold) {
+          displayDistance = threshold + (dy - threshold) * 0.4
+        }
+        const finalDistance = Math.min(displayDistance, 150)
+        setPullDistance(finalDistance)
+
+        if (e.cancelable) {
+          e.preventDefault()
+        }
+      } else {
+        setIsPulling(false)
+        setPullDistance(0)
+      }
+    },
+    [index],
+  )
 
   const handleTouchEnd = useCallback(() => {
     if (isPulling) {
@@ -134,7 +151,13 @@ export function WrappedDeck() {
         case "verdict":
           return <VerdictSlide key="verdict" insights={insights} />
         case "ranking":
-          return <RankingSlide key="rank" insights={insights} homepageStats={raw.homepageStats} />
+          return (
+            <RankingSlide
+              key="rank"
+              insights={insights}
+              homepageStats={raw.homepageStats}
+            />
+          )
         default:
           return null
       }
@@ -152,7 +175,8 @@ export function WrappedDeck() {
   }, [index])
 
   useEffect(() => {
-    if (state.status !== "ready" || isPrecomputing || precomputeIndex !== null) return
+    if (state.status !== "ready" || isPrecomputing || precomputeIndex !== null)
+      return
 
     const currentSlideId = SLIDE_IDS[index]!
     if (!shareImageCacheRef.current.has(currentSlideId)) {
@@ -200,14 +224,20 @@ export function WrappedDeck() {
     let timeoutId: number | null = null
 
     if (showLoadingScreen && idleWindow.requestIdleCallback) {
-      idleId = idleWindow.requestIdleCallback(() => void runCapture(), { timeout: 100 })
+      idleId = idleWindow.requestIdleCallback(() => void runCapture(), {
+        timeout: 100,
+      })
     } else {
-      timeoutId = window.setTimeout(() => void runCapture(), showLoadingScreen ? 0 : 150)
+      timeoutId = window.setTimeout(
+        () => void runCapture(),
+        showLoadingScreen ? 0 : 150,
+      )
     }
 
     return () => {
       cancelled = true
-      if (idleId !== null && idleWindow.cancelIdleCallback) idleWindow.cancelIdleCallback(idleId)
+      if (idleId !== null && idleWindow.cancelIdleCallback)
+        idleWindow.cancelIdleCallback(idleId)
       if (timeoutId !== null) window.clearTimeout(timeoutId)
     }
   }, [precomputeIndex, showLoadingScreen, state.status])
@@ -220,7 +250,9 @@ export function WrappedDeck() {
         )}
         <header className="jutge-nav">
           <div className="jutge-nav-inner">
-            <span className="truncate font-bold text-white">{t("common.brand")}</span>
+            <span className="truncate font-bold text-white">
+              {t("common.brand")}
+            </span>
             <div className="jutge-nav-end">
               <NavControls onDark compact />
             </div>
@@ -231,7 +263,11 @@ export function WrappedDeck() {
           <div className="flex flex-wrap justify-center gap-3">
             {!isSnapshotMode && (
               <>
-                <button type="button" onClick={clearPeriod} className="jutge-btn-default">
+                <button
+                  type="button"
+                  onClick={clearPeriod}
+                  className="jutge-btn-default"
+                >
                   {t("deck.changeDates")}
                 </button>
                 <button
@@ -247,7 +283,11 @@ export function WrappedDeck() {
               </>
             )}
             {isSnapshotMode && (
-              <button type="button" onClick={clearSnapshot} className="jutge-btn-primary">
+              <button
+                type="button"
+                onClick={clearSnapshot}
+                className="jutge-btn-primary"
+              >
                 {t("deck.exit")}
               </button>
             )}
@@ -263,8 +303,12 @@ export function WrappedDeck() {
         <header className="jutge-nav">
           <div className="jutge-nav-inner">
             <div className="jutge-nav-start min-w-0">
-              <span className="truncate font-bold text-white">{t("common.brand")}</span>
-              <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+              <span className="truncate font-bold text-white">
+                {t("common.brand")}
+              </span>
+              <span className="hidden text-sm text-white/70 sm:inline">
+                {t("common.wrapped")}
+              </span>
             </div>
             <div className="jutge-nav-end">
               <NavControls onDark compact />
@@ -277,9 +321,12 @@ export function WrappedDeck() {
         {state.status === "ready" && precomputeIndex !== null && (
           <div
             aria-hidden
-            className="pointer-events-none fixed -left-[200vw] top-0 w-screen bg-jutge-bg"
+            className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
           >
-            <div ref={precomputeCaptureRef} className="min-h-screen bg-jutge-bg">
+            <div
+              ref={precomputeCaptureRef}
+              className="bg-jutge-bg min-h-screen"
+            >
               {renderSlide(precomputeIndex)}
             </div>
           </div>
@@ -293,7 +340,8 @@ export function WrappedDeck() {
   const { raw, insights } = state
   const exportRaw =
     isSnapshotMode && snapshot ? { ...snapshot, period: raw.period } : raw
-  const username = raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
+  const username =
+    raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
   const slideId = SLIDE_IDS[index]!
 
   return (
@@ -310,8 +358,12 @@ export function WrappedDeck() {
       <header className="jutge-nav">
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start">
-            <span className="truncate font-bold text-white">{t("common.brand")}</span>
-            <span className="hidden text-sm text-white/70 sm:inline">{t("common.wrapped")}</span>
+            <span className="truncate font-bold text-white">
+              {t("common.brand")}
+            </span>
+            <span className="hidden text-sm text-white/70 sm:inline">
+              {t("common.wrapped")}
+            </span>
             {isSnapshotMode && (
               <span className="hidden rounded border border-white/30 px-2 py-0.5 text-xs text-white/90 sm:inline">
                 {t("common.snapshot")}
@@ -345,7 +397,9 @@ export function WrappedDeck() {
               className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
             >
               <Calendar className="h-4 w-4 shrink-0" />
-              <span className="sr-only sm:not-sr-only sm:inline">{t("deck.dates")}</span>
+              <span className="sr-only sm:not-sr-only sm:inline">
+                {t("deck.dates")}
+              </span>
             </button>
             {isSnapshotMode ? (
               <button
@@ -359,7 +413,9 @@ export function WrappedDeck() {
                 className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
-                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+                <span className="sr-only sm:not-sr-only sm:inline">
+                  {t("deck.exit")}
+                </span>
               </button>
             ) : (
               <button
@@ -374,14 +430,16 @@ export function WrappedDeck() {
                 className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
-                <span className="sr-only sm:not-sr-only sm:inline">{t("deck.exit")}</span>
+                <span className="sr-only sm:not-sr-only sm:inline">
+                  {t("deck.exit")}
+                </span>
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <main className="relative flex-1 overflow-hidden bg-jutge-bg">
+      <main className="bg-jutge-bg relative flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={index}
@@ -397,7 +455,7 @@ export function WrappedDeck() {
             <div
               ref={slideCaptureRef}
               data-slide-export={slideId}
-              className="min-h-full bg-jutge-bg"
+              className="bg-jutge-bg min-h-full"
             >
               {renderSlide(index)}
             </div>
@@ -412,10 +470,11 @@ export function WrappedDeck() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
               transition={{ duration: 0.15 }}
-              className="absolute bottom-0 left-0 right-0 z-50 flex flex-col items-center justify-end pb-6 pointer-events-none"
+              className="pointer-events-none absolute right-0 bottom-0 left-0 z-50 flex flex-col items-center justify-end pb-6"
               style={{
                 height: `${pullDistance}px`,
-                background: "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
+                background:
+                  "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
               }}
             >
               <div className="flex flex-col items-center gap-2 px-4 text-center">
@@ -423,7 +482,10 @@ export function WrappedDeck() {
                 <motion.div
                   animate={{
                     y: pullDistance >= 80 ? [0, -6, 0] : 0,
-                    scale: pullDistance >= 80 ? 1.2 : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
+                    scale:
+                      pullDistance >= 80
+                        ? 1.2
+                        : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
                   }}
                   transition={{
                     y: {
@@ -445,10 +507,14 @@ export function WrappedDeck() {
                 {/* Text feedback */}
                 <motion.span
                   className={`text-xs font-semibold tracking-wide uppercase transition-colors duration-200 ${
-                    pullDistance >= 80 ? "text-jutge-blue font-bold" : "text-white/60"
+                    pullDistance >= 80
+                      ? "text-jutge-blue font-bold"
+                      : "text-white/60"
                   }`}
                 >
-                  {pullDistance >= 80 ? t("deck.releaseToNext") : t("deck.pullToNext")}
+                  {pullDistance >= 80
+                    ? t("deck.releaseToNext")
+                    : t("deck.pullToNext")}
                 </motion.span>
               </div>
             </motion.div>
@@ -459,15 +525,15 @@ export function WrappedDeck() {
       {precomputeIndex !== null && (
         <div
           aria-hidden
-          className="pointer-events-none fixed -left-[200vw] top-0 w-screen bg-jutge-bg"
+          className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
         >
-          <div ref={precomputeCaptureRef} className="min-h-screen bg-jutge-bg">
+          <div ref={precomputeCaptureRef} className="bg-jutge-bg min-h-screen">
             {renderSlide(precomputeIndex)}
           </div>
         </div>
       )}
 
-      <footer className="flex min-w-0 items-center justify-between gap-2 border-t border-jutge-border bg-jutge-panel px-3 py-3 text-sm text-jutge-muted sm:px-4">
+      <footer className="border-jutge-border bg-jutge-panel text-jutge-muted flex min-w-0 items-center justify-between gap-2 border-t px-3 py-3 text-sm sm:px-4">
         <button
           type="button"
           onClick={(e) => {
@@ -479,7 +545,9 @@ export function WrappedDeck() {
           className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
         >
           <ChevronLeft className="h-4 w-4 shrink-0" />
-          <span className="sr-only sm:not-sr-only sm:inline">{t("common.prev")}</span>
+          <span className="sr-only sm:not-sr-only sm:inline">
+            {t("common.prev")}
+          </span>
         </button>
         <span className="sm:hidden">
           <ProgressDots total={SLIDE_COUNT} current={index} />
@@ -497,7 +565,9 @@ export function WrappedDeck() {
           aria-label={t("common.next")}
           className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
         >
-          <span className="sr-only sm:not-sr-only sm:inline">{t("common.next")}</span>
+          <span className="sr-only sm:not-sr-only sm:inline">
+            {t("common.next")}
+          </span>
           <ChevronRight className="h-4 w-4 shrink-0" />
         </button>
       </footer>

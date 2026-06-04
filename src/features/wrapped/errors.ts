@@ -37,7 +37,10 @@ export function liveLoadFailureMessage(allSubmissionsCount: number): string {
 
 export function translateApiError(error: MappedApiError): string {
   if (error.kind === "network") return i18n.t("errors.network")
-  if (error.kind === "unknown" && error.message === "An unexpected error occurred.") {
+  if (
+    error.kind === "unknown" &&
+    error.message === "An unexpected error occurred."
+  ) {
     return i18n.t("errors.unexpected")
   }
   return error.message

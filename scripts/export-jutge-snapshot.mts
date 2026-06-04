@@ -18,7 +18,10 @@ function downloadToBase64(data: Uint8Array): string {
   return Buffer.from(data).toString("base64")
 }
 
-async function promptHidden(rl: ReturnType<typeof createInterface>, label: string): Promise<string> {
+async function promptHidden(
+  rl: ReturnType<typeof createInterface>,
+  label: string,
+): Promise<string> {
   const value = await rl.question(`${label}: `)
   return value.trim()
 }

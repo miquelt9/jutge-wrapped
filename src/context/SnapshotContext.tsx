@@ -90,7 +90,13 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const path = import.meta.env.VITE_SNAPSHOT_PATH
-    if (!import.meta.env.DEV || !path || snapshot || devAutoloadDisabled.current) return
+    if (
+      !import.meta.env.DEV ||
+      !path ||
+      snapshot ||
+      devAutoloadDisabled.current
+    )
+      return
 
     let cancelled = false
     ;(async () => {
@@ -123,10 +129,21 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
       clearSnapshot,
       clearError,
     }),
-    [snapshot, snapshotError, loadFromFile, loadFromJson, clearSnapshot, clearError],
+    [
+      snapshot,
+      snapshotError,
+      loadFromFile,
+      loadFromJson,
+      clearSnapshot,
+      clearError,
+    ],
   )
 
-  return <SnapshotContext.Provider value={value}>{children}</SnapshotContext.Provider>
+  return (
+    <SnapshotContext.Provider value={value}>
+      {children}
+    </SnapshotContext.Provider>
+  )
 }
 
 export function useSnapshot() {

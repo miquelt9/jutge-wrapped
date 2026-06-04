@@ -1,6 +1,9 @@
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { DISTRIBUTION_DONUT_SIZE, DistributionDonut } from "@/components/DistributionDonut"
+import {
+  DISTRIBUTION_DONUT_SIZE,
+  DistributionDonut,
+} from "@/components/DistributionDonut"
 import type { DistributionItem } from "@/features/wrapped/types"
 import { verdictColor } from "@/theme/jutgeColors"
 
@@ -13,7 +16,10 @@ type Props = {
 
 export function VerdictDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) {
   const { t } = useTranslation()
-  const getColor = useCallback((item: DistributionItem) => verdictColor(item.key), [])
+  const getColor = useCallback(
+    (item: DistributionItem) => verdictColor(item.key),
+    [],
+  )
   const centerItems = useMemo(
     () =>
       CENTER_VERDICTS.map((key) => items.find((i) => i.key === key)).filter(
