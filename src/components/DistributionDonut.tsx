@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import type { DistributionItem } from "@/features/wrapped/types"
 
-/** SVG coordinate space; rendered size scales with container (max 400px). */
+/** SVG coordinate space; display size is controlled by the container. */
 export const DISTRIBUTION_DONUT_SIZE = 400
 
 function centerTitleFontSize(size: number, label: string): number {
@@ -30,6 +30,10 @@ type Arc = {
 type Props = {
   items: DistributionItem[]
   size?: number
+  /** Pixel size of the rendered chart; scales center labels on large layouts. */
+  displaySize?: number
+  /** Fill the parent square container instead of capping at 400px. */
+  fill?: boolean
   getColor: (item: DistributionItem) => string
   centerItems: DistributionItem[]
   formatCenterLabel?: (item: DistributionItem) => string
@@ -92,12 +96,15 @@ function hitTest(
 export function DistributionDonut({
   items,
   size: coordinateSize = DISTRIBUTION_DONUT_SIZE,
+  displaySize,
+  fill = false,
   getColor,
   centerItems,
   formatCenterLabel = (item) => item.key,
   ariaLabel,
 }: Props) {
   const size = coordinateSize
+  const labelScale = displaySize ?? size
   const reduceMotion = useReducedMotion()
   const [selected, setSelected] = useState<DistributionItem | null>(null)
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
@@ -152,7 +159,7 @@ export function DistributionDonut({
 
   return (
     <motion.div
-      className="relative mx-auto aspect-square w-full max-w-[min(400px,100%)]"
+      className={`relative mx-auto aspect-square w-full ${fill ? "h-full max-w-none" : "max-w-[min(400px,100%)]"}`}
       initial={reduceMotion ? false : { opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
@@ -221,7 +228,7 @@ export function DistributionDonut({
                 className="jutge-score max-w-full truncate leading-tight font-bold sm:whitespace-nowrap"
                 style={{
                   fontSize: centerTitleFontSize(
-                    size,
+                    labelScale,
                     formatCenterLabel(selected),
                   ),
                   color: getColor(selected),
@@ -231,7 +238,7 @@ export function DistributionDonut({
               </p>
               <p
                 className="jutge-score text-jutge-text mt-1 font-bold sm:whitespace-nowrap"
-                style={{ fontSize: size * 0.082 }}
+                style={{ fontSize: labelScale * 0.082 }}
               >
                 {formatCenterPercent(selected.percent)}
               </p>
@@ -250,7 +257,7 @@ export function DistributionDonut({
                 duration: 0.3,
               }}
               className="flex flex-col gap-0.5"
-              style={{ fontSize: size * 0.05 }}
+              style={{ fontSize: labelScale * 0.05 }}
             >
               {centerItems.map((item, i) => (
                 <motion.p

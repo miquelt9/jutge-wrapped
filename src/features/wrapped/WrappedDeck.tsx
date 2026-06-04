@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import {
   ArrowUp,
   Calendar,
@@ -19,16 +19,22 @@ import { NavControls } from "@/components/NavControls"
 import { TerminalLoadingLine } from "@/components/TerminalLoadingLine"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { useWrappedData } from "./useWrappedData"
-import { captureSlideImage, SLIDE_IDS, type SlideId } from "./shareExport"
+import {
+  canUseNativeImageShare,
+  captureSlideImage,
+  getActiveSlideIds,
+  SLIDE_IDS,
+  type SlideId,
+} from "./shareExport"
+import { slidePanelTransition } from "@/components/motionPresets"
 import { IntroSlide } from "./slides/IntroSlide"
 import { HeatmapSlide } from "./slides/HeatmapSlide"
 import { WeekdaySlide } from "./slides/WeekdaySlide"
 import { ChronoSlide } from "./slides/ChronoSlide"
 import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
+import { AwardsSlide } from "./slides/AwardsSlide"
 import { RankingSlide } from "./slides/RankingSlide"
-
-const SLIDE_COUNT = SLIDE_IDS.length
 
 export function WrappedDeck() {
   const { t } = useTranslation()
@@ -37,9 +43,12 @@ export function WrappedDeck() {
   const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { state } = useWrappedData(client, period, snapshot)
   const [index, setIndex] = useState(0)
+  const slideDirectionRef = useRef<1 | -1>(1)
+  const reduceMotion = useReducedMotion()
   const slideCaptureRef = useRef<HTMLDivElement>(null)
   const precomputeCaptureRef = useRef<HTMLDivElement>(null)
   const shareImageCacheRef = useRef<Map<SlideId, string>>(new Map())
+  const shouldPrecomputeShareImages = useRef(canUseNativeImageShare())
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
   const [isPrecomputing, setIsPrecomputing] = useState(false)
   const loadingLine = t("deck.loadingLine")
@@ -48,11 +57,30 @@ export function WrappedDeck() {
     loadingLine.length,
   )
 
-  const next = useCallback(
-    () => setIndex((i) => Math.min(i + 1, SLIDE_COUNT - 1)),
-    [],
+  const activeSlideIds = useMemo(
+    () =>
+      state.status === "ready"
+        ? getActiveSlideIds(state.insights)
+        : SLIDE_IDS.filter((id) => id !== "awards"),
+    [state],
   )
-  const prev = useCallback(() => setIndex((i) => Math.max(i - 1, 0)), [])
+  const slideCount = activeSlideIds.length
+
+  useEffect(() => {
+    setIndex((i) => Math.min(i, Math.max(slideCount - 1, 0)))
+  }, [slideCount])
+
+  const next = useCallback(
+    () => {
+      slideDirectionRef.current = 1
+      setIndex((i) => Math.min(i + 1, slideCount - 1))
+    },
+    [slideCount],
+  )
+  const prev = useCallback(() => {
+    slideDirectionRef.current = -1
+    setIndex((i) => Math.max(i - 1, 0))
+  }, [])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -90,7 +118,7 @@ export function WrappedDeck() {
         return
       }
 
-      if (index === SLIDE_COUNT - 1) return
+      if (index === slideCount - 1) return
 
       const currentY = e.touches[0]?.clientY ?? 0
 
@@ -118,7 +146,7 @@ export function WrappedDeck() {
         setPullDistance(0)
       }
     },
-    [index],
+    [index, slideCount],
   )
 
   const handleTouchEnd = useCallback(() => {
@@ -136,8 +164,11 @@ export function WrappedDeck() {
     (targetIndex: number) => {
       if (state.status !== "ready") return null
 
+      const slideId = activeSlideIds[targetIndex]
+      if (!slideId) return null
+
       const { raw, insights } = state
-      switch (SLIDE_IDS[targetIndex]) {
+      switch (slideId) {
         case "intro":
           return <IntroSlide key="intro" raw={raw} insights={insights} />
         case "heatmap":
@@ -150,6 +181,8 @@ export function WrappedDeck() {
           return <CourseArcSlide key="course" insights={insights} />
         case "verdict":
           return <VerdictSlide key="verdict" insights={insights} />
+        case "awards":
+          return <AwardsSlide key="awards" insights={insights} />
         case "ranking":
           return (
             <RankingSlide
@@ -162,27 +195,36 @@ export function WrappedDeck() {
           return null
       }
     },
-    [state],
+    [activeSlideIds, state],
   )
 
   useEffect(() => {
-    const currentSlideId = SLIDE_IDS[index]!
+    const currentSlideId = activeSlideIds[index]
+    if (!currentSlideId) return
     const currentImage = shareImageCacheRef.current.get(currentSlideId)
     shareImageCacheRef.current.clear()
     if (currentImage) {
       shareImageCacheRef.current.set(currentSlideId, currentImage)
     }
-  }, [index])
+    setPrecomputeIndex(null)
+  }, [activeSlideIds, index])
 
   useEffect(() => {
-    if (state.status !== "ready" || isPrecomputing || precomputeIndex !== null)
+    if (
+      !shouldPrecomputeShareImages.current ||
+      state.status !== "ready" ||
+      isPrecomputing ||
+      precomputeIndex !== null
+    ) {
       return
+    }
 
-    const currentSlideId = SLIDE_IDS[index]!
+    const currentSlideId = activeSlideIds[index]
+    if (!currentSlideId) return
     if (!shareImageCacheRef.current.has(currentSlideId)) {
       setPrecomputeIndex(index)
     }
-  }, [index, isPrecomputing, precomputeIndex, state.status])
+  }, [activeSlideIds, index, isPrecomputing, precomputeIndex, state.status])
 
   useEffect(() => {
     if (state.status !== "ready" || precomputeIndex === null) return
@@ -198,8 +240,8 @@ export function WrappedDeck() {
 
     const runCapture = async () => {
       const node = precomputeCaptureRef.current
-      const slideId = SLIDE_IDS[precomputeIndex]!
-      if (!node) {
+      const slideId = activeSlideIds[precomputeIndex]
+      if (!node || !slideId) {
         if (!cancelled) setPrecomputeIndex(null)
         return
       }
@@ -240,7 +282,7 @@ export function WrappedDeck() {
         idleWindow.cancelIdleCallback(idleId)
       if (timeoutId !== null) window.clearTimeout(timeoutId)
     }
-  }, [precomputeIndex, showLoadingScreen, state.status])
+  }, [activeSlideIds, precomputeIndex, showLoadingScreen, state.status])
 
   if (state.status === "error") {
     return (
@@ -338,11 +380,10 @@ export function WrappedDeck() {
   if (state.status !== "ready") return null
 
   const { raw, insights } = state
-  const exportRaw =
-    isSnapshotMode && snapshot ? { ...snapshot, period: raw.period } : raw
+  const exportRaw = raw
   const username =
     raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
-  const slideId = SLIDE_IDS[index]!
+  const slideId = activeSlideIds[index]!
 
   return (
     <div
@@ -370,7 +411,7 @@ export function WrappedDeck() {
               </span>
             )}
             <div className="hidden sm:block">
-              <ProgressDots total={SLIDE_COUNT} current={index} onDark />
+              <ProgressDots total={slideCount} current={index} onDark />
             </div>
           </div>
           <div className="jutge-nav-end">
@@ -443,10 +484,7 @@ export function WrappedDeck() {
         <AnimatePresence mode="wait">
           <motion.div
             key={index}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
             className="absolute inset-0 overflow-x-hidden overflow-y-auto pb-32 sm:pb-0"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -455,7 +493,7 @@ export function WrappedDeck() {
             <div
               ref={slideCaptureRef}
               data-slide-export={slideId}
-              className="bg-jutge-bg min-h-full"
+              className="bg-jutge-bg flex h-full min-h-full flex-col"
             >
               {renderSlide(index)}
             </div>
@@ -550,10 +588,10 @@ export function WrappedDeck() {
           </span>
         </button>
         <span className="sm:hidden">
-          <ProgressDots total={SLIDE_COUNT} current={index} />
+          <ProgressDots total={slideCount} current={index} />
         </span>
         <span className="hidden sm:inline">
-          {index + 1} / {SLIDE_COUNT}
+          {index + 1} / {slideCount}
         </span>
         <button
           type="button"
@@ -561,7 +599,7 @@ export function WrappedDeck() {
             e.stopPropagation()
             next()
           }}
-          disabled={index === SLIDE_COUNT - 1}
+          disabled={index === slideCount - 1}
           aria-label={t("common.next")}
           className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
         >

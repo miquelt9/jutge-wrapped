@@ -1,0 +1,219 @@
+import { describe, expect, it } from "vitest"
+import type { Award, Submission } from "@/api/client"
+import { buildAwardInsights, buildWrappedInsights, shuffleAwardsForDisplay } from "./selectors"
+import type { WrappedRawData } from "./types"
+
+function makeSubmission(
+  timeIn: string,
+  overrides: Partial<Submission> = {},
+): Submission {
+  return {
+    compiler_id: "G++17",
+    problem_id: "X35277",
+    submission_id: `sub-${timeIn}`,
+    annotation: null,
+    state: "done",
+    time_in: timeIn,
+    veredict: "AC",
+    veredict_info: null,
+    veredict_publics: null,
+    ok_publics_but_wrong: 0,
+    ...overrides,
+  }
+}
+
+const baseRaw = {
+  profile: {
+    email: "ada@example.com",
+    name: "Ada Lovelace",
+    nickname: "Ada",
+  },
+  avatarUrl: null,
+  dashboard: {
+    stats: {
+      number_of_submissions: 4,
+      number_of_accepted_problems: 1,
+      number_of_rejected_problems: 0,
+    },
+    distributions: {
+      submissions_by_weekday: {},
+      submissions_by_hour: {},
+      proglangs: {},
+      compilers: {},
+      verdicts: {},
+    },
+    heatmap: [{ date: Date.UTC(2025, 0, 1) / 1000, value: 4 }],
+  },
+  level: "P1",
+  absoluteRanking: 42,
+  homepageStats: { users: 1000, submissions: 50000 },
+  hexColors: {},
+  tables: {
+    compilers: { G__17: { name: "GNU C++17", language: "C++" } },
+    verdicts: {},
+    proglangs: {},
+  },
+  period: { start: null, end: null, label: "All time" },
+} as unknown as WrappedRawData
+
+describe("buildWrappedInsights hero moment", () => {
+  it("picks the grind problem when submissions are available", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "WA",
+          problem_id: "X35277",
+        }),
+        makeSubmission("2025-01-02T10:00:00Z", {
+          veredict: "WA",
+          problem_id: "X35277",
+        }),
+        makeSubmission("2025-01-03T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "X35277",
+        }),
+      ],
+    }
+
+    const hero = buildWrappedInsights(raw).personalized.heroMoment
+
+    expect(hero).toMatchObject({
+      kind: "grind",
+      problemId: "X35277",
+      problemLabel: "X35277",
+      attemptsBeforeAc: 2,
+      submissionCount: 3,
+    })
+  })
+
+  it("returns no hero moment without submission history", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: undefined,
+    }
+
+    expect(buildWrappedInsights(raw).personalized.heroMoment).toBeNull()
+  })
+})
+
+function makeAward(
+  id: string,
+  time: string,
+  overrides: Partial<Award> = {},
+): Award {
+  return {
+    award_id: id,
+    time,
+    type: "funs",
+    icon: "funs/25.png",
+    title: `Award ${id}`,
+    info: `Info for ${id}`,
+    youtube: null,
+    submission: null,
+    ...overrides,
+  }
+}
+
+describe("buildAwardInsights", () => {
+  const period = { start: "2025-01-01", end: "2025-12-31", label: "2025" }
+
+  it("returns empty insights when no awards", () => {
+    expect(buildAwardInsights(undefined, period)).toEqual({
+      count: 0,
+      items: [],
+      featured: null,
+      title: "",
+      subtitle: "",
+    })
+  })
+
+  it("filters awards by period and sorts newest first", () => {
+    const awards = {
+      old: makeAward("old", "2024-06-01T12:00:00Z"),
+      new: makeAward("new", "2025-06-01T12:00:00Z"),
+    }
+
+    const insights = buildAwardInsights(awards, period, () => 0)
+
+    expect(insights.count).toBe(1)
+    expect(insights.items[0]?.awardId).toBe("new")
+    expect(insights.featured?.awardId).toBe("new")
+    expect(insights.items[0]?.iconUrl).toBe(
+      "https://jutge.org/awards/funs/25.png",
+    )
+  })
+
+  it("includes all awards for all-time period", () => {
+    const awards = {
+      a: makeAward("a", "2024-01-01T12:00:00Z"),
+      b: makeAward("b", "2025-01-01T12:00:00Z"),
+    }
+    const allTime = { start: null, end: null, label: "All time" }
+
+    const insights = buildAwardInsights(awards, allTime, () => 0)
+
+    expect(insights.count).toBe(2)
+    expect(insights.items.map((item) => item.awardId).sort()).toEqual(["a", "b"])
+  })
+
+  it("strips unreachable YouTube ids from award items", () => {
+    const awards = {
+      blocked: makeAward("blocked", "2025-06-01T12:00:00Z", {
+        youtube: "q5r3qNgB5v8",
+      }),
+    }
+
+    const insights = buildAwardInsights(awards, period, () => 0)
+
+    expect(insights.items[0]?.youtube).toBeNull()
+  })
+
+  it("mixes YouTube and non-YouTube awards when both exist", () => {
+    const awards = {
+      newer: makeAward("newer", "2025-06-01T12:00:00Z"),
+      video: makeAward("video", "2025-01-01T12:00:00Z", {
+        youtube: "abc123",
+      }),
+    }
+
+    const insights = buildAwardInsights(awards, period, () => 0)
+
+    expect(insights.count).toBe(2)
+    const topTwo = insights.items.slice(0, 2)
+    expect(topTwo.some((item) => item.youtube)).toBe(true)
+    expect(topTwo.some((item) => !item.youtube)).toBe(true)
+  })
+
+  it("shuffles award order on each wrap", () => {
+    const awards = [
+      makeAward("a", "2025-01-01T12:00:00Z"),
+      makeAward("b", "2025-02-01T12:00:00Z"),
+      makeAward("c", "2025-03-01T12:00:00Z"),
+    ]
+
+    const alwaysFirst = shuffleAwardsForDisplay(awards, () => 0).map(
+      (award) => award.award_id,
+    )
+    const alwaysLast = shuffleAwardsForDisplay(awards, () => 0.99).map(
+      (award) => award.award_id,
+    )
+
+    expect(alwaysFirst).not.toEqual(alwaysLast)
+    expect(new Set(alwaysFirst)).toEqual(new Set(["a", "b", "c"]))
+  })
+
+  it("limits displayed awards to ten tiles", () => {
+    const awards = Object.fromEntries(
+      Array.from({ length: 12 }, (_, index) => {
+        const id = `award-${index}`
+        return [id, makeAward(id, "2025-06-01T12:00:00Z")]
+      }),
+    )
+
+    const insights = buildAwardInsights(awards, period, () => 0.5)
+
+    expect(insights.count).toBe(12)
+    expect(insights.items).toHaveLength(10)
+  })
+})

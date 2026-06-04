@@ -1,4 +1,11 @@
-import { useTranslation } from "react-i18next"
+import { motion, useReducedMotion } from "framer-motion"
+import { Trans, useTranslation } from "react-i18next"
+import {
+  AnimatedCounter,
+  AnimatedDescendingPercent,
+} from "@/components/AnimatedCounter"
+import { StaggerGroup, StaggerItem } from "@/components/StaggerReveal"
+import { fadeUpHidden, fadeUpTransition, fadeUpVisible } from "@/components/motionPresets"
 import { StoryLayout } from "@/components/StoryLayout"
 import type { HomepageStats } from "@/api/client"
 import type { WrappedInsights } from "../types"
@@ -10,6 +17,7 @@ type Props = {
 
 export function RankingSlide({ insights, homepageStats }: Props) {
   const { t, i18n } = useTranslation()
+  const reduceMotion = useReducedMotion()
   const { rank, journey, weekday, courseArc, verdicts } = insights
 
   return (
@@ -19,26 +27,43 @@ export function RankingSlide({ insights, homepageStats }: Props) {
       subtitle={insights.periodLabel}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-        <div className="jutge-metric-blue flex min-h-40 flex-col justify-center p-8 sm:min-h-40">
+        <motion.div
+          className="jutge-metric-blue flex min-h-40 flex-col justify-center p-8 sm:min-h-40"
+          initial={fadeUpHidden(reduceMotion)}
+          animate={fadeUpVisible()}
+          transition={fadeUpTransition(reduceMotion, 0.12)}
+        >
           <p className="jutge-score text-2xl leading-tight sm:text-4xl">
-            {rank.eliteLabel}
+            <Trans
+              i18nKey="rank.eliteLabelAnimated"
+              components={[
+                <AnimatedDescendingPercent
+                  key="percent"
+                  value={rank.topPercent}
+                  showSuffix={false}
+                />,
+              ]}
+            />
           </p>
-        </div>
-        <img
+        </motion.div>
+        <motion.img
           src={`${import.meta.env.BASE_URL}jutge.png`}
           alt={t("slides.ranking.judgeAlt")}
           className="border-jutge-border mx-auto hidden h-40 w-40 border bg-white object-contain p-2 lg:block"
           style={{ borderRadius: 0 }}
+          initial={fadeUpHidden(reduceMotion)}
+          animate={fadeUpVisible()}
+          transition={fadeUpTransition(reduceMotion, 0.2)}
         />
       </div>
-      <dl className="mt-6 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+      <StaggerGroup className="mt-6 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
         <RecapItem
           label={t("slides.ranking.problems")}
-          value={String(journey.acceptedProblems)}
+          value={journey.acceptedProblems}
         />
         <RecapItem
           label={t("slides.ranking.submissions")}
-          value={String(journey.totalSubmissions)}
+          value={journey.totalSubmissions}
         />
         <RecapItem
           label={t("slides.ranking.topLanguage")}
@@ -50,26 +75,41 @@ export function RankingSlide({ insights, homepageStats }: Props) {
         />
         <RecapItem
           label={t("slides.ranking.acRuns")}
-          value={String(verdicts.ac)}
+          value={verdicts.ac}
         />
         <RecapItem
           label={t("slides.ranking.platformSubs")}
-          value={homepageStats.submissions.toLocaleString(i18n.language)}
+          value={homepageStats.submissions}
+          locale={i18n.language}
         />
-      </dl>
+      </StaggerGroup>
     </StoryLayout>
   )
 }
 
-function RecapItem({ label, value }: { label: string; value: string }) {
+function RecapItem({
+  label,
+  value,
+  locale,
+}: {
+  label: string
+  value: number | string
+  locale?: string
+}) {
   return (
-    <div className="jutge-panel">
+    <StaggerItem className="jutge-panel">
       <div className="jutge-panel-body py-3">
         <dt className="text-jutge-muted text-xs font-bold uppercase">
           {label}
         </dt>
-        <dd className="jutge-score text-jutge-blue mt-1 text-lg">{value}</dd>
+        <dd className="jutge-score text-jutge-blue mt-1 text-lg">
+          {typeof value === "number" ? (
+            <AnimatedCounter value={value} locale={locale} />
+          ) : (
+            value
+          )}
+        </dd>
       </div>
-    </div>
+    </StaggerItem>
   )
 }

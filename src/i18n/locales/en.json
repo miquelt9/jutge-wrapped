@@ -14,7 +14,13 @@
   },
   "theme": {
     "label": "Theme",
-    "aria": "Theme"
+    "aria": "Theme",
+    "options": {
+      "jutge": "Classic Jutge",
+      "dark": "Dark Jutge",
+      "fib": "FIB",
+      "upc": "UPC"
+    }
   },
   "login": {
     "signIn": "Sign in",
@@ -112,6 +118,15 @@
       "eyebrow": "Verdict distribution",
       "title": "The judge has spoken"
     },
+    "awards": {
+      "eyebrow": "Trophy case",
+      "iconAlt": "Award: {{title}}",
+      "moreAwards": "+{{count}} more awards",
+      "totalLabel": "awards in this period",
+      "watchYoutube": "Watch on YouTube",
+      "problemAwarded": "Problem {{problem}}",
+      "showingOf": "Showing {{shown}} of {{total}}"
+    },
     "ranking": {
       "eyebrow": "System rank",
       "globalLeaderboard": "Global leaderboard",
@@ -160,8 +175,14 @@
     "scoredAttempts": "scored attempts",
     "presentationErrors": "presentation errors"
   },
+  "awards": {
+    "titleOne": "1 award earned",
+    "titleMany": "{{count}} awards earned",
+    "subtitleFeatured": "Latest: {{title}} · {{date}}"
+  },
   "rank": {
-    "eliteLabel": "Top {{percent}}% of Jutge users"
+    "eliteLabel": "Top {{percent}}% of Jutge users",
+    "eliteLabelAnimated": "Top <0/>% of Jutge users"
   },
   "personalization": {
     "intro": {
@@ -181,11 +202,11 @@
     },
     "hero": {
       "label": "Your standout problem",
-      "grindHeadline": "Your grind problem: {{problem}}",
+      "grindHeadline": "Your grind problem: <0>{{problem}}</0>",
       "grindDetail": "{{attempts}} tries before your first AC — {{submissions}} total.",
-      "mostAttemptedHeadline": "You kept coming back to {{problem}}",
+      "mostAttemptedHeadline": "You kept coming back to <0>{{problem}}</0>",
       "mostAttemptedDetail": "{{submissions}} in this period.",
-      "firstAcHeadline": "First AC in this period: {{problem}}",
+      "firstAcHeadline": "First AC in this period: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} on that problem overall."
     }
   },
@@ -234,6 +255,7 @@
       "chrono": "My Jutge.org Wrapped! Peak hour: {{peakHour}}:00, Archetype: {{archetype}}!",
       "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
       "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
+      "awards": "My Jutge.org Wrapped! {{count}} awards — latest: {{title}}!",
       "ranking": "My Jutge.org Wrapped! {{elite}}!"
     }
   },

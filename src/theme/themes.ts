@@ -9,15 +9,9 @@ export function isThemeId(value: string): value is ThemeId {
 
 export type ThemeMeta = {
   id: ThemeId
-  label: string
 }
 
-export const THEME_OPTIONS: ThemeMeta[] = [
-  { id: "jutge", label: "Classic Jutge" },
-  { id: "dark", label: "Dark Jutge" },
-  { id: "fib", label: "FIB" },
-  { id: "upc", label: "UPC" },
-]
+export const THEME_OPTIONS: ThemeMeta[] = THEME_IDS.map((id) => ({ id }))
 
 /** Map legacy localStorage values to current theme ids. */
 export function migrateStoredTheme(raw: string | null): ThemeId {

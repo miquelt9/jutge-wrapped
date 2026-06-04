@@ -1,5 +1,6 @@
 import type {
   AllTables,
+  Award,
   Dashboard,
   HeatmapCalendar,
   Submission,
@@ -118,7 +119,22 @@ export function parseSubmissionTime(timeIn: Submission["time_in"]): Date {
   if (typeof timeIn === "number") {
     return new Date(timeIn > 1e12 ? timeIn : timeIn * 1000)
   }
+  if (typeof timeIn === "string" && /^\d+(\.\d+)?$/.test(timeIn.trim())) {
+    const n = Number(timeIn)
+    return new Date(n > 1e12 ? n : n * 1000)
+  }
   return new Date(timeIn as string)
+}
+
+/** Submissions scoped to the active wrapped period (all-time returns the full list). */
+export function submissionsForWrappedPeriod(
+  submissions: Submission[] | undefined,
+  period: WrappedPeriod,
+): Submission[] | undefined {
+  if (!submissions?.length) return undefined
+  if (isAllTimePeriod(period)) return submissions
+  const filtered = submissions.filter((s) => submissionInPeriod(s, period))
+  return filtered.length > 0 ? filtered : undefined
 }
 
 function utcDayTimestamp(d: Date): number {
@@ -136,6 +152,30 @@ export function submissionInPeriod(
   if (period.start && dayTs < utcDayTsFromIso(period.start)) return false
   if (period.end && dayTs > utcDayTsFromIso(period.end)) return false
   return true
+}
+
+export function awardInPeriod(
+  award: Award,
+  period: WrappedPeriod,
+): boolean {
+  if (isAllTimePeriod(period)) return true
+  const dayTs = utcDayTimestamp(parseSubmissionTime(award.time))
+  if (period.start && dayTs < utcDayTsFromIso(period.start)) return false
+  if (period.end && dayTs > utcDayTsFromIso(period.end)) return false
+  return true
+}
+
+/** Awards scoped to the active wrapped period (all-time returns the full dict). */
+export function awardsForWrappedPeriod(
+  awards: Record<string, Award> | undefined,
+  period: WrappedPeriod,
+): Record<string, Award> | undefined {
+  if (!awards || Object.keys(awards).length === 0) return undefined
+  if (isAllTimePeriod(period)) return awards
+  const filtered = Object.fromEntries(
+    Object.entries(awards).filter(([, award]) => awardInPeriod(award, period)),
+  )
+  return Object.keys(filtered).length > 0 ? filtered : undefined
 }
 
 const WEEKDAY_KEYS = [

@@ -14,7 +14,13 @@
   },
   "theme": {
     "label": "Tema",
-    "aria": "Tema"
+    "aria": "Tema",
+    "options": {
+      "jutge": "Jutge clásico",
+      "dark": "Jutge oscuro",
+      "fib": "FIB",
+      "upc": "UPC"
+    }
   },
   "login": {
     "signIn": "Iniciar sesión",
@@ -112,6 +118,15 @@
       "eyebrow": "Distribución de veredictos",
       "title": "El juez ha hablado"
     },
+    "awards": {
+      "eyebrow": "Vitrina de trofeos",
+      "iconAlt": "Premio: {{title}}",
+      "moreAwards": "+{{count}} premios más",
+      "totalLabel": "premios en este periodo",
+      "watchYoutube": "Ver en YouTube",
+      "problemAwarded": "Problema {{problem}}",
+      "showingOf": "Mostrando {{shown}} de {{total}}"
+    },
     "ranking": {
       "eyebrow": "Rango del sistema",
       "globalLeaderboard": "Clasificación global",
@@ -160,8 +175,14 @@
     "scoredAttempts": "intentos puntuados",
     "presentationErrors": "errores de presentación"
   },
+  "awards": {
+    "titleOne": "1 premio conseguido",
+    "titleMany": "{{count}} premios conseguidos",
+    "subtitleFeatured": "Último: {{title}} · {{date}}"
+  },
   "rank": {
-    "eliteLabel": "Top {{percent}}% de usuarios de Jutge"
+    "eliteLabel": "Top {{percent}}% de usuarios de Jutge",
+    "eliteLabelAnimated": "Top <0/>% de usuarios de Jutge"
   },
   "personalization": {
     "intro": {
@@ -181,11 +202,11 @@
     },
     "hero": {
       "label": "Tu problema destacado",
-      "grindHeadline": "Tu problema de insistencia: {{problem}}",
+      "grindHeadline": "Tu problema de insistencia: <0>{{problem}}</0>",
       "grindDetail": "{{attempts}} intentos antes del primer AC — {{submissions}} en total.",
-      "mostAttemptedHeadline": "Volvías una y otra vez a {{problem}}",
+      "mostAttemptedHeadline": "Volvías una y otra vez a <0>{{problem}}</0>",
       "mostAttemptedDetail": "{{submissions}} en este periodo.",
-      "firstAcHeadline": "Primer AC en este periodo: {{problem}}",
+      "firstAcHeadline": "Primer AC en este periodo: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} en ese problema en total."
     }
   },
@@ -234,6 +255,7 @@
       "chrono": "¡Mi Jutge.org Wrapped! Hora punta: {{peakHour}}:00, Arquetipo: {{archetype}}!",
       "course": "¡Mi Jutge.org Wrapped! Lenguaje principal: {{topLanguage}}!",
       "verdict": "¡Mi Jutge.org Wrapped! Envíos AC: {{ac}} ({{acRate}}% de aceptados)!",
+      "awards": "¡Mi Jutge.org Wrapped! {{count}} premios — último: {{title}}!",
       "ranking": "¡Mi Jutge.org Wrapped! {{elite}}!"
     }
   },

@@ -1,5 +1,6 @@
 import type {
   AllTables,
+  Award,
   ColorMapping,
   Dashboard,
   HomepageStats,
@@ -20,6 +21,7 @@ export type WrappedRawData = {
   period: WrappedPeriod
   /** When present (e.g. snapshot export), enables full period filtering. */
   submissions?: Submission[]
+  awards?: Record<string, Award>
 }
 
 export type DistributionItem = {
@@ -107,6 +109,8 @@ export type RankInsights = {
   platformUserCount: number
   percentile: number
   usersAhead: number
+  /** Share of users at or above this rank (0–100+, two decimal places). */
+  topPercent: number
   eliteLabel: string
 }
 
@@ -118,8 +122,27 @@ export type HeroMomentInsight = {
   problemLabel: string
   submissionCount: number
   attemptsBeforeAc: number | null
-  headline: string
   detail: string
+}
+
+export type AwardItem = {
+  awardId: string
+  title: string
+  info: string
+  iconUrl: string
+  type: string
+  timeLabel: string
+  youtube: string | null
+  problemId: string | null
+  problemLabel: string | null
+}
+
+export type AwardInsights = {
+  count: number
+  items: AwardItem[]
+  featured: AwardItem | null
+  title: string
+  subtitle: string
 }
 
 export type PersonalizedInsights = {
@@ -148,5 +171,6 @@ export type WrappedInsights = {
   compilers: DistributionItem[]
   verdicts: VerdictInsights
   rank: RankInsights
+  awards: AwardInsights
   personalized: PersonalizedInsights
 }

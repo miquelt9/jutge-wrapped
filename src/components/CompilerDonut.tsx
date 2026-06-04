@@ -10,11 +10,15 @@ import type { DistributionItem } from "@/features/wrapped/types"
 type Props = {
   items: DistributionItem[]
   size?: number
+  displaySize?: number
+  fill?: boolean
 }
 
 export function CompilerDonut({
   items,
   size = DISTRIBUTION_DONUT_SIZE,
+  displaySize,
+  fill,
 }: Props) {
   const { t } = useTranslation()
   const getColor = useCallback(
@@ -30,6 +34,8 @@ export function CompilerDonut({
     <DistributionDonut
       items={items}
       size={size}
+      displaySize={displaySize}
+      fill={fill}
       getColor={getColor}
       centerItems={centerItems}
       formatCenterLabel={(item) => item.key}

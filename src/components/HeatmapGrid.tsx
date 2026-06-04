@@ -22,7 +22,23 @@ const CELL_PX_MOBILE = 14
 const CELL_GAP_PX_MOBILE = 3
 const MOBILE_MONTH_LABEL_WIDTH_PX = 56
 /** Height for diagonal month names above the week columns. */
-const MONTH_LABEL_ROW_PX = 52
+const MONTH_LABEL_ROW_PX = 56
+
+function monthLabelSpanPx(
+  colIdx: number,
+  monthLabels: (string | null)[],
+  cellPx: number,
+  gapPx: number,
+): number {
+  let endCol = monthLabels.length
+  for (let j = colIdx + 1; j < monthLabels.length; j++) {
+    if (monthLabels[j]) {
+      endCol = j
+      break
+    }
+  }
+  return (endCol - colIdx) * cellPx + (endCol - colIdx - 1) * gapPx
+}
 
 function useHeatmapCellMetrics() {
   const [metrics, setMetrics] = useState({
@@ -299,24 +315,29 @@ function WeekHeatmapGrid({
         className={
           exportMode
             ? "max-w-full px-1 pt-2 pb-4"
-            : "w-full max-w-full overflow-x-auto overflow-y-hidden scroll-smooth px-1 pt-2 pb-4 sm:w-auto"
+            : "w-full max-w-full overflow-x-auto scroll-smooth px-1 pt-2 pb-4 sm:w-auto"
         }
       >
         <div className="mx-auto inline-flex min-w-0 flex-col gap-1">
           <div className="flex gap-2">
             <span className="w-8 shrink-0" aria-hidden />
             <div
-              className="relative shrink-0 overflow-hidden"
+              className="relative shrink-0 overflow-visible"
               style={{ width: gridWidthPx, height: MONTH_LABEL_ROW_PX }}
             >
               {monthLabels.map((label, colIdx) =>
                 label ? (
                   <span
                     key={colIdx}
-                    className="text-jutge-muted pointer-events-none absolute bottom-0 origin-bottom-left truncate font-mono text-[10px] leading-none"
+                    className="text-jutge-muted pointer-events-none absolute bottom-0 origin-bottom-left font-mono text-[10px] leading-none whitespace-nowrap"
                     style={{
                       left: colIdx * (cellPx + gapPx),
-                      maxWidth: cellPx + gapPx,
+                      maxWidth: monthLabelSpanPx(
+                        colIdx,
+                        monthLabels,
+                        cellPx,
+                        gapPx,
+                      ),
                       transform: "rotate(-45deg)",
                     }}
                   >

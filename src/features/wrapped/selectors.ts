@@ -1,5 +1,6 @@
 import type {
   AllTables,
+  Award,
   ColorMapping,
   Dashboard,
   HeatmapCalendar,
@@ -8,7 +9,10 @@ import type {
 } from "@/api/client"
 import i18n from "@/i18n/config"
 import { formatDays, formatSubmissions } from "@/i18n/plurals"
+import { AWARD_TILE_LIMIT } from "./awards"
+import { jutgeAwardIconUrl, resolveAwardYoutube } from "./jutgeLinks"
 import {
+  awardInPeriod,
   formatPeriodLabel,
   isAllTimePeriod,
   parseSubmissionTime,
@@ -18,6 +22,8 @@ import {
 import type { WrappedPeriod } from "./period"
 import { compilerColor } from "@/theme/jutgeColors"
 import type {
+  AwardInsights,
+  AwardItem,
   ChronoInsights,
   CourseArcInsights,
   DistributionItem,
@@ -563,6 +569,10 @@ function submissionTimeMs(sub: Submission): number {
   return parseSubmissionTime(sub.time_in).getTime()
 }
 
+function isAcceptedVerdict(veredict: string | null): boolean {
+  return veredict?.toUpperCase() === "AC"
+}
+
 function buildHeroMoment(
   submissions: Submission[] | undefined,
   period: WrappedPeriod,
@@ -598,7 +608,7 @@ function buildHeroMoment(
       mostAttempted = { problemId, total }
     }
 
-    const firstAcIdx = sorted.findIndex((s) => s.veredict === "AC")
+    const firstAcIdx = sorted.findIndex((s) => isAcceptedVerdict(s.veredict))
     if (firstAcIdx >= 0) {
       const attemptsBeforeAc = firstAcIdx
       if (
@@ -656,9 +666,6 @@ function buildHeroMoment(
       problemLabel,
       submissionCount: pick.submissionCount,
       attemptsBeforeAc: pick.attemptsBeforeAc,
-      headline: i18n.t("personalization.hero.grindHeadline", {
-        problem: problemLabel,
-      }),
       detail: i18n.t("personalization.hero.grindDetail", {
         attempts: pick.attemptsBeforeAc,
         total: pick.submissionCount,
@@ -674,9 +681,6 @@ function buildHeroMoment(
       problemLabel,
       submissionCount: pick.submissionCount,
       attemptsBeforeAc: null,
-      headline: i18n.t("personalization.hero.mostAttemptedHeadline", {
-        problem: problemLabel,
-      }),
       detail: i18n.t("personalization.hero.mostAttemptedDetail", {
         submissions: subsWord,
       }),
@@ -689,9 +693,6 @@ function buildHeroMoment(
     problemLabel,
     submissionCount: pick.submissionCount,
     attemptsBeforeAc: null,
-    headline: i18n.t("personalization.hero.firstAcHeadline", {
-      problem: problemLabel,
-    }),
     detail: i18n.t("personalization.hero.firstAcDetail", {
       submissions: subsWord,
     }),
@@ -805,7 +806,134 @@ export function buildRankInsights(
     platformUserCount,
     percentile,
     usersAhead,
+    topPercent,
     eliteLabel: i18n.t("rank.eliteLabel", { percent: topPercent }),
+  }
+}
+
+function formatAwardTime(time: Award["time"]): string {
+  return parseSubmissionTime(time).toLocaleDateString(i18n.language, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })
+}
+
+const EMPTY_AWARD_INSIGHTS: AwardInsights = {
+  count: 0,
+  items: [],
+  featured: null,
+  title: "",
+  subtitle: "",
+}
+
+function shuffleCopy<T>(items: T[], random: () => number): T[] {
+  const copy = [...items]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j]!, copy[i]!]
+  }
+  return copy
+}
+
+function interleaveAwardPools(
+  withYoutube: Award[],
+  withoutYoutube: Award[],
+  random: () => number,
+): Award[] {
+  const youtube = [...withYoutube]
+  const plain = [...withoutYoutube]
+  const result: Award[] = []
+
+  while (youtube.length > 0 || plain.length > 0) {
+    const pickYoutube =
+      youtube.length === 0
+        ? false
+        : plain.length === 0
+          ? true
+          : random() < 0.5
+
+    if (pickYoutube) result.push(youtube.shift()!)
+    else result.push(plain.shift()!)
+  }
+
+  return result
+}
+
+/** Mix YouTube and non-YouTube awards with random order on each wrap. */
+export function shuffleAwardsForDisplay(
+  awards: Award[],
+  random: () => number = Math.random,
+): Award[] {
+  const withYoutube = shuffleCopy(
+    awards.filter((award) => resolveAwardYoutube(award.youtube)),
+    random,
+  )
+  const withoutYoutube = shuffleCopy(
+    awards.filter((award) => !resolveAwardYoutube(award.youtube)),
+    random,
+  )
+
+  if (withYoutube.length === 0) return withoutYoutube
+  if (withoutYoutube.length === 0) return withYoutube
+
+  const youtubeQueue = [...withYoutube]
+  const plainQueue = [...withoutYoutube]
+  const head = [youtubeQueue.shift()!, plainQueue.shift()!]
+  shuffleCopy(head, random)
+
+  return [...head, ...interleaveAwardPools(youtubeQueue, plainQueue, random)]
+}
+
+export function buildAwardInsights(
+  awards: Record<string, Award> | undefined,
+  period: WrappedPeriod,
+  random: () => number = Math.random,
+): AwardInsights {
+  if (!awards || Object.keys(awards).length === 0) {
+    return EMPTY_AWARD_INSIGHTS
+  }
+
+  const shuffled = shuffleAwardsForDisplay(
+    Object.values(awards).filter((award) => awardInPeriod(award, period)),
+    random,
+  )
+
+  const allItems: AwardItem[] = shuffled.map((award) => {
+    const problemId = award.submission?.problem_id ?? null
+    return {
+      awardId: award.award_id,
+      title: award.title,
+      info: award.info,
+      iconUrl: jutgeAwardIconUrl(award.icon, award.type),
+      type: award.type,
+      timeLabel: formatAwardTime(award.time),
+      youtube: resolveAwardYoutube(award.youtube),
+      problemId,
+      problemLabel: problemId,
+    }
+  })
+
+  const displayItems = allItems.slice(0, AWARD_TILE_LIMIT)
+
+  if (displayItems.length === 0) return EMPTY_AWARD_INSIGHTS
+
+  const featured = displayItems[0]!
+  const title =
+    allItems.length === 1
+      ? i18n.t("awards.titleOne")
+      : i18n.t("awards.titleMany", { count: allItems.length })
+  const subtitle = i18n.t("awards.subtitleFeatured", {
+    title: featured.title,
+    date: featured.timeLabel,
+  })
+
+  return {
+    count: allItems.length,
+    items: displayItems,
+    featured,
+    title,
+    subtitle,
   }
 }
 
@@ -842,6 +970,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
   const courseArc = buildCourseArcInsights(dashboard, tables, hexColors)
   const verdicts = buildVerdictInsights(dashboard, tables, hexColors)
   const rank = buildRankInsights(absoluteRanking, homepageStats)
+  const awards = buildAwardInsights(raw.awards, raw.period)
 
   return {
     displayName,
@@ -856,6 +985,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     compilers,
     verdicts,
     rank,
+    awards,
     personalized: buildPersonalizedInsights(
       raw,
       journey,

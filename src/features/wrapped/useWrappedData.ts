@@ -6,7 +6,12 @@ import {
   mapApiError,
 } from "@/api/client"
 import type { JutgeApiClient, Submission } from "@/api/client"
+import { fetchFullAwards } from "./awards"
 import { buildWrappedInsights } from "./selectors"
+import {
+  hasSubmissionHistory,
+  resolveSnapshotSubmissions,
+} from "./snapshot"
 import type { WrappedRawData } from "./types"
 import {
   emptyRangeMessage,
@@ -20,6 +25,7 @@ import {
   isAllTimePeriod,
   isValidBoundedPeriod,
   submissionInPeriod,
+  submissionsForWrappedPeriod,
   type WrappedPeriod,
 } from "./period"
 
@@ -74,13 +80,15 @@ export function useWrappedData(
 
     if (snapshot) {
       revokeAvatar()
-      const hasSubmissionList = Boolean(
-        snapshot.submissions && snapshot.submissions.length > 0,
+      const resolvedSubmissions = await resolveSnapshotSubmissions(
+        snapshot,
+        client,
       )
+      const hasSubmissionList = hasSubmissionHistory(resolvedSubmissions)
       const dashboard = dashboardForWrappedPeriod(
         {
           dashboard: snapshot.dashboard,
-          submissions: snapshot.submissions,
+          submissions: resolvedSubmissions,
           tables: snapshot.tables,
         },
         period,
@@ -101,7 +109,7 @@ export function useWrappedData(
         ...snapshot,
         period,
         dashboard,
-        submissions: snapshot.submissions,
+        submissions: submissionsForWrappedPeriod(resolvedSubmissions, period),
       }
       readyRawRef.current = raw
       setState({
@@ -131,6 +139,7 @@ export function useWrappedData(
         homepageStats,
         level,
         absoluteRanking,
+        briefAwards,
       ] = await Promise.all([
         client.student.profile.get(),
         fetchStudentAvatar(client),
@@ -139,12 +148,21 @@ export function useWrappedData(
         client.misc.getHomepageStats(),
         client.student.dashboard.getLevel(),
         client.student.dashboard.getAbsoluteRanking(),
+        client.student.awards.getAll(),
       ])
+
+      const awards = await fetchFullAwards(client, briefAwards)
 
       let dashboard
       let periodSubmissions: Submission[] | undefined
       if (isAllTimePeriod(period)) {
-        dashboard = await client.student.dashboard.getDashboard()
+        const [dashboardResult, allSubmissions] = await Promise.all([
+          client.student.dashboard.getDashboard(),
+          client.student.submissions.getAll(),
+        ])
+        dashboard = dashboardResult
+        periodSubmissions =
+          allSubmissions.length > 0 ? allSubmissions : undefined
       } else {
         const allSubmissions = await client.student.submissions.getAll()
         const filtered = allSubmissions.filter((s) =>
@@ -181,6 +199,7 @@ export function useWrappedData(
         tables,
         period,
         submissions: periodSubmissions,
+        awards: awards && Object.keys(awards).length > 0 ? awards : undefined,
       }
       readyRawRef.current = raw
 
@@ -218,9 +237,9 @@ export function useWrappedData(
           return { ...prev, message: invalidRangeMessage(period) }
         }
         if (prev.kind === "empty_range") {
-          const hasList = Boolean(
-            snapshot?.submissions && snapshot.submissions.length > 0,
-          )
+          const hasList =
+            hasSubmissionHistory(readyRawRef.current?.submissions) ||
+            hasSubmissionHistory(snapshot?.submissions)
           return {
             ...prev,
             message: emptyRangeMessage(

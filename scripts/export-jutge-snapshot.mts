@@ -35,6 +35,18 @@ async function fetchAvatarOptional(client: JutgeApiClient) {
   }
 }
 
+async function fetchFullAwards(
+  client: JutgeApiClient,
+  brief: Awaited<ReturnType<JutgeApiClient["student"]["awards"]["getAll"]>>,
+) {
+  const ids = Object.keys(brief)
+  if (ids.length === 0) return undefined
+  const pairs = await Promise.all(
+    ids.map(async (id) => [id, await client.student.awards.get(id)] as const),
+  )
+  return Object.fromEntries(pairs)
+}
+
 async function main() {
   const rl = createInterface({ input, output })
   console.log("Jutge Wrapped — local snapshot export")
@@ -59,6 +71,7 @@ async function main() {
     homepageStats,
     hexColors,
     tables,
+    briefAwards,
   ] = await Promise.all([
     client.student.profile.get(),
     fetchAvatarOptional(client),
@@ -69,7 +82,10 @@ async function main() {
     client.misc.getHomepageStats(),
     client.misc.getHexColors(),
     client.tables.get(),
+    client.student.awards.getAll(),
   ])
+
+  const awards = await fetchFullAwards(client, briefAwards)
 
   if (!avatar) {
     console.log("Note: no custom avatar on this account (skipped).")
@@ -103,6 +119,7 @@ async function main() {
     hexColors,
     tables,
     period,
+    awards,
   }
 
   const outDir = path.join(rootDir, "artifacts")

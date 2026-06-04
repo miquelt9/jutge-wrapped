@@ -89,6 +89,7 @@ npm run export:snapshot
 - `artifacts/` is gitignored and should stay out of commits.
 - In development, you can load a snapshot from the login or date-picker UI.
 - For auto-load during local development, copy a snapshot into `public/` and set `VITE_SNAPSHOT_PATH` in `.env`.
+- Snapshots must include a `submissions` array (written by `npm run export:snapshot`) for per-problem insights such as the intro grind headline. Re-export if your file predates that field.
 
 ## Generated API clients
 

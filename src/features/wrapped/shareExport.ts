@@ -8,10 +8,28 @@ export const SLIDE_IDS = [
   "chrono",
   "course",
   "verdict",
+  "awards",
   "ranking",
 ] as const
 
 export type SlideId = (typeof SLIDE_IDS)[number]
+
+export function getActiveSlideIds(insights: WrappedInsights): SlideId[] {
+  if (insights.awards.count === 0) {
+    return SLIDE_IDS.filter((id) => id !== "awards")
+  }
+  return [...SLIDE_IDS]
+}
+
+/** True when the Web Share API can share files (typical mobile browsers). */
+export function canUseNativeImageShare(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function" &&
+    typeof window !== "undefined" &&
+    window.isSecureContext
+  )
+}
 
 export function getSlideShareText(
   slideId: SlideId,
@@ -49,6 +67,11 @@ export function getSlideShareText(
       return t("share.templates.verdict", {
         ac: insights.verdicts.ac,
         acRate: insights.verdicts.acRate,
+      })
+    case "awards":
+      return t("share.templates.awards", {
+        count: insights.awards.count,
+        title: insights.awards.featured?.title ?? "—",
       })
     case "ranking":
       return t("share.templates.ranking", {

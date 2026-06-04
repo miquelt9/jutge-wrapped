@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { AllTables, Dashboard, Submission } from "@/api/client"
 import {
+  awardInPeriod,
   dashboardForWrappedPeriod,
   filterDashboardByPeriod,
   getCurrentAcademicYearRange,
@@ -45,6 +46,34 @@ describe("period helpers", () => {
     ).toBe(true)
     expect(
       submissionInPeriod(makeSubmission("2025-03-01T00:00:00Z"), boundedPeriod),
+    ).toBe(false)
+  })
+
+  it("filters awards by period bounds", () => {
+    const award = {
+      award_id: "a1",
+      time: "2025-02-15T12:00:00Z",
+      type: "funs",
+      icon: "icons/a.png",
+      title: "Test",
+      info: "Info",
+      youtube: null,
+      submission: null,
+    }
+    expect(awardInPeriod(award, boundedPeriod)).toBe(true)
+    expect(
+      awardInPeriod({ ...award, time: "2025-01-01T00:00:00Z" }, boundedPeriod),
+    ).toBe(false)
+  })
+
+  it("parses unix timestamps stored as numeric strings", () => {
+    const feb4 = String(Date.UTC(2025, 1, 4, 10) / 1000)
+    expect(submissionInPeriod(makeSubmission(feb4), boundedPeriod)).toBe(true)
+    expect(
+      submissionInPeriod(
+        makeSubmission(String(Date.UTC(2025, 2, 1) / 1000)),
+        boundedPeriod,
+      ),
     ).toBe(false)
   })
 

@@ -1,8 +1,10 @@
 import type {
   AllTables,
+  Award,
   ColorMapping,
   Dashboard,
   HomepageStats,
+  JutgeApiClient,
   Profile,
   Submission,
 } from "@/api/client"
@@ -23,6 +25,7 @@ export type ExportedJutgeSnapshot = {
   tables: AllTables
   period?: WrappedPeriod
   submissions?: Submission[]
+  awards?: Record<string, Award>
 }
 
 const DEFAULT_PERIOD: WrappedPeriod = {
@@ -63,6 +66,84 @@ function avatarFromExport(
   return URL.createObjectURL(blob)
 }
 
+function normalizeSubmission(raw: unknown): Submission | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null
+  const o = raw as Record<string, unknown>
+  const problemId = o.problem_id ?? o.problemId
+  if (typeof problemId !== "string" || !problemId) return null
+
+  const timeIn = o.time_in ?? o.timeIn ?? o.time
+  if (timeIn === undefined || timeIn === null || timeIn === "") return null
+
+  const veredictRaw = o.veredict ?? o.verdict
+  const veredict =
+    typeof veredictRaw === "string" ? veredictRaw : (veredictRaw ?? null)
+
+  return {
+    problem_id: problemId,
+    submission_id: String(
+      o.submission_id ?? o.submissionId ?? `${problemId}-${String(timeIn)}`,
+    ),
+    compiler_id: String(o.compiler_id ?? o.compilerId ?? ""),
+    annotation: typeof o.annotation === "string" ? o.annotation : null,
+    state: typeof o.state === "string" ? o.state : "done",
+    time_in: timeIn as Submission["time_in"],
+    veredict: typeof veredict === "string" ? veredict : null,
+    veredict_info:
+      typeof o.veredict_info === "string"
+        ? o.veredict_info
+        : typeof o.verdict_info === "string"
+          ? o.verdict_info
+          : null,
+    veredict_publics:
+      typeof o.veredict_publics === "string" ? o.veredict_publics : null,
+    ok_publics_but_wrong: Number(o.ok_publics_but_wrong ?? 0),
+  }
+}
+
+/** Coerce snapshot/API submission records into the shape hero-moment logic expects. */
+export function normalizeSubmissions(
+  submissions: unknown,
+): Submission[] | undefined {
+  if (!Array.isArray(submissions)) return undefined
+  const normalized = submissions
+    .map(normalizeSubmission)
+    .filter((sub): sub is Submission => sub !== null)
+  return normalized.length > 0 ? normalized : undefined
+}
+
+export function hasSubmissionHistory(
+  submissions: Submission[] | undefined,
+): boolean {
+  return Boolean(submissions?.length)
+}
+
+/**
+ * Hero-moment insights (e.g. grind headline) need per-submission history.
+ * Legacy snapshots may omit `submissions`; when a live client is available,
+ * fetch the list as a fallback before building insights.
+ */
+export async function resolveSnapshotSubmissions(
+  snapshot: WrappedRawData,
+  client: JutgeApiClient | null,
+): Promise<Submission[] | undefined> {
+  const embedded = normalizeSubmissions(snapshot.submissions)
+  if (hasSubmissionHistory(embedded)) {
+    return embedded
+  }
+  if (!client?.meta?.token) {
+    return embedded
+  }
+  try {
+    const all = normalizeSubmissions(
+      await client.student.submissions.getAll(),
+    )
+    return hasSubmissionHistory(all) ? all : embedded
+  } catch {
+    return embedded
+  }
+}
+
 /** Turn exported API JSON (or in-app raw data) into `WrappedRawData`. */
 export function hydrateSnapshot(json: unknown): WrappedRawData {
   if (isWrappedRawData(json)) {
@@ -70,6 +151,8 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
       ...json,
       avatarUrl: json.avatarUrl ?? null,
       period: json.period ?? DEFAULT_PERIOD,
+      submissions: normalizeSubmissions(json.submissions),
+      awards: json.awards,
     }
   }
 
@@ -90,7 +173,8 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
     hexColors: snap.hexColors ?? ({} as ColorMapping),
     tables: snap.tables ?? ({} as AllTables),
     period: snap.period ?? DEFAULT_PERIOD,
-    submissions: snap.submissions,
+    submissions: normalizeSubmissions(snap.submissions),
+    awards: snap.awards,
   }
 }
 
@@ -131,6 +215,7 @@ export function serializeSnapshot(
     tables: raw.tables,
     period: raw.period,
     submissions: raw.submissions,
+    awards: raw.awards,
   }
 }
 

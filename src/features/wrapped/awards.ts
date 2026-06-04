@@ -1,0 +1,16 @@
+import type { Award, BriefAward, JutgeApiClient } from "../../api/client"
+
+export const AWARD_TILE_LIMIT = 10
+
+export async function fetchFullAwards(
+  client: JutgeApiClient,
+  brief: Record<string, BriefAward>,
+): Promise<Record<string, Award> | undefined> {
+  const ids = Object.keys(brief)
+  if (ids.length === 0) return undefined
+
+  const pairs = await Promise.all(
+    ids.map(async (id) => [id, await client.student.awards.get(id)] as const),
+  )
+  return Object.fromEntries(pairs)
+}

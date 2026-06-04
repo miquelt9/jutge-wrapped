@@ -12,9 +12,16 @@ const CENTER_VERDICTS = ["AC", "WA", "EE"] as const
 type Props = {
   items: DistributionItem[]
   size?: number
+  displaySize?: number
+  fill?: boolean
 }
 
-export function VerdictDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) {
+export function VerdictDonut({
+  items,
+  size = DISTRIBUTION_DONUT_SIZE,
+  displaySize,
+  fill,
+}: Props) {
   const { t } = useTranslation()
   const getColor = useCallback(
     (item: DistributionItem) => verdictColor(item.key),
@@ -32,6 +39,8 @@ export function VerdictDonut({ items, size = DISTRIBUTION_DONUT_SIZE }: Props) {
     <DistributionDonut
       items={items}
       size={size}
+      displaySize={displaySize}
+      fill={fill}
       getColor={getColor}
       centerItems={centerItems}
       ariaLabel={t("donut.verdictAria")}
