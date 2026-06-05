@@ -1,7 +1,9 @@
 import { useEffect, useState, type CSSProperties } from "react"
 import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
+import { useSlideExportMode } from "@/context/SlideExportModeContext"
 import { formatSubmissions } from "@/i18n/plurals"
+import { HEATMAP_MOBILE_MEDIA } from "@/lib/layoutBreakpoints"
 import type {
   HeatmapInsights,
   HeatmapYearBlock,
@@ -48,7 +50,7 @@ function useHeatmapCellMetrics() {
   })
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)")
+    const mq = window.matchMedia(HEATMAP_MOBILE_MEDIA)
     const update = () =>
       setMetrics(
         mq.matches
@@ -385,12 +387,14 @@ function WeekHeatmapGrid({
 /** GitHub-style submission calendar for slide-level heatmap insights. */
 export function ActivityCalendar({
   heatmap,
-  exportMode = false,
+  exportMode: exportModeProp = false,
 }: {
   heatmap: HeatmapInsights
   exportMode?: boolean
 }) {
   const { t } = useTranslation()
+  const slideExportMode = useSlideExportMode()
+  const exportMode = exportModeProp || slideExportMode
 
   if (heatmap.yearBlocks.length === 0) {
     return <p className="text-jutge-muted text-sm">{t("heatmap.noActivity")}</p>

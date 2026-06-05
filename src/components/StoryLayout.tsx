@@ -1,10 +1,6 @@
 import type { ReactNode } from "react"
 import { motion, useReducedMotion } from "framer-motion"
-import {
-  fadeUpHidden,
-  fadeUpTransition,
-  fadeUpVisible,
-} from "./motionPresets"
+import { fadeUpHidden, fadeUpTransition, fadeUpVisible } from "./motionPresets"
 
 type Props = {
   eyebrow?: string
@@ -26,13 +22,13 @@ export function StoryLayout({
 
   return (
     <div
-      className={`flex h-full min-h-0 max-w-full min-w-0 flex-col gap-6 overflow-x-hidden px-4 py-8 sm:px-6 sm:py-10 md:px-12 ${
+      className={`flex h-full min-h-0 max-w-full min-w-0 flex-col gap-4 overflow-x-hidden px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10 ${
         align === "start" ? "justify-start" : "justify-center"
       }`}
     >
       {eyebrow && (
         <motion.p
-          className="jutge-eyebrow"
+          className="jutge-eyebrow shrink-0"
           initial={fadeUpHidden(reduceMotion)}
           animate={fadeUpVisible()}
           transition={fadeUpTransition(reduceMotion, 0.04)}
@@ -41,7 +37,7 @@ export function StoryLayout({
         </motion.p>
       )}
       <motion.h1
-        className="jutge-title"
+        className="jutge-title shrink-0"
         initial={fadeUpHidden(reduceMotion)}
         animate={fadeUpVisible()}
         transition={fadeUpTransition(reduceMotion, eyebrow ? 0.1 : 0.04)}
@@ -50,7 +46,7 @@ export function StoryLayout({
       </motion.h1>
       {subtitle && (
         <motion.p
-          className="jutge-subtitle"
+          className="jutge-subtitle shrink-0"
           initial={fadeUpHidden(reduceMotion)}
           animate={fadeUpVisible()}
           transition={fadeUpTransition(reduceMotion, eyebrow ? 0.16 : 0.1)}
@@ -60,7 +56,9 @@ export function StoryLayout({
       )}
       {children && (
         <motion.div
-          className="flex max-w-full min-w-0 flex-1 flex-col min-h-0"
+          className={`jutge-story-body ${
+            align === "center" ? "jutge-story-body--centered" : ""
+          }`}
           initial={fadeUpHidden(reduceMotion)}
           animate={fadeUpVisible()}
           transition={fadeUpTransition(reduceMotion, eyebrow ? 0.22 : 0.16)}

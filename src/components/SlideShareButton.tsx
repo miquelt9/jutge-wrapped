@@ -1,6 +1,7 @@
 import { useEffect, useState, type MutableRefObject } from "react"
 import { useTranslation } from "react-i18next"
 import { Share2, Download, Loader2 } from "lucide-react"
+import { useCaptureExportLayout } from "@/context/SlideExportModeContext"
 import { useWebImageShare } from "@/hooks/useWebImageShare"
 import {
   captureSlideImage,
@@ -34,6 +35,7 @@ export function SlideShareButton({
   const { t } = useTranslation()
   const { shareImage, isSharing, canShare, isSecureContext } =
     useWebImageShare()
+  const withExportLayout = useCaptureExportLayout()
   const [isBusy, setIsBusy] = useState(false)
   const [imageReady, setImageReady] = useState(() =>
     imageCacheRef.current.has(slideId),
@@ -66,7 +68,7 @@ export function SlideShareButton({
     if (cached) return cached
     const node = captureRef.current
     if (!node) return null
-    const dataUrl = await captureSlideImage(node)
+    const dataUrl = await withExportLayout(() => captureSlideImage(node))
     imageCacheRef.current.set(slideId, dataUrl)
     setImageReady(true)
     return dataUrl

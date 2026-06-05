@@ -12,6 +12,7 @@ import {
 import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
 import { SlideShareButton } from "@/components/SlideShareButton"
 import { useAuth } from "@/context/AuthContext"
+import { SlideExportModeProvider } from "@/context/SlideExportModeContext"
 import { useSnapshot } from "@/context/SnapshotContext"
 import { useWrappedPeriod } from "@/context/WrappedContext"
 import { ProgressDots } from "@/components/ProgressDots"
@@ -70,13 +71,10 @@ export function WrappedDeck() {
     setIndex((i) => Math.min(i, Math.max(slideCount - 1, 0)))
   }, [slideCount])
 
-  const next = useCallback(
-    () => {
-      slideDirectionRef.current = 1
-      setIndex((i) => Math.min(i + 1, slideCount - 1))
-    },
-    [slideCount],
-  )
+  const next = useCallback(() => {
+    slideDirectionRef.current = 1
+    setIndex((i) => Math.min(i + 1, slideCount - 1))
+  }, [slideCount])
   const prev = useCallback(() => {
     slideDirectionRef.current = -1
     setIndex((i) => Math.max(i - 1, 0))
@@ -361,17 +359,19 @@ export function WrappedDeck() {
           <TerminalLoadingLine />
         </div>
         {state.status === "ready" && precomputeIndex !== null && (
-          <div
-            aria-hidden
-            className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
-          >
+          <SlideExportModeProvider deckExportMode>
             <div
-              ref={precomputeCaptureRef}
-              className="bg-jutge-bg min-h-screen"
+              aria-hidden
+              className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
             >
-              {renderSlide(precomputeIndex)}
+              <div
+                ref={precomputeCaptureRef}
+                className="bg-jutge-bg min-h-screen"
+              >
+                {renderSlide(precomputeIndex)}
+              </div>
             </div>
-          </div>
+          </SlideExportModeProvider>
         )}
       </div>
     )
@@ -386,229 +386,240 @@ export function WrappedDeck() {
   const slideId = activeSlideIds[index]!
 
   return (
-    <div
-      className="jutge-page relative flex h-full flex-col"
-      onClick={(e) => {
-        const target = e.target as HTMLElement
-        if (target.closest("header, footer, button, a, input, select")) return
-        const mid = window.innerWidth / 2
-        if (e.clientX > mid) next()
-        else prev()
-      }}
-    >
-      <header className="jutge-nav">
-        <div className="jutge-nav-inner">
-          <div className="jutge-nav-start">
-            <span className="truncate font-bold text-white">
-              {t("common.brand")}
-            </span>
-            <span className="hidden text-sm text-white/70 sm:inline">
-              {t("common.wrapped")}
-            </span>
-            {isSnapshotMode && (
-              <span className="hidden rounded border border-white/30 px-2 py-0.5 text-xs text-white/90 sm:inline">
-                {t("common.snapshot")}
+    <SlideExportModeProvider>
+      <div
+        className="jutge-page relative flex h-full flex-col"
+        onClick={(e) => {
+          const target = e.target as HTMLElement
+          if (target.closest("header, footer, button, a, input, select")) return
+          const mid = window.innerWidth / 2
+          if (e.clientX > mid) next()
+          else prev()
+        }}
+      >
+        <header className="jutge-nav">
+          <div className="jutge-nav-inner">
+            <div className="jutge-nav-start">
+              <span className="truncate font-bold text-white">
+                {t("common.brand")}
               </span>
-            )}
-            <div className="hidden sm:block">
-              <ProgressDots total={slideCount} current={index} onDark />
-            </div>
-          </div>
-          <div className="jutge-nav-end">
-            <NavControls onDark compact />
-            <SlideShareButton
-              slideId={slideId}
-              insights={insights}
-              captureRef={slideCaptureRef}
-              imageCacheRef={shareImageCacheRef}
-              username={username}
-              className="sm:hidden"
-              variant="onDark"
-              compact
-            />
-            <SnapshotDownloadButton raw={exportRaw} variant="onDark" compact />
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                clearPeriod()
-              }}
-              aria-label={t("deck.dates")}
-              title={t("deck.dates")}
-              className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
-            >
-              <Calendar className="h-4 w-4 shrink-0" />
-              <span className="sr-only sm:not-sr-only sm:inline">
-                {t("deck.dates")}
+              <span className="hidden text-sm text-white/70 sm:inline">
+                {t("common.wrapped")}
               </span>
-            </button>
-            {isSnapshotMode ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  clearSnapshot()
-                }}
-                aria-label={t("deck.exit")}
-                title={t("deck.exit")}
-                className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
-              >
-                <LogOut className="h-4 w-4 shrink-0" />
-                <span className="sr-only sm:not-sr-only sm:inline">
-                  {t("deck.exit")}
+              {isSnapshotMode && (
+                <span className="hidden rounded border border-white/30 px-2 py-0.5 text-xs text-white/90 sm:inline">
+                  {t("common.snapshot")}
                 </span>
-              </button>
-            ) : (
+              )}
+              <div className="hidden sm:block">
+                <ProgressDots total={slideCount} current={index} onDark />
+              </div>
+            </div>
+            <div className="jutge-nav-end">
+              <NavControls onDark compact />
+              <SlideShareButton
+                slideId={slideId}
+                insights={insights}
+                captureRef={slideCaptureRef}
+                imageCacheRef={shareImageCacheRef}
+                username={username}
+                className="sm:hidden"
+                variant="onDark"
+                compact
+              />
+              <SnapshotDownloadButton
+                raw={exportRaw}
+                variant="onDark"
+                compact
+              />
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
                   clearPeriod()
-                  logout()
                 }}
-                aria-label={t("deck.exit")}
-                title={t("deck.exit")}
+                aria-label={t("deck.dates")}
+                title={t("deck.dates")}
                 className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
               >
-                <LogOut className="h-4 w-4 shrink-0" />
+                <Calendar className="h-4 w-4 shrink-0" />
                 <span className="sr-only sm:not-sr-only sm:inline">
-                  {t("deck.exit")}
+                  {t("deck.dates")}
                 </span>
               </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="bg-jutge-bg relative flex-1 overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
-            className="absolute inset-0 overflow-x-hidden overflow-y-auto pb-32 sm:pb-0"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div
-              ref={slideCaptureRef}
-              data-slide-export={slideId}
-              className="bg-jutge-bg flex h-full min-h-full flex-col"
-            >
-              {renderSlide(index)}
+              {isSnapshotMode ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    clearSnapshot()
+                  }}
+                  aria-label={t("deck.exit")}
+                  title={t("deck.exit")}
+                  className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span className="sr-only sm:not-sr-only sm:inline">
+                    {t("deck.exit")}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    clearPeriod()
+                    logout()
+                  }}
+                  aria-label={t("deck.exit")}
+                  title={t("deck.exit")}
+                  className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span className="sr-only sm:not-sr-only sm:inline">
+                    {t("deck.exit")}
+                  </span>
+                </button>
+              )}
             </div>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </header>
 
-        {/* Pull-up indicator */}
-        <AnimatePresence>
-          {isPulling && pullDistance > 10 && (
+        <main className="bg-jutge-bg relative flex-1 overflow-hidden">
+          <AnimatePresence mode="wait">
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-0 bottom-0 left-0 z-50 flex flex-col items-center justify-end pb-6"
-              style={{
-                height: `${pullDistance}px`,
-                background:
-                  "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
-              }}
+              key={index}
+              {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
+              className="absolute inset-0 overflow-x-hidden overflow-y-auto pb-32 sm:pb-0"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
-              <div className="flex flex-col items-center gap-2 px-4 text-center">
-                {/* Arrow that grows and animates */}
-                <motion.div
-                  animate={{
-                    y: pullDistance >= 80 ? [0, -6, 0] : 0,
-                    scale:
-                      pullDistance >= 80
-                        ? 1.2
-                        : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
-                  }}
-                  transition={{
-                    y: {
-                      repeat: Infinity,
-                      duration: 0.6,
-                      ease: "easeInOut",
-                    },
-                    scale: { duration: 0.1 },
-                  }}
-                  className={`rounded-full p-2 ${
-                    pullDistance >= 80
-                      ? "bg-jutge-blue text-white"
-                      : "bg-white/10 text-white/70"
-                  }`}
-                >
-                  <ArrowUp className="h-5 w-5" />
-                </motion.div>
-
-                {/* Text feedback */}
-                <motion.span
-                  className={`text-xs font-semibold tracking-wide uppercase transition-colors duration-200 ${
-                    pullDistance >= 80
-                      ? "text-jutge-blue font-bold"
-                      : "text-white/60"
-                  }`}
-                >
-                  {pullDistance >= 80
-                    ? t("deck.releaseToNext")
-                    : t("deck.pullToNext")}
-                </motion.span>
+              <div
+                ref={slideCaptureRef}
+                data-slide-export={slideId}
+                className="bg-jutge-bg flex h-full min-h-full flex-col"
+              >
+                {renderSlide(index)}
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
+          </AnimatePresence>
 
-      {precomputeIndex !== null && (
-        <div
-          aria-hidden
-          className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
-        >
-          <div ref={precomputeCaptureRef} className="bg-jutge-bg min-h-screen">
-            {renderSlide(precomputeIndex)}
-          </div>
-        </div>
-      )}
+          {/* Pull-up indicator */}
+          <AnimatePresence>
+            {isPulling && pullDistance > 10 && (
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                transition={{ duration: 0.15 }}
+                className="pointer-events-none absolute right-0 bottom-0 left-0 z-50 flex flex-col items-center justify-end pb-6"
+                style={{
+                  height: `${pullDistance}px`,
+                  background:
+                    "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
+                }}
+              >
+                <div className="flex flex-col items-center gap-2 px-4 text-center">
+                  {/* Arrow that grows and animates */}
+                  <motion.div
+                    animate={{
+                      y: pullDistance >= 80 ? [0, -6, 0] : 0,
+                      scale:
+                        pullDistance >= 80
+                          ? 1.2
+                          : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
+                    }}
+                    transition={{
+                      y: {
+                        repeat: Infinity,
+                        duration: 0.6,
+                        ease: "easeInOut",
+                      },
+                      scale: { duration: 0.1 },
+                    }}
+                    className={`rounded-full p-2 ${
+                      pullDistance >= 80
+                        ? "bg-jutge-blue text-white"
+                        : "bg-white/10 text-white/70"
+                    }`}
+                  >
+                    <ArrowUp className="h-5 w-5" />
+                  </motion.div>
 
-      <footer className="border-jutge-border bg-jutge-panel text-jutge-muted flex min-w-0 items-center justify-between gap-2 border-t px-3 py-3 text-sm sm:px-4">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            prev()
-          }}
-          disabled={index === 0}
-          aria-label={t("common.prev")}
-          className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
-        >
-          <ChevronLeft className="h-4 w-4 shrink-0" />
-          <span className="sr-only sm:not-sr-only sm:inline">
-            {t("common.prev")}
+                  {/* Text feedback */}
+                  <motion.span
+                    className={`text-xs font-semibold tracking-wide uppercase transition-colors duration-200 ${
+                      pullDistance >= 80
+                        ? "text-jutge-blue font-bold"
+                        : "text-white/60"
+                    }`}
+                  >
+                    {pullDistance >= 80
+                      ? t("deck.releaseToNext")
+                      : t("deck.pullToNext")}
+                  </motion.span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+
+        {precomputeIndex !== null && (
+          <SlideExportModeProvider deckExportMode>
+            <div
+              aria-hidden
+              className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
+            >
+              <div
+                ref={precomputeCaptureRef}
+                className="bg-jutge-bg min-h-screen"
+              >
+                {renderSlide(precomputeIndex)}
+              </div>
+            </div>
+          </SlideExportModeProvider>
+        )}
+
+        <footer className="border-jutge-border bg-jutge-panel text-jutge-muted flex min-w-0 items-center justify-between gap-2 border-t px-3 py-3 text-sm sm:px-4">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              prev()
+            }}
+            disabled={index === 0}
+            aria-label={t("common.prev")}
+            className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
+          >
+            <ChevronLeft className="h-4 w-4 shrink-0" />
+            <span className="sr-only sm:not-sr-only sm:inline">
+              {t("common.prev")}
+            </span>
+          </button>
+          <span className="sm:hidden">
+            <ProgressDots total={slideCount} current={index} />
           </span>
-        </button>
-        <span className="sm:hidden">
-          <ProgressDots total={slideCount} current={index} />
-        </span>
-        <span className="hidden sm:inline">
-          {index + 1} / {slideCount}
-        </span>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            next()
-          }}
-          disabled={index === slideCount - 1}
-          aria-label={t("common.next")}
-          className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
-        >
-          <span className="sr-only sm:not-sr-only sm:inline">
-            {t("common.next")}
+          <span className="hidden sm:inline">
+            {index + 1} / {slideCount}
           </span>
-          <ChevronRight className="h-4 w-4 shrink-0" />
-        </button>
-      </footer>
-    </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              next()
+            }}
+            disabled={index === slideCount - 1}
+            aria-label={t("common.next")}
+            className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
+          >
+            <span className="sr-only sm:not-sr-only sm:inline">
+              {t("common.next")}
+            </span>
+            <ChevronRight className="h-4 w-4 shrink-0" />
+          </button>
+        </footer>
+      </div>
+    </SlideExportModeProvider>
   )
 }

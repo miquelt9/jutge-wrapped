@@ -34,6 +34,9 @@
   --jutge-metric-neutral-bg: #e8e8e8;
   --jutge-radius: 0px;
   --jutge-radius-sm: 0px;
+  /* Approximate header + footer chrome inside the deck (used by chart min-heights). */
+  --jutge-deck-chrome: 18rem;
+  --jutge-deck-chrome-compact: 16rem;
 }
 
 [data-theme="dark"] {
@@ -234,6 +237,44 @@ body {
 
   .jutge-chart-panel-body {
     @apply max-w-full min-w-0 overflow-x-hidden p-4;
+  }
+
+  .jutge-story-body {
+    @apply flex min-h-0 max-w-full min-w-0 flex-1 flex-col;
+  }
+
+  .jutge-story-body--centered {
+    @apply justify-center;
+  }
+
+  .jutge-donut-panel {
+    @apply border-jutge-border bg-jutge-panel flex min-h-0 max-w-full min-w-0 flex-col border;
+    border-radius: var(--jutge-radius);
+    box-shadow: none;
+  }
+
+  .jutge-donut-panel--stacked {
+    @apply flex-none;
+  }
+
+  .jutge-donut-panel--hero {
+    @apply flex-1;
+  }
+
+  .jutge-donut-panel-body {
+    @apply flex max-w-full min-w-0 items-center justify-center overflow-x-hidden p-4 py-4;
+    min-height: min(260px, calc(100dvh - var(--jutge-deck-chrome)));
+  }
+
+  .jutge-donut-panel-body--hero {
+    min-height: min(420px, calc(100dvh - var(--jutge-deck-chrome)));
+    @apply flex-1 py-4 md:py-6;
+  }
+
+  @media (min-width: 1024px) {
+    .jutge-donut-panel-body--hero {
+      min-height: min(520px, calc(100dvh - var(--jutge-deck-chrome-compact)));
+    }
   }
 
   .jutge-eyebrow {
