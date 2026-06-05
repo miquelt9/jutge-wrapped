@@ -7,3 +7,11 @@ export function formatSubmissions(t: TFunction, count: number): string {
 export function formatDays(t: TFunction, count: number): string {
   return t("day", { count })
 }
+
+export function formatHours(t: TFunction, count: number): string {
+  return t("hour", { count })
+}
+
+export function formatMinutes(t: TFunction, count: number): string {
+  return t("minute", { count })
+}

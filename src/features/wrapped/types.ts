@@ -21,6 +21,8 @@ export type WrappedRawData = {
   period: WrappedPeriod
   /** When present (e.g. snapshot export), enables full period filtering. */
   submissions?: Submission[]
+  /** Human-readable problem titles keyed by problem id. */
+  problemTitles?: Record<string, string>
   awards?: Record<string, Award>
 }
 
@@ -34,6 +36,32 @@ export type DistributionItem = {
   description?: string
 }
 
+export type IntroMetricKind = "accepted" | "rejected" | "submissions"
+
+export type IntroProblemItem = {
+  problemId: string
+  problemLabel: string
+  problemTitle: string | null
+}
+
+export type IntroSubmissionItem = {
+  submissionId: string
+  problemId: string
+  problemLabel: string
+  problemTitle: string | null
+  verdict: string | null
+  verdictLabel: string
+  timeLabel: string
+  timeMs: number
+}
+
+export type IntroMetricDrilldowns = {
+  available: boolean
+  acceptedProblems: IntroProblemItem[]
+  rejectedProblems: IntroProblemItem[]
+  submissions: IntroSubmissionItem[]
+}
+
 export type JourneyInsights = {
   acceptedProblems: number
   rejectedProblems: number
@@ -42,6 +70,7 @@ export type JourneyInsights = {
   firstActive: string | null
   lastActive: string | null
   spanLabel: string
+  drilldowns: IntroMetricDrilldowns
 }
 
 export type HeatmapYearBlock = {
@@ -159,6 +188,15 @@ export type HeroMomentInsight = {
   detail: string
 }
 
+export type SlowSolveInsight = {
+  problemId: string
+  problemLabel: string
+  durationMs: number
+  durationLabel: string
+  submissionsBeforeAc: number
+  detail: string
+}
+
 export type AwardItem = {
   awardId: string
   title: string
@@ -176,7 +214,6 @@ export type AwardInsights = {
   items: AwardItem[]
   featured: AwardItem | null
   title: string
-  subtitle: string
 }
 
 export type PersonalizedInsights = {
@@ -191,6 +228,7 @@ export type PersonalizedInsights = {
   rankingSubtitle: string
   usersAheadText: string | null
   heroMoment: HeroMomentInsight | null
+  slowSolve: SlowSolveInsight | null
 }
 
 export type WrappedInsights = {

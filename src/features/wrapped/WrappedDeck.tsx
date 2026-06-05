@@ -35,6 +35,11 @@ import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
 import { AwardsSlide } from "./slides/AwardsSlide"
 import { RankingSlide } from "./slides/RankingSlide"
+import { prefersCoarsePointer } from "./deckPullNavigation"
+import { useDeckPullNavigation } from "./useDeckPullNavigation"
+
+const MOBILE_PRECOMPUTE_DELAY_MS = 1200
+const DESKTOP_PRECOMPUTE_DELAY_MS = 150
 
 export function WrappedDeck() {
   const { t } = useTranslation()
@@ -79,6 +84,20 @@ export function WrappedDeck() {
     setIndex((i) => Math.max(i - 1, 0))
   }, [])
 
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleTouchCancel,
+    pullDistance,
+    isPulling,
+    isTouchActiveRef,
+  } = useDeckPullNavigation({
+    index,
+    slideCount,
+    onAdvance: next,
+  })
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.code === "Space" || e.code === "ArrowRight") {
@@ -92,70 +111,6 @@ export function WrappedDeck() {
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [next, prev])
-
-  const [pullDistance, setPullDistance] = useState(0)
-  const [isPulling, setIsPulling] = useState(false)
-  const reachedBottomYRef = useRef<number | null>(null)
-
-  const handleTouchStart = useCallback(() => {
-    reachedBottomYRef.current = null
-  }, [])
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      const container = e.currentTarget
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <=
-        container.clientHeight + 4
-
-      if (!isAtBottom) {
-        setIsPulling(false)
-        setPullDistance(0)
-        reachedBottomYRef.current = null
-        return
-      }
-
-      if (index === slideCount - 1) return
-
-      const currentY = e.touches[0]?.clientY ?? 0
-
-      if (reachedBottomYRef.current === null) {
-        reachedBottomYRef.current = currentY
-      }
-
-      const dy = reachedBottomYRef.current - currentY
-
-      if (dy > 0) {
-        setIsPulling(true)
-        const threshold = 80
-        let displayDistance = dy
-        if (dy > threshold) {
-          displayDistance = threshold + (dy - threshold) * 0.4
-        }
-        const finalDistance = Math.min(displayDistance, 150)
-        setPullDistance(finalDistance)
-
-        if (e.cancelable) {
-          e.preventDefault()
-        }
-      } else {
-        setIsPulling(false)
-        setPullDistance(0)
-      }
-    },
-    [index, slideCount],
-  )
-
-  const handleTouchEnd = useCallback(() => {
-    if (isPulling) {
-      if (pullDistance >= 80) {
-        next()
-      }
-      setIsPulling(false)
-      setPullDistance(0)
-      reachedBottomYRef.current = null
-    }
-  }, [isPulling, pullDistance, next])
 
   const renderSlide = useCallback(
     (targetIndex: number) => {
@@ -210,10 +165,27 @@ export function WrappedDeck() {
 
     const currentSlideId = activeSlideIds[index]
     if (!currentSlideId) return
-    if (!shareImageCacheRef.current.has(currentSlideId)) {
+    if (shareImageCacheRef.current.has(currentSlideId)) return
+
+    const delay = prefersCoarsePointer()
+      ? MOBILE_PRECOMPUTE_DELAY_MS
+      : DESKTOP_PRECOMPUTE_DELAY_MS
+
+    const scheduleTimer = window.setTimeout(() => {
+      if (isTouchActiveRef.current) return
+      if (shareImageCacheRef.current.has(currentSlideId)) return
       setPrecomputeIndex(index)
-    }
-  }, [activeSlideIds, index, isPrecomputing, precomputeIndex, state.status])
+    }, delay)
+
+    return () => window.clearTimeout(scheduleTimer)
+  }, [
+    activeSlideIds,
+    index,
+    isPrecomputing,
+    isTouchActiveRef,
+    precomputeIndex,
+    state.status,
+  ])
 
   useEffect(() => {
     if (state.status !== "ready" || precomputeIndex === null) return
@@ -228,6 +200,11 @@ export function WrappedDeck() {
     }
 
     const runCapture = async () => {
+      if (isTouchActiveRef.current) {
+        if (!cancelled) setPrecomputeIndex(null)
+        return
+      }
+
       const node = precomputeCaptureRef.current
       const slideId = activeSlideIds[precomputeIndex]
       if (!node || !slideId) {
@@ -259,10 +236,12 @@ export function WrappedDeck() {
         timeout: 100,
       })
     } else {
-      timeoutId = window.setTimeout(
-        () => void runCapture(),
-        showLoadingScreen ? 0 : 150,
-      )
+      const delay = prefersCoarsePointer()
+        ? MOBILE_PRECOMPUTE_DELAY_MS
+        : showLoadingScreen
+          ? 0
+          : DESKTOP_PRECOMPUTE_DELAY_MS
+      timeoutId = window.setTimeout(() => void runCapture(), delay)
     }
 
     return () => {
@@ -271,7 +250,13 @@ export function WrappedDeck() {
         idleWindow.cancelIdleCallback(idleId)
       if (timeoutId !== null) window.clearTimeout(timeoutId)
     }
-  }, [activeSlideIds, precomputeIndex, showLoadingScreen, state.status])
+  }, [
+    activeSlideIds,
+    isTouchActiveRef,
+    precomputeIndex,
+    showLoadingScreen,
+    state.status,
+  ])
 
   if (state.status === "error") {
     return (
@@ -472,10 +457,11 @@ export function WrappedDeck() {
             <motion.div
               key={index}
               {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
-              className="absolute inset-0 overflow-x-hidden overflow-y-auto"
+              className="jutge-deck-scroller absolute inset-0 overflow-x-hidden overflow-y-auto"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
             >
               <div
                 ref={slideCaptureRef}
@@ -489,7 +475,7 @@ export function WrappedDeck() {
 
           {/* Pull-up indicator */}
           <AnimatePresence>
-            {isPulling && pullDistance > 10 && (
+            {isPulling && pullDistance > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import type { DistributionItem } from "@/features/wrapped/types"
 
@@ -93,6 +93,10 @@ function hitTest(
   return arcs[arcs.length - 1] ?? null
 }
 
+function prefersHoverInteraction(): boolean {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches
+}
+
 export function DistributionDonut({
   items,
   size: coordinateSize = DISTRIBUTION_DONUT_SIZE,
@@ -108,6 +112,11 @@ export function DistributionDonut({
   const reduceMotion = useReducedMotion()
   const [selected, setSelected] = useState<DistributionItem | null>(null)
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
+  const [canHover, setCanHover] = useState(false)
+
+  useEffect(() => {
+    setCanHover(prefersHoverInteraction())
+  }, [])
 
   const segments = useMemo(() => items.filter((i) => i.count > 0), [items])
   const total = segments.reduce((s, i) => s + i.count, 0) || 1
@@ -168,9 +177,9 @@ export function DistributionDonut({
         viewBox={`0 0 ${size} ${size}`}
         role="img"
         aria-label={ariaLabel}
-        className="h-full w-full cursor-pointer touch-none"
-        onPointerMove={onPointerMove}
-        onPointerLeave={onPointerLeave}
+        className="h-full w-full cursor-pointer touch-manipulation"
+        onPointerMove={canHover ? onPointerMove : undefined}
+        onPointerLeave={canHover ? onPointerLeave : undefined}
         onClick={onClick}
       >
         <g transform={`rotate(-90 ${cx} ${cy})`}>

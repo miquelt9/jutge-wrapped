@@ -3,10 +3,9 @@ import { useTranslation } from "react-i18next"
 import { useReducedMotion } from "framer-motion"
 import {
   charTypingDelay,
-  pickStumbleIndex,
-  pickTypoIndex,
+  hesitationPauseMs,
+  pickHesitationIndices,
   randomBetween,
-  typoChar,
 } from "@/features/wrapped/deckLoadingAnimation"
 import {
   DECK_LOADING_DOT_CYCLES,
@@ -31,7 +30,6 @@ export function TerminalLoadingLine() {
   const [dots, setDots] = useState(1)
   const [typingComplete, setTypingComplete] = useState(false)
   const [cursorVisible, setCursorVisible] = useState(true)
-  const [cursorGlitch, setCursorGlitch] = useState(false)
   const [panelFlicker, setPanelFlicker] = useState(false)
 
   useEffect(() => {
@@ -54,8 +52,7 @@ export function TerminalLoadingLine() {
 
     let cancelled = false
     const timeouts: number[] = []
-    const typoIndex = pickTypoIndex(fullText)
-    const stumbleIndex = pickStumbleIndex(fullText, typoIndex)
+    const hesitationIndices = new Set(pickHesitationIndices(fullText))
     const flickerIndex = Math.floor(fullText.length * 0.42)
 
     let index = 0
@@ -73,55 +70,13 @@ export function TerminalLoadingLine() {
         return
       }
 
-      if (index === stumbleIndex && text.length >= 2) {
-        text = text.slice(0, -2)
-        setDisplayText(text)
-        index -= 2
-        setCursorGlitch(true)
-        schedule(
-          () => {
-            setCursorGlitch(false)
-            schedule(typeNext, randomBetween(220, 360), timeouts)
-          },
-          randomBetween(90, 150),
-          timeouts,
-        )
-        return
-      }
-
       const char = fullText[index] ?? ""
-      const pauseBeforeChar =
+      const isHesitation = hesitationIndices.has(index)
+      const pauseBeforeWord =
         index > 0 && fullText[index - 1] === " " && Math.random() < 0.22
 
       const emitChar = () => {
         if (cancelled) return
-
-        if (index === typoIndex) {
-          const wrong = typoChar(char)
-          text += wrong
-          setDisplayText(text)
-          schedule(
-            () => {
-              if (cancelled) return
-              text = text.slice(0, -1)
-              setDisplayText(text)
-              schedule(
-                () => {
-                  if (cancelled) return
-                  text += char
-                  setDisplayText(text)
-                  index += 1
-                  schedule(typeNext, charTypingDelay(char), timeouts)
-                },
-                randomBetween(45, 95),
-                timeouts,
-              )
-            },
-            randomBetween(80, 150),
-            timeouts,
-          )
-          return
-        }
 
         if (index === flickerIndex) {
           setPanelFlicker(true)
@@ -134,7 +89,9 @@ export function TerminalLoadingLine() {
         schedule(typeNext, charTypingDelay(char), timeouts)
       }
 
-      if (pauseBeforeChar) {
+      if (isHesitation) {
+        schedule(emitChar, hesitationPauseMs(), timeouts)
+      } else if (pauseBeforeWord) {
         schedule(emitChar, randomBetween(120, 260), timeouts)
       } else {
         emitChar()
@@ -145,7 +102,6 @@ export function TerminalLoadingLine() {
     setTypingComplete(false)
     setDots(1)
     setCursorVisible(true)
-    setCursorGlitch(false)
     setPanelFlicker(false)
 
     schedule(typeNext, randomBetween(180, 420), timeouts)
@@ -194,9 +150,9 @@ export function TerminalLoadingLine() {
           {showCursor && (
             <span
               aria-hidden
-              className={`text-jutge-blue ${cursorGlitch ? "opacity-40" : cursorVisible ? "opacity-100" : "opacity-0"}`}
+              className={`text-jutge-blue ${cursorVisible ? "opacity-100" : "opacity-0"}`}
             >
-              {cursorGlitch ? "██" : "▌"}
+              ▌
             </span>
           )}
         </span>

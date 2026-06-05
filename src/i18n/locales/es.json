@@ -80,7 +80,17 @@
       "acRate": "Tasa AC",
       "problemSuccessRate": "{{rate}}% de los problemas intentados llegaron a aceptación en este periodo.",
       "avatarAlt": "Avatar del Jutge",
-      "mascotAlt": "Mascota del Jutge"
+      "mascotAlt": "Mascota del Jutge",
+      "drilldown": {
+        "acceptedTitle": "Problemas aceptados",
+        "rejectedTitle": "Problemas rechazados",
+        "submissionsTitle": "Envíos",
+        "empty": "No hay elementos para mostrar en esta métrica.",
+        "unknownVerdict": "Desconocido",
+        "openAccepted": "Ver problemas aceptados",
+        "openRejected": "Ver problemas rechazados",
+        "openSubmissions": "Ver envíos"
+      }
     },
     "heatmap": {
       "eyebrow": "Mapa de actividad",
@@ -145,7 +155,10 @@
       "totalLabel": "premios en este periodo",
       "watchYoutube": "Ver en YouTube",
       "problemAwarded": "Problema {{problem}}",
-      "showingOf": "Mostrando {{shown}} de {{total}}"
+      "showingOf": "{{current}} de {{total}}",
+      "paginationLabel": "Explorar premios",
+      "prevPage": "Página anterior",
+      "nextPage": "Página siguiente"
     },
     "ranking": {
       "eyebrow": "Ranking del sistema",
@@ -197,8 +210,7 @@
   },
   "awards": {
     "titleOne": "1 premio conseguido",
-    "titleMany": "{{count}} premios conseguidos",
-    "subtitleFeatured": "Último: {{title}} · {{date}}"
+    "titleMany": "{{count}} premios conseguidos"
   },
   "rank": {
     "eliteLabel": "Top {{percent}}% de usuarios del Jutge",
@@ -228,6 +240,11 @@
       "mostAttemptedDetail": "{{submissions}} en este periodo.",
       "firstAcHeadline": "Primer AC en este periodo: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} en ese problema en total."
+    },
+    "slowSolve": {
+      "label": "Camino más largo al AC",
+      "headline": "<0>{{problem}}</0> fue el problema que más tardaste en resolver",
+      "detail": "{{duration}} desde el primer envío hasta el primer AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
@@ -320,6 +337,10 @@
   "submission_other": "{{count}} envíos",
   "day_one": "{{count}} día",
   "day_other": "{{count}} días",
+  "hour_one": "{{count}} hora",
+  "hour_other": "{{count}} horas",
+  "minute_one": "{{count}} minuto",
+  "minute_other": "{{count}} minutos",
   "donut": {
     "compilerAria": "Distribución de compiladores. Haz clic en un segmento para ver detalles.",
     "verdictAria": "Distribución de veredictos. Haz clic en un segmento para ver detalles."

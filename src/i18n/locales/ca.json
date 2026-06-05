@@ -80,7 +80,17 @@
       "acRate": "Taxa AC",
       "problemSuccessRate": "{{rate}}% dels problemes intentats van arribar a acceptació en aquest període.",
       "avatarAlt": "Avatar del Jutge",
-      "mascotAlt": "Mascota del Jutge"
+      "mascotAlt": "Mascota del Jutge",
+      "drilldown": {
+        "acceptedTitle": "Problemes acceptats",
+        "rejectedTitle": "Problemes rebutjats",
+        "submissionsTitle": "Enviaments",
+        "empty": "No hi ha elements per mostrar en aquesta mètrica.",
+        "unknownVerdict": "Desconegut",
+        "openAccepted": "Veure problemes acceptats",
+        "openRejected": "Veure problemes rebutjats",
+        "openSubmissions": "Veure enviaments"
+      }
     },
     "heatmap": {
       "eyebrow": "Mapa d'activitat",
@@ -145,7 +155,10 @@
       "totalLabel": "premis en aquest període",
       "watchYoutube": "Veure a YouTube",
       "problemAwarded": "Problema {{problem}}",
-      "showingOf": "Mostrant {{shown}} de {{total}}"
+      "showingOf": "{{current}} de {{total}}",
+      "paginationLabel": "Explorar premis",
+      "prevPage": "Pàgina anterior",
+      "nextPage": "Pàgina següent"
     },
     "ranking": {
       "eyebrow": "Ranking del sistema",
@@ -182,7 +195,7 @@
   "courseArc": {
     "mostlyCoursework": "Sobretot feina de classe",
     "compilerMix": "La teva barreja de compiladors",
-    "mainLanguageSub": "{{lang}} va ser el teu llenguatge principal",
+    "mainLanguageSub": "{{lang}} ha estat el teu llenguatge principal",
     "fallbackLang": "el teu llenguatge habitual",
     "fallbackCompiler": "el teu compilador principal"
   },
@@ -197,8 +210,7 @@
   },
   "awards": {
     "titleOne": "1 premi aconseguit",
-    "titleMany": "{{count}} premis aconseguits",
-    "subtitleFeatured": "Últim: {{title}} · {{date}}"
+    "titleMany": "{{count}} premis aconseguits"
   },
   "rank": {
     "eliteLabel": "Top {{percent}}% d'usuaris del Jutge",
@@ -228,6 +240,11 @@
       "mostAttemptedDetail": "{{submissions}} en aquest període.",
       "firstAcHeadline": "Primer AC en aquest període: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} en aquest problema en total."
+    },
+    "slowSolve": {
+      "label": "Camí més llarg fins a l'AC",
+      "headline": "<0>{{problem}}</0> va ser el problema que més vas trigar a resoldre",
+      "detail": "{{duration}} des del primer enviament fins al primer AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
@@ -320,6 +337,10 @@
   "submission_other": "{{count}} enviaments",
   "day_one": "{{count}} dia",
   "day_other": "{{count}} dies",
+  "hour_one": "{{count}} hora",
+  "hour_other": "{{count}} hores",
+  "minute_one": "{{count}} minut",
+  "minute_other": "{{count}} minuts",
   "donut": {
     "compilerAria": "Distribució de compiladors. Fes clic en un segment per veure detalls.",
     "verdictAria": "Distribució de veredictes. Fes clic en un segment per veure detalls."

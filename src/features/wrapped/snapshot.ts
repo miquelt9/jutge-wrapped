@@ -25,6 +25,7 @@ export type ExportedJutgeSnapshot = {
   tables: AllTables
   period?: WrappedPeriod
   submissions?: Submission[]
+  problemTitles?: Record<string, string>
   awards?: Record<string, Award>
 }
 
@@ -152,6 +153,7 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
       avatarUrl: json.avatarUrl ?? null,
       period: json.period ?? DEFAULT_PERIOD,
       submissions: normalizeSubmissions(json.submissions),
+      problemTitles: json.problemTitles,
       awards: json.awards,
     }
   }
@@ -174,6 +176,7 @@ export function hydrateSnapshot(json: unknown): WrappedRawData {
     tables: snap.tables ?? ({} as AllTables),
     period: snap.period ?? DEFAULT_PERIOD,
     submissions: normalizeSubmissions(snap.submissions),
+    problemTitles: snap.problemTitles,
     awards: snap.awards,
   }
 }
@@ -215,6 +218,7 @@ export function serializeSnapshot(
     tables: raw.tables,
     period: raw.period,
     submissions: raw.submissions,
+    problemTitles: raw.problemTitles,
     awards: raw.awards,
   }
 }

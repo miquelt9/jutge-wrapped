@@ -1,7 +1,5 @@
 import type { Award, BriefAward, JutgeApiClient } from "../../api/client"
 
-export const AWARD_TILE_LIMIT = 10
-
 export async function fetchFullAwards(
   client: JutgeApiClient,
   brief: Record<string, BriefAward>,

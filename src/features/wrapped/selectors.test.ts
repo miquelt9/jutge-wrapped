@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { Award, Submission } from "@/api/client"
 import {
   buildAwardInsights,
+  buildIntroMetricDrilldowns,
   buildRankingHighlights,
   buildWrappedInsights,
   resolveRhythmTitleKey,
@@ -68,6 +69,77 @@ const baseRaw = {
   period: { start: null, end: null, label: "All time" },
 } as unknown as WrappedRawData
 
+describe("buildIntroMetricDrilldowns", () => {
+  it("returns unavailable drilldowns without submission history", () => {
+    expect(buildIntroMetricDrilldowns(undefined, baseRaw.tables)).toEqual({
+      available: false,
+      acceptedProblems: [],
+      rejectedProblems: [],
+      submissions: [],
+    })
+  })
+
+  it("builds accepted, rejected, and submission lists from history", () => {
+    const submissions = [
+      makeSubmission("2025-01-03T10:00:00Z", {
+        veredict: "AC",
+        problem_id: "P002",
+        submission_id: "sub-3",
+      }),
+      makeSubmission("2025-01-01T10:00:00Z", {
+        veredict: "AC",
+        problem_id: "P001",
+        submission_id: "sub-1",
+      }),
+      makeSubmission("2025-01-02T10:00:00Z", {
+        veredict: "WA",
+        problem_id: "P003",
+        submission_id: "sub-2",
+      }),
+    ]
+
+    const tables = {
+      ...baseRaw.tables,
+      verdicts: {
+        WA: {
+          verdict_id: "WA",
+          name: "Wrong Answer",
+          emoji: "❌",
+          description: "Wrong answer",
+        },
+      },
+    }
+
+    const problemTitles = {
+      P001: "First problem",
+      P002: "Second problem",
+      P003: "Rejected only",
+    }
+    const raw = { ...baseRaw, submissions, tables, problemTitles }
+    const drilldowns = buildIntroMetricDrilldowns(
+      submissions,
+      tables,
+      problemTitles,
+    )
+    const insights = buildWrappedInsights(raw)
+
+    expect(drilldowns.available).toBe(true)
+    expect(drilldowns.acceptedProblems.map((problem) => problem.problemId)).toEqual(
+      ["P001", "P002"],
+    )
+    expect(drilldowns.rejectedProblems.map((problem) => problem.problemId)).toEqual(
+      ["P003"],
+    )
+    expect(
+      drilldowns.submissions.map((submission) => submission.submissionId),
+    ).toEqual(["sub-3", "sub-2", "sub-1"])
+    expect(drilldowns.submissions[1]?.verdictLabel).toBe("Wrong Answer")
+    expect(drilldowns.submissions[1]?.problemTitle).toBe("Rejected only")
+    expect(drilldowns.acceptedProblems[0]?.problemTitle).toBe("First problem")
+    expect(insights.journey.drilldowns).toEqual(drilldowns)
+  })
+})
+
 describe("buildWrappedInsights hero moment", () => {
   it("picks the grind problem when submissions are available", () => {
     const raw: WrappedRawData = {
@@ -106,6 +178,60 @@ describe("buildWrappedInsights hero moment", () => {
     }
 
     expect(buildWrappedInsights(raw).personalized.heroMoment).toBeNull()
+  })
+})
+
+describe("buildWrappedInsights slow solve", () => {
+  it("tracks the longest span from first failed submit to first AC", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "WA",
+          problem_id: "FAST",
+        }),
+        makeSubmission("2025-01-01T12:00:00Z", {
+          veredict: "AC",
+          problem_id: "FAST",
+        }),
+        makeSubmission("2025-01-02T08:00:00Z", {
+          veredict: "WA",
+          problem_id: "SLOW",
+        }),
+        makeSubmission("2025-01-04T11:00:00Z", {
+          veredict: "WA",
+          problem_id: "SLOW",
+        }),
+        makeSubmission("2025-01-05T09:30:00Z", {
+          veredict: "AC",
+          problem_id: "SLOW",
+        }),
+      ],
+    }
+
+    const slowSolve = buildWrappedInsights(raw).personalized.slowSolve
+
+    expect(slowSolve).toMatchObject({
+      problemId: "SLOW",
+      problemLabel: "SLOW",
+      submissionsBeforeAc: 2,
+      durationLabel: "3 days, 1 hour",
+    })
+    expect(slowSolve?.durationMs).toBe(264_600_000)
+  })
+
+  it("ignores problems solved on the first submission", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "ONE_SHOT",
+        }),
+      ],
+    }
+
+    expect(buildWrappedInsights(raw).personalized.slowSolve).toBeNull()
   })
 })
 
@@ -345,7 +471,6 @@ describe("buildAwardInsights", () => {
       items: [],
       featured: null,
       title: "",
-      subtitle: "",
     })
   })
 
@@ -424,7 +549,7 @@ describe("buildAwardInsights", () => {
     expect(new Set(alwaysFirst)).toEqual(new Set(["a", "b", "c"]))
   })
 
-  it("limits displayed awards to ten tiles", () => {
+  it("includes all awards in items for slide pagination", () => {
     const awards = Object.fromEntries(
       Array.from({ length: 12 }, (_, index) => {
         const id = `award-${index}`
@@ -435,7 +560,7 @@ describe("buildAwardInsights", () => {
     const insights = buildAwardInsights(awards, period, () => 0.5)
 
     expect(insights.count).toBe(12)
-    expect(insights.items).toHaveLength(10)
+    expect(insights.items).toHaveLength(12)
   })
 })
 

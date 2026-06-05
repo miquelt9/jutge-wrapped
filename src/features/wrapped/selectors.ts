@@ -8,9 +8,14 @@ import type {
   Submission,
 } from "@/api/client"
 import i18n from "@/i18n/config"
-import { formatDays, formatSubmissions } from "@/i18n/plurals"
-import { AWARD_TILE_LIMIT } from "./awards"
+import {
+  formatDays,
+  formatHours,
+  formatMinutes,
+  formatSubmissions,
+} from "@/i18n/plurals"
 import { jutgeAwardIconUrl, resolveAwardYoutube } from "./jutgeLinks"
+import { resolveProblemTitle } from "./problemTitles"
 import {
   awardInPeriod,
   formatPeriodLabel,
@@ -33,12 +38,16 @@ import type {
   HeatmapYearBlock,
   HeroMomentInsight,
   HeroMomentKind,
+  IntroMetricDrilldowns,
+  IntroProblemItem,
+  IntroSubmissionItem,
   JourneyInsights,
   PersonalizedInsights,
   RankInsights,
   RankingHighlight,
   RankingHighlightKind,
   RankingHighlights,
+  SlowSolveInsight,
   VerdictInsights,
   WeekdayInsights,
   WrappedInsights,
@@ -341,7 +350,101 @@ export function buildHeatmapInsights(
   }
 }
 
-export function buildJourneyInsights(dashboard: Dashboard): JourneyInsights {
+function submissionTimeMs(sub: Submission): number {
+  return parseSubmissionTime(sub.time_in).getTime()
+}
+
+function isAcceptedVerdict(veredict: string | null): boolean {
+  return veredict?.toUpperCase() === "AC"
+}
+
+const EMPTY_INTRO_DRILLDOWNS: IntroMetricDrilldowns = {
+  available: false,
+  acceptedProblems: [],
+  rejectedProblems: [],
+  submissions: [],
+}
+
+function formatSubmissionTime(timeIn: Submission["time_in"]): string {
+  return parseSubmissionTime(timeIn).toLocaleString(i18n.language, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+function verdictLabel(
+  veredict: string | null,
+  tables: AllTables | undefined,
+): string {
+  if (!veredict) return i18n.t("slides.intro.drilldown.unknownVerdict")
+  return tables?.verdicts?.[veredict]?.name ?? veredict
+}
+
+function toIntroProblemItem(
+  problemId: string,
+  problemTitles: Record<string, string> | undefined,
+): IntroProblemItem {
+  return {
+    problemId,
+    problemLabel: problemId,
+    problemTitle: resolveProblemTitle(problemId, problemTitles),
+  }
+}
+
+export function buildIntroMetricDrilldowns(
+  submissions: Submission[] | undefined,
+  tables: AllTables | undefined,
+  problemTitles?: Record<string, string>,
+): IntroMetricDrilldowns {
+  if (!submissions?.length) return EMPTY_INTRO_DRILLDOWNS
+
+  const problemsWithAc = new Set<string>()
+  const problemsAttempted = new Set<string>()
+
+  for (const sub of submissions) {
+    problemsAttempted.add(sub.problem_id)
+    if (isAcceptedVerdict(sub.veredict)) {
+      problemsWithAc.add(sub.problem_id)
+    }
+  }
+
+  const acceptedProblems = [...problemsWithAc]
+    .sort((a, b) => a.localeCompare(b))
+    .map((problemId) => toIntroProblemItem(problemId, problemTitles))
+
+  const rejectedProblems = [...problemsAttempted]
+    .filter((problemId) => !problemsWithAc.has(problemId))
+    .sort((a, b) => a.localeCompare(b))
+    .map((problemId) => toIntroProblemItem(problemId, problemTitles))
+
+  const submissionItems: IntroSubmissionItem[] = [...submissions]
+    .sort((a, b) => submissionTimeMs(b) - submissionTimeMs(a))
+    .map((sub) => ({
+      submissionId: sub.submission_id,
+      problemId: sub.problem_id,
+      problemLabel: sub.problem_id,
+      problemTitle: resolveProblemTitle(sub.problem_id, problemTitles),
+      verdict: sub.veredict,
+      verdictLabel: verdictLabel(sub.veredict, tables),
+      timeLabel: formatSubmissionTime(sub.time_in),
+      timeMs: submissionTimeMs(sub),
+    }))
+
+  return {
+    available: true,
+    acceptedProblems,
+    rejectedProblems,
+    submissions: submissionItems,
+  }
+}
+
+export function buildJourneyInsights(
+  dashboard: Dashboard,
+  drilldowns: IntroMetricDrilldowns = EMPTY_INTRO_DRILLDOWNS,
+): JourneyInsights {
   const { stats, heatmap } = dashboard
   const sorted = [...heatmap].sort((a, b) => a.date - b.date)
   const first = sorted[0]
@@ -361,6 +464,7 @@ export function buildJourneyInsights(dashboard: Dashboard): JourneyInsights {
       first && last
         ? `${formatDate(first.date)} – ${formatDate(last.date)}`
         : i18n.t("period.allTime"),
+    drilldowns,
   }
 }
 
@@ -599,14 +703,6 @@ export function buildVerdictInsights(
   }
 }
 
-function submissionTimeMs(sub: Submission): number {
-  return parseSubmissionTime(sub.time_in).getTime()
-}
-
-function isAcceptedVerdict(veredict: string | null): boolean {
-  return veredict?.toUpperCase() === "AC"
-}
-
 function buildHeroMoment(
   submissions: Submission[] | undefined,
   period: WrappedPeriod,
@@ -729,6 +825,86 @@ function buildHeroMoment(
     attemptsBeforeAc: null,
     detail: i18n.t("personalization.hero.firstAcDetail", {
       submissions: subsWord,
+    }),
+  }
+}
+
+function formatSolveDuration(durationMs: number): string {
+  const totalMinutes = Math.max(1, Math.round(durationMs / 60_000))
+  const days = Math.floor(totalMinutes / (24 * 60))
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60)
+  const minutes = totalMinutes % 60
+  const parts: string[] = []
+
+  if (days > 0) parts.push(formatDays(i18n.t, days))
+  if (hours > 0 && parts.length < 2) parts.push(formatHours(i18n.t, hours))
+  if ((minutes > 0 || parts.length === 0) && parts.length < 2) {
+    parts.push(formatMinutes(i18n.t, minutes))
+  }
+
+  return parts.join(", ")
+}
+
+function buildSlowSolveInsight(
+  submissions: Submission[] | undefined,
+  period: WrappedPeriod,
+  problemTitles?: Record<string, string>,
+): SlowSolveInsight | null {
+  if (!submissions?.length) return null
+
+  const filtered = isAllTimePeriod(period)
+    ? submissions
+    : submissions.filter((s) => submissionInPeriod(s, period))
+  if (filtered.length === 0) return null
+
+  const byProblem = new Map<string, Submission[]>()
+  for (const sub of filtered) {
+    const list = byProblem.get(sub.problem_id) ?? []
+    list.push(sub)
+    byProblem.set(sub.problem_id, list)
+  }
+
+  let slowest: {
+    problemId: string
+    durationMs: number
+    submissionsBeforeAc: number
+  } | null = null
+
+  for (const [problemId, subs] of byProblem) {
+    const sorted = [...subs].sort(
+      (a, b) => submissionTimeMs(a) - submissionTimeMs(b),
+    )
+    const first = sorted[0]
+    if (!first || isAcceptedVerdict(first.veredict)) continue
+
+    const firstAcIdx = sorted.findIndex((sub) => isAcceptedVerdict(sub.veredict))
+    if (firstAcIdx <= 0) continue
+
+    const durationMs =
+      submissionTimeMs(sorted[firstAcIdx]!) - submissionTimeMs(first)
+    const submissionsBeforeAc = firstAcIdx
+
+    if (
+      !slowest ||
+      durationMs > slowest.durationMs ||
+      (durationMs === slowest.durationMs &&
+        submissionsBeforeAc > slowest.submissionsBeforeAc)
+    ) {
+      slowest = { problemId, durationMs, submissionsBeforeAc }
+    }
+  }
+
+  if (!slowest) return null
+
+  const durationLabel = formatSolveDuration(slowest.durationMs)
+  return {
+    problemId: slowest.problemId,
+    problemLabel: resolveProblemTitle(slowest.problemId, problemTitles) ?? slowest.problemId,
+    durationMs: slowest.durationMs,
+    durationLabel,
+    submissionsBeforeAc: slowest.submissionsBeforeAc,
+    detail: i18n.t("personalization.slowSolve.detail", {
+      duration: durationLabel,
     }),
   }
 }
@@ -928,6 +1104,11 @@ function buildPersonalizedInsights(
       : null
 
   const heroMoment = buildHeroMoment(raw.submissions, raw.period)
+  const slowSolve = buildSlowSolveInsight(
+    raw.submissions,
+    raw.period,
+    raw.problemTitles,
+  )
 
   return {
     introSubtitle,
@@ -941,6 +1122,7 @@ function buildPersonalizedInsights(
     rankingSubtitle,
     usersAheadText,
     heroMoment,
+    slowSolve,
   }
 }
 
@@ -976,7 +1158,6 @@ const EMPTY_AWARD_INSIGHTS: AwardInsights = {
   items: [],
   featured: null,
   title: "",
-  subtitle: "",
 }
 
 function shuffleCopy<T>(items: T[], random: () => number): T[] {
@@ -1066,26 +1247,19 @@ export function buildAwardInsights(
     }
   })
 
-  const displayItems = allItems.slice(0, AWARD_TILE_LIMIT)
+  if (allItems.length === 0) return EMPTY_AWARD_INSIGHTS
 
-  if (displayItems.length === 0) return EMPTY_AWARD_INSIGHTS
-
-  const featured = displayItems[0]!
+  const featured = allItems[0]!
   const title =
     allItems.length === 1
       ? i18n.t("awards.titleOne")
       : i18n.t("awards.titleMany", { count: allItems.length })
-  const subtitle = i18n.t("awards.subtitleFeatured", {
-    title: featured.title,
-    date: featured.timeLabel,
-  })
 
   return {
     count: allItems.length,
-    items: displayItems,
+    items: allItems,
     featured,
     title,
-    subtitle,
   }
 }
 
@@ -1115,7 +1289,10 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     "compilers",
   )
 
-  const journey = buildJourneyInsights(dashboard)
+  const journey = buildJourneyInsights(
+    dashboard,
+    buildIntroMetricDrilldowns(raw.submissions, tables, raw.problemTitles),
+  )
   const heatmap = buildHeatmapInsights(dashboard, raw.period)
   const weekday = buildWeekdayInsights(dashboard)
   const chrono = buildChronoInsights(dashboard)

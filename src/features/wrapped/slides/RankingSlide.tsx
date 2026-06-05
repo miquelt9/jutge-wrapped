@@ -5,6 +5,7 @@ import type { WrappedInsights } from "../types"
 import { IntroHeroMoment } from "./intro/IntroHeroMoment"
 import { RankingHeroBand } from "./ranking/RankingHeroBand"
 import { RankingHighlights } from "./ranking/RankingHighlights"
+import { RankingSlowSolveCard } from "./ranking/RankingSlowSolveCard"
 
 type Props = {
   insights: WrappedInsights
@@ -13,6 +14,9 @@ type Props = {
 export function RankingSlide({ insights }: Props) {
   const { t } = useTranslation()
   const layoutVariant = useLayoutVariant()
+  const extraPanels =
+    Number(Boolean(insights.personalized.heroMoment)) +
+    Number(Boolean(insights.personalized.slowSolve))
 
   return (
     <StoryLayout
@@ -28,11 +32,15 @@ export function RankingSlide({ insights }: Props) {
             animationDelay={0.22}
           />
         )}
+        {insights.personalized.slowSolve && (
+          <RankingSlowSolveCard
+            slowSolve={insights.personalized.slowSolve}
+            animationDelay={insights.personalized.heroMoment ? 0.3 : 0.22}
+          />
+        )}
         <RankingHighlights
           highlights={insights.rankingHighlights}
-          baseAnimationDelay={
-            insights.personalized.heroMoment ? 0.34 : 0.22
-          }
+          baseAnimationDelay={0.22 + extraPanels * 0.08}
         />
       </div>
     </StoryLayout>

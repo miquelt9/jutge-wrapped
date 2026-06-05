@@ -1,28 +1,22 @@
 import { describe, expect, it } from "vitest"
 import {
   deckLoadingAnimationBudgetMs,
-  pickStumbleIndex,
-  pickTypoIndex,
-  typoChar,
+  hesitationCountForLength,
+  pickHesitationIndices,
 } from "./deckLoadingAnimation"
 import { deckLoadingSequenceMs } from "./useDeckLoadingUX"
 
 describe("deckLoadingAnimation", () => {
-  it("picks stable typo and stumble positions for a line", () => {
+  it("picks stable hesitation positions for a line", () => {
     const text = "Loading your Jutge Wrapped"
-    const typo = pickTypoIndex(text)
-    const stumble = pickStumbleIndex(text, typo)
+    const hesitations = pickHesitationIndices(text)
 
-    expect(typo).not.toBeNull()
-    expect(stumble).not.toBeNull()
-    expect(typo).not.toBe(stumble)
-    expect(pickTypoIndex(text)).toBe(typo)
-    expect(pickStumbleIndex(text, typo)).toBe(stumble)
-  })
-
-  it("returns a different nearby key for typos", () => {
-    expect(typoChar("o")).toBe("i")
-    expect(typoChar("J")).toBe("K")
+    expect(hesitations.length).toBe(hesitationCountForLength(text.length))
+    expect(pickHesitationIndices(text)).toEqual(hesitations)
+    hesitations.forEach((index) => {
+      expect(index).toBeGreaterThan(2)
+      expect(index).toBeLessThan(text.length - 2)
+    })
   })
 
   it("budgets more time than the old fixed-speed estimate", () => {

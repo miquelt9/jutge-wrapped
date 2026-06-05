@@ -7,6 +7,7 @@ import {
 } from "@/api/client"
 import type { JutgeApiClient, Submission } from "@/api/client"
 import { fetchFullAwards } from "./awards"
+import { fetchProblemTitles, uniqueProblemIds } from "./problemTitles"
 import { buildWrappedInsights } from "./selectors"
 import {
   hasSubmissionHistory,
@@ -105,11 +106,32 @@ export function useWrappedData(
         readyRawRef.current = null
         return
       }
+      let problemTitles = snapshot.problemTitles
+      const periodSubmissions = submissionsForWrappedPeriod(
+        resolvedSubmissions,
+        period,
+      )
+      if (
+        !problemTitles &&
+        periodSubmissions?.length &&
+        client?.meta?.token
+      ) {
+        try {
+          problemTitles = await fetchProblemTitles(
+            client,
+            uniqueProblemIds(periodSubmissions),
+          )
+        } catch {
+          problemTitles = undefined
+        }
+      }
+
       const raw: WrappedRawData = {
         ...snapshot,
         period,
         dashboard,
-        submissions: submissionsForWrappedPeriod(resolvedSubmissions, period),
+        submissions: periodSubmissions,
+        problemTitles,
       }
       readyRawRef.current = raw
       setState({
@@ -188,6 +210,18 @@ export function useWrappedData(
         : null
       if (avatarUrl) avatarUrlRef.current = avatarUrl
 
+      let problemTitles: Record<string, string> | undefined
+      if (periodSubmissions?.length) {
+        try {
+          problemTitles = await fetchProblemTitles(
+            client,
+            uniqueProblemIds(periodSubmissions),
+          )
+        } catch {
+          problemTitles = undefined
+        }
+      }
+
       const raw: WrappedRawData = {
         profile,
         avatarUrl,
@@ -199,6 +233,7 @@ export function useWrappedData(
         tables,
         period,
         submissions: periodSubmissions,
+        problemTitles,
         awards: awards && Object.keys(awards).length > 0 ? awards : undefined,
       }
       readyRawRef.current = raw

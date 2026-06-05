@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
-import { Medal, Youtube } from "lucide-react"
+import { ChevronLeft, ChevronRight, Medal, Youtube } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { StaggerGroup, StaggerItem } from "@/components/StaggerReveal"
 import {
@@ -10,61 +10,92 @@ import {
 } from "@/components/motionPresets"
 import { StoryLayout } from "@/components/StoryLayout"
 import { useLayoutVariant } from "@/hooks/useLayoutVariant"
-import { AWARD_TILE_LIMIT } from "../awards"
 import { jutgeAwardUrl, jutgeProblemUrl, jutgeYoutubeUrl } from "../jutgeLinks"
 import type { AwardItem, WrappedInsights } from "../types"
 
 type Props = { insights: WrappedInsights }
+
+const AWARDS_PER_PAGE = 10
 
 export function AwardsSlide({ insights }: Props) {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
   const { awards } = insights
   const layoutVariant = useLayoutVariant()
-  const hiddenCount = Math.max(0, awards.count - awards.items.length)
+  const totalPages = Math.max(1, Math.ceil(awards.items.length / AWARDS_PER_PAGE))
+  const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => {
+    setPageIndex((current) => Math.min(current, totalPages - 1))
+  }, [totalPages])
+
+  const pageStart = pageIndex * AWARDS_PER_PAGE
+  const pageAwards = awards.items.slice(pageStart, pageStart + AWARDS_PER_PAGE)
+  const canPaginate = totalPages > 1
+
+  const goPrev = () => setPageIndex((current) => Math.max(0, current - 1))
+  const goNext = () =>
+    setPageIndex((current) => Math.min(totalPages - 1, current + 1))
 
   return (
     <StoryLayout
       align="start"
       eyebrow={t("slides.awards.eyebrow")}
       title={awards.title}
-      subtitle={awards.subtitle}
     >
-      <StaggerGroup className="flex flex-col gap-3">
-        {awards.items.map((award) => (
-          <StaggerItem key={award.awardId}>
-            <AwardTile
-              award={award}
-              reduceMotion={reduceMotion}
-              layout={layoutVariant === "wide" ? "wide" : "compact"}
-            />
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
+      {pageAwards.length > 0 && (
+        <StaggerGroup className="flex flex-col gap-3">
+          {pageAwards.map((award) => (
+            <StaggerItem key={award.awardId}>
+              <AwardTile
+                award={award}
+                reduceMotion={reduceMotion}
+                layout={layoutVariant === "wide" ? "wide" : "compact"}
+              />
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      )}
 
-      {hiddenCount > 0 && (
-        <motion.p
-          className="text-jutge-muted mt-4 text-center text-sm"
+      {canPaginate && (
+        <motion.nav
+          className="mt-4 flex items-center justify-center gap-2"
+          aria-label={t("slides.awards.paginationLabel")}
           initial={fadeUpHidden(reduceMotion)}
           animate={fadeUpVisible()}
           transition={fadeUpTransition(reduceMotion, 0.24)}
         >
-          {t("slides.awards.moreAwards", { count: hiddenCount })}
-        </motion.p>
-      )}
-
-      {awards.count > AWARD_TILE_LIMIT && (
-        <motion.p
-          className="text-jutge-muted mt-2 text-center text-xs uppercase"
-          initial={fadeUpHidden(reduceMotion)}
-          animate={fadeUpVisible()}
-          transition={fadeUpTransition(reduceMotion, 0.28)}
-        >
-          {t("slides.awards.showingOf", {
-            shown: awards.items.length,
-            total: awards.count,
-          })}
-        </motion.p>
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={pageIndex === 0}
+            aria-label={t("slides.awards.prevPage")}
+            className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
+          >
+            <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="sr-only sm:not-sr-only sm:inline">
+              {t("common.prev")}
+            </span>
+          </button>
+          <span className="text-jutge-muted min-w-24 text-center text-xs uppercase">
+            {t("slides.awards.showingOf", {
+              current: pageIndex + 1,
+              total: totalPages,
+            })}
+          </span>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={pageIndex === totalPages - 1}
+            aria-label={t("slides.awards.nextPage")}
+            className="jutge-btn-default flex shrink-0 items-center gap-1 px-2 disabled:opacity-40 sm:px-3"
+          >
+            <span className="sr-only sm:not-sr-only sm:inline">
+              {t("common.next")}
+            </span>
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+          </button>
+        </motion.nav>
       )}
     </StoryLayout>
   )

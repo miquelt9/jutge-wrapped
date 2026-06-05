@@ -157,6 +157,12 @@ body {
     @apply bg-jutge-bg text-jutge-text min-h-full overflow-x-hidden;
   }
 
+  .jutge-deck-scroller {
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .jutge-nav {
     @apply bg-jutge-nav shrink-0 text-white;
   }

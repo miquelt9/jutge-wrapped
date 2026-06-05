@@ -80,7 +80,17 @@
       "acRate": "AC rate",
       "problemSuccessRate": "{{rate}}% of attempted problems reached acceptance in this period.",
       "avatarAlt": "Jutge avatar",
-      "mascotAlt": "Jutge mascot"
+      "mascotAlt": "Jutge mascot",
+      "drilldown": {
+        "acceptedTitle": "Accepted problems",
+        "rejectedTitle": "Rejected problems",
+        "submissionsTitle": "Submissions",
+        "empty": "No items to show for this metric.",
+        "unknownVerdict": "Unknown",
+        "openAccepted": "View accepted problems",
+        "openRejected": "View rejected problems",
+        "openSubmissions": "View submissions"
+      }
     },
     "heatmap": {
       "eyebrow": "Activity map",
@@ -145,7 +155,10 @@
       "totalLabel": "awards in this period",
       "watchYoutube": "Watch on YouTube",
       "problemAwarded": "Problem {{problem}}",
-      "showingOf": "Showing {{shown}} of {{total}}"
+      "showingOf": "{{current}} of {{total}}",
+      "paginationLabel": "Browse awards",
+      "prevPage": "Previous page",
+      "nextPage": "Next page"
     },
     "ranking": {
       "eyebrow": "System rank",
@@ -197,8 +210,7 @@
   },
   "awards": {
     "titleOne": "1 award earned",
-    "titleMany": "{{count}} awards earned",
-    "subtitleFeatured": "Latest: {{title}} · {{date}}"
+    "titleMany": "{{count}} awards earned"
   },
   "rank": {
     "eliteLabel": "Top {{percent}}% of Jutge users",
@@ -228,6 +240,11 @@
       "mostAttemptedDetail": "{{submissions}} in this period.",
       "firstAcHeadline": "First AC in this period: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} on that problem overall."
+    },
+    "slowSolve": {
+      "label": "Longest road to AC",
+      "headline": "<0>{{problem}}</0> took the longest to crack",
+      "detail": "{{duration}} from first submission to first AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
@@ -320,6 +337,10 @@
   "submission_other": "{{count}} submissions",
   "day_one": "{{count}} day",
   "day_other": "{{count}} days",
+  "hour_one": "{{count}} hour",
+  "hour_other": "{{count}} hours",
+  "minute_one": "{{count}} minute",
+  "minute_other": "{{count}} minutes",
   "donut": {
     "compilerAria": "Compiler distribution. Click a segment for details.",
     "verdictAria": "Verdict distribution. Click a segment for details."
