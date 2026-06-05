@@ -378,22 +378,7 @@ export function WrappedDeck() {
 
   return (
     <SlideExportModeProvider>
-      <div
-        className="jutge-page relative flex h-full flex-col"
-        onClick={(e) => {
-          const target = e.target as HTMLElement
-          if (
-            target.closest(
-              "header, footer, button, a, input, select, [data-chart-interactive], [data-histogram-column]",
-            )
-          ) {
-            return
-          }
-          const mid = window.innerWidth / 2
-          if (e.clientX > mid) next()
-          else prev()
-        }}
-      >
+      <div className="jutge-page relative flex h-full flex-col">
         <header className="jutge-nav">
           <div className="jutge-nav-inner">
             <div className="jutge-nav-start">

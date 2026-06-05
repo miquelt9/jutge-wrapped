@@ -37,6 +37,7 @@ import type {
   PersonalizedInsights,
   RankInsights,
   RankingHighlight,
+  RankingHighlightKind,
   RankingHighlights,
   VerdictInsights,
   WeekdayInsights,
@@ -783,6 +784,13 @@ function computeFirstAttemptRate(
   }
 }
 
+const RANKING_HIGHLIGHT_ORDER = [
+  "compile_grief",
+  "platform_submissions",
+  "first_attempt",
+  "platform_problems",
+] as const satisfies readonly RankingHighlightKind[]
+
 export function buildRankingHighlights(raw: WrappedRawData): RankingHighlights {
   const { dashboard, homepageStats, period, submissions } = raw
   const acceptedProblems = dashboard.stats.number_of_accepted_problems ?? 0
@@ -790,11 +798,34 @@ export function buildRankingHighlights(raw: WrappedRawData): RankingHighlights {
   const platformProblems = homepageStats.problems ?? 0
   const platformSubmissions = homepageStats.submissions ?? 0
 
-  const items: RankingHighlight[] = []
+  const byKind = new Map<RankingHighlightKind, RankingHighlight>()
+
+  const verdictDist = dashboard.distributions.verdicts
+  const compileErrors = verdictDist.CE ?? 0
+  const judgedTotal =
+    Object.values(verdictDist).reduce((sum, count) => sum + count, 0) ||
+    userSubmissions
+  if (compileErrors > 0 && judgedTotal > 0) {
+    byKind.set("compile_grief", {
+      kind: "compile_grief",
+      percent: Math.round((compileErrors / judgedTotal) * 1000) / 10,
+      numerator: compileErrors,
+      denominator: judgedTotal,
+    })
+  }
+
+  if (platformSubmissions > 0 && userSubmissions > 0) {
+    byKind.set("platform_submissions", {
+      kind: "platform_submissions",
+      percent: formatSharePercent(userSubmissions, platformSubmissions, 4),
+      numerator: userSubmissions,
+      denominator: platformSubmissions,
+    })
+  }
 
   const firstAttempt = computeFirstAttemptRate(submissions, period)
   if (firstAttempt) {
-    items.push({
+    byKind.set("first_attempt", {
       kind: "first_attempt",
       percent: firstAttempt.rate,
       numerator: firstAttempt.solvedFirstAttempt,
@@ -803,7 +834,7 @@ export function buildRankingHighlights(raw: WrappedRawData): RankingHighlights {
   }
 
   if (platformProblems > 0 && acceptedProblems > 0) {
-    items.push({
+    byKind.set("platform_problems", {
       kind: "platform_problems",
       percent: formatSharePercent(acceptedProblems, platformProblems, 3),
       numerator: acceptedProblems,
@@ -811,28 +842,10 @@ export function buildRankingHighlights(raw: WrappedRawData): RankingHighlights {
     })
   }
 
-  if (platformSubmissions > 0 && userSubmissions > 0) {
-    items.push({
-      kind: "platform_submissions",
-      percent: formatSharePercent(userSubmissions, platformSubmissions, 4),
-      numerator: userSubmissions,
-      denominator: platformSubmissions,
-    })
-  }
-
-  const verdictDist = dashboard.distributions.verdicts
-  const compileErrors = verdictDist.CE ?? 0
-  const judgedTotal =
-    Object.values(verdictDist).reduce((sum, count) => sum + count, 0) ||
-    userSubmissions
-  if (compileErrors > 0 && judgedTotal > 0) {
-    items.push({
-      kind: "compile_grief",
-      percent: Math.round((compileErrors / judgedTotal) * 1000) / 10,
-      numerator: compileErrors,
-      denominator: judgedTotal,
-    })
-  }
+  const items = RANKING_HIGHLIGHT_ORDER.flatMap((kind) => {
+    const item = byKind.get(kind)
+    return item ? [item] : []
+  })
 
   return { items }
 }

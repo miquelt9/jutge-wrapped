@@ -1,4 +1,13 @@
-import { useEffect, useState, type CSSProperties } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react"
+import { createPortal } from "react-dom"
 import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import { useSlideExportMode } from "@/context/SlideExportModeContext"
@@ -103,6 +112,77 @@ function cellAriaLabel(
   })
 }
 
+const TOOLTIP_MARGIN_PX = 8
+const TOOLTIP_GAP_PX = 4
+
+function positionHeatmapTooltip(
+  anchorRect: DOMRect,
+  tooltipRect: DOMRect,
+): { top: number; left: number } {
+  const centerX = anchorRect.left + anchorRect.width / 2
+  let top = anchorRect.top - TOOLTIP_GAP_PX - tooltipRect.height
+  if (top < TOOLTIP_MARGIN_PX) {
+    top = anchorRect.bottom + TOOLTIP_GAP_PX
+  }
+
+  let left = centerX - tooltipRect.width / 2
+  left = Math.max(
+    TOOLTIP_MARGIN_PX,
+    Math.min(left, window.innerWidth - tooltipRect.width - TOOLTIP_MARGIN_PX),
+  )
+
+  return { top, left }
+}
+
+function HeatmapCellTooltip({
+  anchorRef,
+  label,
+}: {
+  anchorRef: RefObject<HTMLElement | null>
+  label: string
+}) {
+  const tooltipRef = useRef<HTMLSpanElement>(null)
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(
+    null,
+  )
+
+  const updatePosition = useCallback(() => {
+    const anchor = anchorRef.current
+    const tooltip = tooltipRef.current
+    if (!anchor || !tooltip) return
+
+    const anchorRect = anchor.getBoundingClientRect()
+    const tooltipRect = tooltip.getBoundingClientRect()
+    setCoords(positionHeatmapTooltip(anchorRect, tooltipRect))
+  }, [anchorRef])
+
+  useLayoutEffect(() => {
+    updatePosition()
+    window.addEventListener("scroll", updatePosition, true)
+    window.addEventListener("resize", updatePosition)
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true)
+      window.removeEventListener("resize", updatePosition)
+    }
+  }, [updatePosition, label])
+
+  return createPortal(
+    <span
+      ref={tooltipRef}
+      className="border-jutge-border bg-jutge-panel text-jutge-text pointer-events-none fixed z-50 rounded border px-1.5 py-0.5 font-mono text-[9px] leading-tight whitespace-nowrap shadow-sm"
+      style={{
+        top: coords?.top ?? -9999,
+        left: coords?.left ?? -9999,
+        visibility: coords ? "visible" : "hidden",
+      }}
+      role="tooltip"
+    >
+      {label}
+    </span>,
+    document.body,
+  )
+}
+
 type HeatmapCellProps = {
   value: number
   dateLabel: string | null
@@ -125,26 +205,26 @@ function HeatmapCell({
   exportMode = false,
 }: HeatmapCellProps) {
   const { t } = useTranslation()
+  const cellRef = useRef<HTMLDivElement>(null)
   const max = maxValue || 1
   const isHovered = hoveredId === cellId
   const label = cellAriaLabel(value, dateLabel, t)
+  const showTooltip = !exportMode && isHovered && dateLabel && label
 
   return (
     <div
+      ref={cellRef}
       className="relative shrink-0"
       style={{ width: cellPx, height: cellPx }}
       onMouseEnter={exportMode ? undefined : () => onHover(cellId)}
       onMouseLeave={exportMode ? undefined : () => onHover(null)}
       onFocus={exportMode ? undefined : () => onHover(cellId)}
       onBlur={exportMode ? undefined : () => onHover(null)}
-      title={exportMode ? undefined : label || undefined}
       aria-label={exportMode ? undefined : label || undefined}
       tabIndex={exportMode ? -1 : 0}
     >
-      {!exportMode && isHovered && dateLabel && (
-        <span className="border-jutge-border bg-jutge-panel text-jutge-text pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 rounded border px-1.5 py-0.5 font-mono text-[9px] leading-tight whitespace-nowrap shadow-sm">
-          {label}
-        </span>
+      {showTooltip && (
+        <HeatmapCellTooltip anchorRef={cellRef} label={label} />
       )}
       <div
         className="h-full w-full"

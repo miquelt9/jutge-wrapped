@@ -93,12 +93,20 @@ export function AnimatedPercent({
   )
 }
 
-/** Counts down from 100% (or higher if target exceeds 100) to the target value. */
+/** Start a few percentage points above the target, capped at 100%. */
+export function getDescendingPercentStart(value: number): number {
+  if (value <= 0) return 100
+  if (value >= 100) return value
+  const offset = Math.min(15, Math.max(3, value * 1.5))
+  return Math.min(100, value + offset)
+}
+
+/** Counts down from slightly above the target to the final top-user %. */
 export function AnimatedDescendingPercent(
   props: Omit<AnimatedPercentProps, "from" | "startFraction">,
 ) {
   const { value, decimals = 2, ...rest } = props
-  const from = Math.max(100, value)
+  const from = getDescendingPercentStart(value)
   return (
     <AnimatedPercent value={value} from={from} decimals={decimals} {...rest} />
   )

@@ -71,7 +71,7 @@
   },
   "slides": {
     "intro": {
-      "eyebrow": "Benvinguda",
+      "eyebrow": "Welcome",
       "subtitle": "{{period}} · la teva identitat Jutge ha estat verificada.",
       "judgeLevel": "Nivell de jutge",
       "acceptedProblems": "Problemes acceptats",
@@ -148,7 +148,7 @@
       "showingOf": "Mostrant {{shown}} de {{total}}"
     },
     "ranking": {
-      "eyebrow": "Rang del sistema",
+      "eyebrow": "Ranking del sistema",
       "globalLeaderboard": "Classificació global",
       "problems": "Problemes",
       "submissions": "Enviaments",
@@ -247,7 +247,7 @@
       },
       "compileGrief": {
         "label": "Dolor de compilació",
-        "headline": "El compilador t'ha cridat {{count}} vegades",
+        "headline": "El compilador t'ha esbroncat {{count}} vegades",
         "detail": "{{percent}}% dels teus enviaments · Jutge no és el teu compilador"
       }
     }

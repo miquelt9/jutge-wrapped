@@ -3,9 +3,13 @@ import { RankingHighlightCard } from "./RankingHighlightCard"
 
 type Props = {
   highlights: RankingHighlightsData
+  baseAnimationDelay?: number
 }
 
-export function RankingHighlights({ highlights }: Props) {
+export function RankingHighlights({
+  highlights,
+  baseAnimationDelay = 0.22,
+}: Props) {
   if (highlights.items.length === 0) return null
 
   return (
@@ -17,7 +21,7 @@ export function RankingHighlights({ highlights }: Props) {
           percent={item.percent}
           numerator={item.numerator}
           denominator={item.denominator}
-          animationDelay={0.22 + index * 0.06}
+          animationDelay={baseAnimationDelay + index * 0.06}
         />
       ))}
     </div>

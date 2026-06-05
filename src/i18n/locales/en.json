@@ -247,7 +247,7 @@
       },
       "compileGrief": {
         "label": "Compile grief",
-        "headline": "The compiler yelled at you {{count}} times",
+        "headline": "The compiler spat on you {{count}} times",
         "detail": "{{percent}}% of your submissions · Jutge is not your compiler"
       }
     }

@@ -268,6 +268,54 @@ describe("buildRankingHighlights", () => {
       highlights.items.some((item) => item.kind === "compile_grief"),
     ).toBe(false)
   })
+
+  it("orders highlights in narrative sequence", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      dashboard: {
+        ...baseRaw.dashboard,
+        stats: {
+          number_of_submissions: 100,
+          number_of_accepted_problems: 40,
+          number_of_rejected_problems: 0,
+        },
+        distributions: {
+          ...baseRaw.dashboard.distributions,
+          verdicts: { AC: 80, CE: 20, WA: 50 },
+        },
+      },
+      homepageStats: {
+        users: 1000,
+        submissions: 50000,
+        problems: 4000,
+        exams: 0,
+        contests: 0,
+      },
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "P001",
+        }),
+        makeSubmission("2025-01-02T10:00:00Z", {
+          veredict: "WA",
+          problem_id: "P002",
+        }),
+        makeSubmission("2025-01-03T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "P002",
+        }),
+      ],
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(highlights.items.map((item) => item.kind)).toEqual([
+      "compile_grief",
+      "platform_submissions",
+      "first_attempt",
+      "platform_problems",
+    ])
+  })
 })
 
 function makeAward(

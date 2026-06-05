@@ -17,15 +17,23 @@ export function RankingSlide({ insights }: Props) {
   return (
     <StoryLayout
       eyebrow={t("slides.ranking.eyebrow")}
-      title={`${insights.level} · ${insights.displayName}`}
+      title={`${insights.displayName} · ${insights.level}`}
       subtitle={insights.periodLabel}
     >
       <div className="flex flex-col gap-6">
         <RankingHeroBand insights={insights} layout={layoutVariant} />
-        <RankingHighlights highlights={insights.rankingHighlights} />
         {insights.personalized.heroMoment && (
-          <IntroHeroMoment hero={insights.personalized.heroMoment} />
+          <IntroHeroMoment
+            hero={insights.personalized.heroMoment}
+            animationDelay={0.22}
+          />
         )}
+        <RankingHighlights
+          highlights={insights.rankingHighlights}
+          baseAnimationDelay={
+            insights.personalized.heroMoment ? 0.34 : 0.22
+          }
+        />
       </div>
     </StoryLayout>
   )

@@ -16,9 +16,10 @@ const HERO_HEADLINE_KEYS = {
 
 type Props = {
   hero: HeroMomentInsight
+  animationDelay?: number
 }
 
-export function IntroHeroMoment({ hero }: Props) {
+export function IntroHeroMoment({ hero, animationDelay = 0.22 }: Props) {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
 
@@ -27,7 +28,7 @@ export function IntroHeroMoment({ hero }: Props) {
       className="jutge-panel border-l-jutge-blue border-l-4"
       initial={fadeUpHidden(reduceMotion)}
       animate={fadeUpVisible()}
-      transition={fadeUpTransition(reduceMotion, 0.34)}
+      transition={fadeUpTransition(reduceMotion, animationDelay)}
     >
       <div className="jutge-panel-body">
         <p className="text-jutge-muted text-xs font-bold uppercase">
