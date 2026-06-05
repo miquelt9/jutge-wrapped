@@ -6,7 +6,6 @@ import {
 } from "@/components/motionPresets"
 import { useLayoutVariant } from "@/hooks/useLayoutVariant"
 import type { WrappedInsights, WrappedRawData } from "../../types"
-import { IntroHeroMoment } from "./IntroHeroMoment"
 import { IntroMetricsGrid } from "./IntroMetricsGrid"
 import { IntroProfileCard } from "./IntroProfileCard"
 
@@ -19,7 +18,6 @@ export function IntroSlideBody({ raw, insights }: Props) {
   const reduceMotion = useReducedMotion()
   const layoutVariant = useLayoutVariant()
   const { level, personalized } = insights
-  const hero = personalized.heroMoment
 
   if (layoutVariant === "wide") {
     return (
@@ -38,7 +36,6 @@ export function IntroSlideBody({ raw, insights }: Props) {
             {personalized.introActivity}
           </motion.p>
         )}
-        {hero && <IntroHeroMoment hero={hero} />}
       </div>
     )
   }
@@ -57,7 +54,6 @@ export function IntroSlideBody({ raw, insights }: Props) {
           {personalized.introActivity}
         </motion.p>
       )}
-      {hero && <IntroHeroMoment hero={hero} />}
     </div>
   )
 }

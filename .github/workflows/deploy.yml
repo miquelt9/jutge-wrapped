@@ -27,9 +27,16 @@ jobs:
 
       - run: npm ci
 
+      - name: Prepare app version label
+        id: app_version
+        run: |
+          major=$(node -pe "require('./package.json').version.split('.')[0]")
+          echo "label=${major}.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
       - run: npm run build
         env:
           GITHUB_PAGES: "true"
+          VITE_APP_VERSION: ${{ steps.app_version.outputs.label }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -4,7 +4,7 @@ import { fadeUpHidden, fadeUpTransition, fadeUpVisible } from "./motionPresets"
 
 type Props = {
   eyebrow?: string
-  title: string
+  title?: string
   subtitle?: string
   children?: ReactNode
   /** Use `start` when content is tall (e.g. calendar) so nothing is clipped at the top. */
@@ -22,8 +22,8 @@ export function StoryLayout({
 
   return (
     <div
-      className={`flex h-full min-h-0 max-w-full min-w-0 flex-col gap-4 overflow-x-hidden px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10 ${
-        align === "start" ? "justify-start" : "justify-center"
+      className={`flex min-h-full max-w-full min-w-0 flex-col gap-4 overflow-x-hidden px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-12 lg:py-10 ${
+        align === "start" ? "justify-start" : "justify-start sm:justify-center"
       }`}
     >
       {eyebrow && (
@@ -36,14 +36,16 @@ export function StoryLayout({
           {eyebrow}
         </motion.p>
       )}
-      <motion.h1
-        className="jutge-title shrink-0"
-        initial={fadeUpHidden(reduceMotion)}
-        animate={fadeUpVisible()}
-        transition={fadeUpTransition(reduceMotion, eyebrow ? 0.1 : 0.04)}
-      >
-        {title}
-      </motion.h1>
+      {title && (
+        <motion.h1
+          className="jutge-title shrink-0"
+          initial={fadeUpHidden(reduceMotion)}
+          animate={fadeUpVisible()}
+          transition={fadeUpTransition(reduceMotion, eyebrow ? 0.1 : 0.04)}
+        >
+          {title}
+        </motion.h1>
+      )}
       {subtitle && (
         <motion.p
           className="jutge-subtitle shrink-0"

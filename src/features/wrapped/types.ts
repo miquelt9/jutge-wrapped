@@ -71,7 +71,24 @@ export type WeekdayInsights = {
   quietest: DistributionItem | null
 }
 
+export type ChronoArchetypeKey =
+  | "balancedGrinder"
+  | "nightOwl"
+  | "earlyRiser"
+  | "eveningCoder"
+  | "afternoonOperator"
+
+export type RhythmTitleKey =
+  | ChronoArchetypeKey
+  | "weekendWarrior"
+  | "sundayScrambler"
+  | "saturdaySpecial"
+  | "fridayFinisher"
+  | "mondayMenace"
+  | "midweekMachine"
+
 export type ChronoInsights = {
+  archetypeKey: ChronoArchetypeKey
   archetype: string
   nightSubmissions: number
   peakHour: number
@@ -114,6 +131,23 @@ export type RankInsights = {
   eliteLabel: string
 }
 
+export type RankingHighlightKind =
+  | "first_attempt"
+  | "platform_problems"
+  | "platform_submissions"
+  | "compile_grief"
+
+export type RankingHighlight = {
+  kind: RankingHighlightKind
+  percent: number
+  numerator: number
+  denominator: number
+}
+
+export type RankingHighlights = {
+  items: RankingHighlight[]
+}
+
 export type HeroMomentKind = "most_attempted" | "grind" | "first_ac"
 
 export type HeroMomentInsight = {
@@ -153,6 +187,7 @@ export type PersonalizedInsights = {
   weekdayTitle: string
   weekdaySubtitle: string | undefined
   chronoEyebrow: string
+  rhythmTitleKey: RhythmTitleKey
   rankingSubtitle: string
   usersAheadText: string | null
   heroMoment: HeroMomentInsight | null
@@ -171,6 +206,7 @@ export type WrappedInsights = {
   compilers: DistributionItem[]
   verdicts: VerdictInsights
   rank: RankInsights
+  rankingHighlights: RankingHighlights
   awards: AwardInsights
   personalized: PersonalizedInsights
 }

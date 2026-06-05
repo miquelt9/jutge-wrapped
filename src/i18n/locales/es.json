@@ -79,12 +79,12 @@
       "submissions": "Envíos",
       "acRate": "Tasa AC",
       "problemSuccessRate": "{{rate}}% de los problemas intentados llegaron a aceptación en este periodo.",
-      "avatarAlt": "Avatar de Jutge",
-      "mascotAlt": "Mascota de Jutge"
+      "avatarAlt": "Avatar del Jutge",
+      "mascotAlt": "Mascota del Jutge"
     },
     "heatmap": {
       "eyebrow": "Mapa de actividad",
-      "title": "El juego largo",
+      "title": "Tu actividad",
       "peakDay": "{{period}} · Día pico: {{count}} el {{date}}.",
       "summary": "{{period}} · {{submissions}} en {{days}} días activos.",
       "activeDays": "Días activos",
@@ -111,12 +111,32 @@
       "peakHour": "Hora pico",
       "submissionsAtPeak": "{{count}} envíos"
     },
+    "rhythm": {
+      "eyebrow": "Ritmo del campus",
+      "subtitle": "Más activo los {{peakDay}} · hora pico {{peakHour}}:00",
+      "subtitleWithQuietest": "Más activo los {{peakDay}} (más tranquilo: {{quietest}}) · hora pico {{peakHour}}:00",
+      "titles": {
+        "balancedGrinder": "Programador sin horario",
+        "nightOwl": "Gremlin de las 3 AM",
+        "earlyRiser": "Compila antes del desayuno",
+        "eveningCoder": "Programador post-clase",
+        "afternoonOperator": "Leyenda del almuerzo",
+        "weekendWarrior": "Guerrero de fin de semana",
+        "sundayScrambler": "Programador en pánico dominical",
+        "saturdaySpecial": "Club de envíos del sábado",
+        "fridayFinisher": "Programador del ‘un AC más’ del viernes",
+        "mondayMenace": "Amenaza del lunes por la mañana",
+        "midweekMachine": "Máquina de mitad de semana"
+      }
+    },
     "courseArc": {
-      "eyebrow": "Lenguajes y compiladores"
+      "eyebrow": "Lenguajes y compiladores",
+      "title": "Lenguajes y compiladores"
     },
     "verdict": {
       "eyebrow": "Distribución de veredictos",
-      "title": "El juez ha hablado"
+      "title": "Distribución de veredictos",
+      "subtitle": "El juez ha hablado"
     },
     "awards": {
       "eyebrow": "Vitrina de trofeos",
@@ -136,7 +156,7 @@
       "busiestDay": "Día más activo",
       "acRuns": "Ejecuciones AC",
       "platformSubs": "Envíos en la plataforma",
-      "judgeAlt": "Juez de Jutge"
+      "judgeAlt": "Juez del Jutge"
     },
     "share": {
       "eyebrow": "Comparte tu Wrapped",
@@ -154,7 +174,7 @@
       "nightOwl": "Noctámbulo",
       "earlyRiser": "Madrugador",
       "eveningCoder": "Programador vespertino",
-      "afternoonOperator": "Operador de tarde"
+      "afternoonOperator": "Programador de tarde"
     },
     "narrativePeak": "Tu pico es sobre las {{hour}}:00 — un {{archetype}} en horario de campus.",
     "narrativeNight": "{{count}} envíos entre medianoche y las 5 AM."
@@ -181,8 +201,8 @@
     "subtitleFeatured": "Último: {{title}} · {{date}}"
   },
   "rank": {
-    "eliteLabel": "Top {{percent}}% de usuarios de Jutge",
-    "eliteLabelAnimated": "Top <0/>% de usuarios de Jutge"
+    "eliteLabel": "Top {{percent}}% de usuarios del Jutge",
+    "eliteLabelAnimated": "Top <0/>% de usuarios del Jutge"
   },
   "personalization": {
     "intro": {
@@ -198,7 +218,7 @@
     },
     "ranking": {
       "subtitle": "{{period}} · {{elite}}",
-      "usersAhead": "Estás por encima de {{count}} de {{total}} usuarios de Jutge"
+      "usersAhead": "Estás por encima de {{count}} de {{total}} usuarios del Jutge"
     },
     "hero": {
       "label": "Tu problema destacado",
@@ -208,6 +228,28 @@
       "mostAttemptedDetail": "{{submissions}} en este periodo.",
       "firstAcHeadline": "Primer AC en este periodo: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} en ese problema en total."
+    },
+    "rankingHighlights": {
+      "firstAttempt": {
+        "label": "Primer intento",
+        "headline": "Resolviste el {{percent}}% al primer intento",
+        "detail": "{{count}} de {{total}} problemas resueltos"
+      },
+      "platformProblems": {
+        "label": "Cobertura de la plataforma",
+        "headline": "{{percent}}% de los problemas del Jutge",
+        "detail": "{{accepted}} de {{total}} problemas"
+      },
+      "platformSubmissions": {
+        "label": "Huella de envíos",
+        "headline": "{{percent}}% de los envíos del Jutge",
+        "detail": "{{yours}} de {{total}} envíos"
+      },
+      "compileGrief": {
+        "label": "Dolor de compilación",
+        "headline": "El compilador te gritó {{count}} veces",
+        "detail": "{{percent}}% de tus envíos · Jutge no es tu compilador"
+      }
     }
   },
   "weekdays": {
@@ -248,11 +290,11 @@
     "httpsRequired": "Compartir de forma nativa solo funciona con HTTPS. Para probar en el móvil en local, ejecuta npm run dev:host. Los usuarios del sitio desplegado en GitHub Pages no verán este mensaje.",
     "copied": "¡Copiado!",
     "shared": "¡Compartido!",
+    "makeYours": "Haz el tuyo en {{url}}",
     "templates": {
       "intro": "¡Mi Jutge.org Wrapped! Nivel {{level}} ({{name}}). Aceptados: {{accepted}}, Envíos: {{submissions}}, Porcentaje AC: {{acRate}}%!",
       "heatmap": "¡Mi Jutge.org Wrapped! Días activos: {{activeDays}}, Mayor racha: {{longestStreak}} días!",
-      "weekday": "¡Mi Jutge.org Wrapped! Día más activo: {{busiestDay}}!",
-      "chrono": "¡Mi Jutge.org Wrapped! Hora punta: {{peakHour}}:00, Arquetipo: {{archetype}}!",
+      "rhythm": "¡Mi Jutge.org Wrapped! Día más activo: {{busiestDay}}, hora punta {{peakHour}}:00 — {{archetype}}!",
       "course": "¡Mi Jutge.org Wrapped! Lenguaje principal: {{topLanguage}}!",
       "verdict": "¡Mi Jutge.org Wrapped! Envíos AC: {{ac}} ({{acRate}}% de aceptados)!",
       "awards": "¡Mi Jutge.org Wrapped! {{count}} premios — último: {{title}}!",
@@ -267,11 +309,11 @@
   },
   "errors": {
     "unexpected": "Ha ocurrido un error inesperado.",
-    "network": "No se pudo contactar con la API de Jutge. Suele deberse a restricciones CORS del navegador o problemas de red.",
+    "network": "No se pudo contactar con la API del Jutge. Suele deberse a restricciones CORS del navegador o problemas de red.",
     "invalidRange": "El rango de fechas está invertido ({{start}} es posterior a {{end}}). Vuelve atrás y elige un rango válido.",
     "emptyRangeSnapshot": "Sin envíos en {{label}}. Prueba un rango más amplio o vuelve a exportar la instantánea (npm run export:snapshot) con el historial completo.",
     "emptyRange": "No tuviste envíos en Jutge entre {{label}}. Elige otro rango o selecciona Todo el historial.",
-    "loadFailureEmpty": "No pudimos cargar tu historial de envíos desde Jutge. Inténtalo de nuevo o elige Todo el historial.",
+    "loadFailureEmpty": "No pudimos cargar tu historial de envíos desde el Jutge. Inténtalo de nuevo o elige Todo el historial.",
     "loadFailure": "Algo falló al cargar tus envíos. Inténtalo de nuevo o elige Todo el historial."
   },
   "submission_one": "{{count}} envío",

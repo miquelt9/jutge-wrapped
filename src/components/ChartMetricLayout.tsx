@@ -15,18 +15,18 @@ export function ChartMetricLayout({ chart, aside, asideWidth = 220 }: Props) {
   if (variant === "wide") {
     return (
       <div
-        className="grid items-stretch gap-6"
-        style={{ gridTemplateColumns: `1fr ${asideWidth}px` }}
+        className="grid w-full min-w-0 items-stretch gap-6"
+        style={{ gridTemplateColumns: `minmax(0, 1fr) ${asideWidth}px` }}
       >
-        {chart}
+        <div className="min-w-0">{chart}</div>
         {aside}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {chart}
+    <div className="flex w-full min-w-0 flex-col gap-6">
+      <div className="w-full min-w-0">{chart}</div>
       {aside}
     </div>
   )

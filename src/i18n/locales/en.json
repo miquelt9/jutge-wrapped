@@ -84,7 +84,7 @@
     },
     "heatmap": {
       "eyebrow": "Activity map",
-      "title": "The long game",
+      "title": "Your activity",
       "peakDay": "{{period}} · Peak day: {{count}} on {{date}}.",
       "summary": "{{period}} · {{submissions}} across {{days}} active days.",
       "activeDays": "Active days",
@@ -111,12 +111,32 @@
       "peakHour": "Peak hour",
       "submissionsAtPeak": "{{count}} submissions"
     },
+    "rhythm": {
+      "eyebrow": "Campus rhythm",
+      "subtitle": "Busiest on {{peakDay}} · peak hour {{peakHour}}:00",
+      "subtitleWithQuietest": "Busiest on {{peakDay}} (quietest: {{quietest}}) · peak hour {{peakHour}}:00",
+      "titles": {
+        "balancedGrinder": "Chaos Schedule Coder",
+        "nightOwl": "3 AM Gremlin",
+        "earlyRiser": "Compile Before Breakfast",
+        "eveningCoder": "After-Class Coder",
+        "afternoonOperator": "Lunch Break Legend",
+        "weekendWarrior": "Weekend Warrior",
+        "sundayScrambler": "Sunday Panic Coder",
+        "saturdaySpecial": "Saturday Submit Club",
+        "fridayFinisher": "Friday ‘One More AC’ Coder",
+        "mondayMenace": "Monday Morning Menace",
+        "midweekMachine": "Midweek Machine"
+      }
+    },
     "courseArc": {
-      "eyebrow": "Languages & compilers"
+      "eyebrow": "Languages & compilers",
+      "title": "Languages & compilers"
     },
     "verdict": {
       "eyebrow": "Verdict distribution",
-      "title": "The judge has spoken"
+      "title": "Verdict Distribution",
+      "subtitle": "The judge has spoken"
     },
     "awards": {
       "eyebrow": "Trophy case",
@@ -154,7 +174,7 @@
       "nightOwl": "Night Owl",
       "earlyRiser": "Early Riser",
       "eveningCoder": "Evening Coder",
-      "afternoonOperator": "Afternoon Operator"
+      "afternoonOperator": "Afternoon Coder"
     },
     "narrativePeak": "You peak around {{hour}}:00 — a {{archetype}} on campus time.",
     "narrativeNight": "{{count}} submissions landed between midnight and 5 AM."
@@ -208,6 +228,28 @@
       "mostAttemptedDetail": "{{submissions}} in this period.",
       "firstAcHeadline": "First AC in this period: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} on that problem overall."
+    },
+    "rankingHighlights": {
+      "firstAttempt": {
+        "label": "First attempt",
+        "headline": "You solved {{percent}}% on the first try",
+        "detail": "{{count}} of {{total}} solved problems"
+      },
+      "platformProblems": {
+        "label": "Platform coverage",
+        "headline": "{{percent}}% of Jutge problems",
+        "detail": "{{accepted}} out of {{total}} problems"
+      },
+      "platformSubmissions": {
+        "label": "Submission footprint",
+        "headline": "{{percent}}% of Jutge submissions",
+        "detail": "{{yours}} out of {{total}} submissions"
+      },
+      "compileGrief": {
+        "label": "Compile grief",
+        "headline": "The compiler yelled at you {{count}} times",
+        "detail": "{{percent}}% of your submissions · Jutge is not your compiler"
+      }
     }
   },
   "weekdays": {
@@ -248,11 +290,11 @@
     "httpsRequired": "Native sharing only works over HTTPS. For local testing on your phone, run npm run dev:host. End users on the deployed GitHub Pages site will not see this message.",
     "copied": "Copied!",
     "shared": "Shared!",
+    "makeYours": "Make yours at {{url}}",
     "templates": {
       "intro": "My Jutge.org Wrapped! Level {{level}} ({{name}}). Accepted: {{accepted}}, Submissions: {{submissions}}, AC Rate: {{acRate}}%!",
       "heatmap": "My Jutge.org Wrapped! Active Days: {{activeDays}}, Longest Streak: {{longestStreak}} days!",
-      "weekday": "My Jutge.org Wrapped! Busiest day: {{busiestDay}}!",
-      "chrono": "My Jutge.org Wrapped! Peak hour: {{peakHour}}:00, Archetype: {{archetype}}!",
+      "rhythm": "My Jutge.org Wrapped! Busiest day: {{busiestDay}}, peak hour {{peakHour}}:00 — {{archetype}}!",
       "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
       "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
       "awards": "My Jutge.org Wrapped! {{count}} awards — latest: {{title}}!",

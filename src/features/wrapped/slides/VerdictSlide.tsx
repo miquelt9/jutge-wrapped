@@ -11,8 +11,8 @@ export function VerdictSlide({ insights }: Props) {
 
   return (
     <StoryLayout
-      eyebrow={t("slides.verdict.eyebrow")}
       title={t("slides.verdict.title")}
+      subtitle={t("slides.verdict.subtitle")}
     >
       <DonutChartPanel>
         {(displaySize) => (

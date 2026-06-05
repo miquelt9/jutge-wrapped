@@ -20,7 +20,11 @@ export function ChronoHistogram({ hours }: Props) {
   const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
-    <div className="w-full min-w-0">
+    <div
+      className="w-full min-w-0"
+      data-chart-interactive=""
+      onClick={(e) => e.stopPropagation()}
+    >
       <div
         className="border-jutge-border flex min-w-0 items-end justify-between gap-px border-b"
         style={{ height: CHART_HEIGHT_PX }}

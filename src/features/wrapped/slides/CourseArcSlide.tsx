@@ -11,11 +11,7 @@ export function CourseArcSlide({ insights }: Props) {
   const { courseArc } = insights
 
   return (
-    <StoryLayout
-      eyebrow={t("slides.courseArc.eyebrow")}
-      title={courseArc.title}
-      subtitle={courseArc.subtitle}
-    >
+    <StoryLayout title={t("slides.courseArc.title")} subtitle={courseArc.subtitle}>
       <DonutChartPanel>
         {(displaySize) => (
           <CompilerDonut

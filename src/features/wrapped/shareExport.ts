@@ -4,8 +4,7 @@ import type { WrappedInsights } from "./types"
 export const SLIDE_IDS = [
   "intro",
   "heatmap",
-  "weekday",
-  "chrono",
+  "rhythm",
   "course",
   "verdict",
   "awards",
@@ -13,6 +12,8 @@ export const SLIDE_IDS = [
 ] as const
 
 export type SlideId = (typeof SLIDE_IDS)[number]
+
+export const WRAPPED_APP_URL = "https://miquelt9.github.io/jutge-wrapped/"
 
 export function getActiveSlideIds(insights: WrappedInsights): SlideId[] {
   if (insights.awards.count === 0) {
@@ -31,7 +32,7 @@ export function canUseNativeImageShare(): boolean {
   )
 }
 
-export function getSlideShareText(
+function slideShareTemplate(
   slideId: SlideId,
   insights: WrappedInsights,
   t: TFunction,
@@ -50,12 +51,9 @@ export function getSlideShareText(
         activeDays: insights.heatmap.totalActiveDays,
         longestStreak: insights.heatmap.longestStreak,
       })
-    case "weekday":
-      return t("share.templates.weekday", {
+    case "rhythm":
+      return t("share.templates.rhythm", {
         busiestDay: insights.weekday.peak?.label ?? "—",
-      })
-    case "chrono":
-      return t("share.templates.chrono", {
         peakHour: String(insights.chrono.peakHour).padStart(2, "0"),
         archetype: insights.chrono.archetype,
       })
@@ -80,6 +78,16 @@ export function getSlideShareText(
     default:
       return "Jutge.org Wrapped!"
   }
+}
+
+export function getSlideShareText(
+  slideId: SlideId,
+  insights: WrappedInsights,
+  t: TFunction,
+): string {
+  const template = slideShareTemplate(slideId, insights, t)
+  const promo = t("share.makeYours", { url: WRAPPED_APP_URL })
+  return `${template}\n\n${promo}`
 }
 
 export function exportFilename(username: string, slideId: SlideId): string {

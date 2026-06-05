@@ -24,7 +24,9 @@ import { compilerColor } from "@/theme/jutgeColors"
 import type {
   AwardInsights,
   AwardItem,
+  ChronoArchetypeKey,
   ChronoInsights,
+  RhythmTitleKey,
   CourseArcInsights,
   DistributionItem,
   HeatmapInsights,
@@ -34,6 +36,8 @@ import type {
   JourneyInsights,
   PersonalizedInsights,
   RankInsights,
+  RankingHighlight,
+  RankingHighlights,
   VerdictInsights,
   WeekdayInsights,
   WrappedInsights,
@@ -359,6 +363,34 @@ export function buildJourneyInsights(dashboard: Dashboard): JourneyInsights {
   }
 }
 
+const WEEKEND_DAY_KEYS = new Set(["saturday", "sunday"])
+
+/** Picks a playful rhythm-slide title from weekday patterns, then falls back to chrono archetype. */
+export function resolveRhythmTitleKey(
+  weekday: WeekdayInsights,
+  chrono: ChronoInsights,
+): RhythmTitleKey {
+  const total = weekday.weekdays.reduce((sum, day) => sum + day.count, 0) || 1
+  const weekendCount = weekday.weekdays
+    .filter((day) => WEEKEND_DAY_KEYS.has(day.key))
+    .reduce((sum, day) => sum + day.count, 0)
+  const weekendShare = weekendCount / total
+  const peak = weekday.peak
+
+  if (weekendShare >= 0.4) return "weekendWarrior"
+  if (peak?.key === "sunday" && (peak.percent >= 18 || weekendShare >= 0.28)) {
+    return "sundayScrambler"
+  }
+  if (peak?.key === "saturday" && (peak.percent >= 18 || weekendShare >= 0.28)) {
+    return "saturdaySpecial"
+  }
+  if (peak?.key === "friday" && peak.percent >= 20) return "fridayFinisher"
+  if (peak?.key === "monday" && peak.percent >= 20) return "mondayMenace"
+  if (peak?.key === "wednesday" && peak.percent >= 22) return "midweekMachine"
+
+  return chrono.archetypeKey
+}
+
 export function buildWeekdayInsights(dashboard: Dashboard): WeekdayInsights {
   const dist = dashboard.distributions.submissions_by_weekday
   const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1
@@ -403,7 +435,7 @@ export function buildChronoInsights(dashboard: Dashboard): ChronoInsights {
     .filter((h) => h.hour >= 18 && h.hour <= 23)
     .reduce((s, h) => s + h.count, 0)
 
-  let archetypeKey = "balancedGrinder"
+  let archetypeKey: ChronoArchetypeKey = "balancedGrinder"
   const maxBucket = Math.max(morning, afternoon, evening, nightSubmissions)
   if (nightSubmissions === maxBucket && nightSubmissions > 50)
     archetypeKey = "nightOwl"
@@ -427,6 +459,7 @@ export function buildChronoInsights(dashboard: Dashboard): ChronoInsights {
       : i18n.t("chrono.narrativeNight", { count: nightSubmissions })
 
   return {
+    archetypeKey,
     archetype,
     nightSubmissions,
     peakHour: peak.hour,
@@ -699,6 +732,111 @@ function buildHeroMoment(
   }
 }
 
+function formatSharePercent(
+  numerator: number,
+  denominator: number,
+  decimalPlaces: number,
+): number {
+  if (denominator <= 0) return 0
+  const factor = 10 ** decimalPlaces
+  return Math.round((numerator / denominator) * 100 * factor) / factor
+}
+
+function computeFirstAttemptRate(
+  submissions: Submission[] | undefined,
+  period: WrappedPeriod,
+): { solvedFirstAttempt: number; totalSolved: number; rate: number } | null {
+  if (!submissions?.length) return null
+
+  const filtered = isAllTimePeriod(period)
+    ? submissions
+    : submissions.filter((s) => submissionInPeriod(s, period))
+  if (filtered.length === 0) return null
+
+  const byProblem = new Map<string, Submission[]>()
+  for (const sub of filtered) {
+    const list = byProblem.get(sub.problem_id) ?? []
+    list.push(sub)
+    byProblem.set(sub.problem_id, list)
+  }
+
+  let solvedFirstAttempt = 0
+  let totalSolved = 0
+
+  for (const subs of byProblem.values()) {
+    const sorted = [...subs].sort(
+      (a, b) => submissionTimeMs(a) - submissionTimeMs(b),
+    )
+    const firstAcIdx = sorted.findIndex((s) => isAcceptedVerdict(s.veredict))
+    if (firstAcIdx < 0) continue
+
+    totalSolved++
+    if (firstAcIdx === 0) solvedFirstAttempt++
+  }
+
+  if (totalSolved === 0) return null
+
+  return {
+    solvedFirstAttempt,
+    totalSolved,
+    rate: Math.round((solvedFirstAttempt / totalSolved) * 1000) / 10,
+  }
+}
+
+export function buildRankingHighlights(raw: WrappedRawData): RankingHighlights {
+  const { dashboard, homepageStats, period, submissions } = raw
+  const acceptedProblems = dashboard.stats.number_of_accepted_problems ?? 0
+  const userSubmissions = dashboard.stats.number_of_submissions ?? 0
+  const platformProblems = homepageStats.problems ?? 0
+  const platformSubmissions = homepageStats.submissions ?? 0
+
+  const items: RankingHighlight[] = []
+
+  const firstAttempt = computeFirstAttemptRate(submissions, period)
+  if (firstAttempt) {
+    items.push({
+      kind: "first_attempt",
+      percent: firstAttempt.rate,
+      numerator: firstAttempt.solvedFirstAttempt,
+      denominator: firstAttempt.totalSolved,
+    })
+  }
+
+  if (platformProblems > 0 && acceptedProblems > 0) {
+    items.push({
+      kind: "platform_problems",
+      percent: formatSharePercent(acceptedProblems, platformProblems, 3),
+      numerator: acceptedProblems,
+      denominator: platformProblems,
+    })
+  }
+
+  if (platformSubmissions > 0 && userSubmissions > 0) {
+    items.push({
+      kind: "platform_submissions",
+      percent: formatSharePercent(userSubmissions, platformSubmissions, 4),
+      numerator: userSubmissions,
+      denominator: platformSubmissions,
+    })
+  }
+
+  const verdictDist = dashboard.distributions.verdicts
+  const compileErrors = verdictDist.CE ?? 0
+  const judgedTotal =
+    Object.values(verdictDist).reduce((sum, count) => sum + count, 0) ||
+    userSubmissions
+  if (compileErrors > 0 && judgedTotal > 0) {
+    items.push({
+      kind: "compile_grief",
+      percent: Math.round((compileErrors / judgedTotal) * 1000) / 10,
+      numerator: compileErrors,
+      denominator: judgedTotal,
+    })
+  }
+
+  return { items }
+}
+
 function buildPersonalizedInsights(
   raw: WrappedRawData,
   journey: JourneyInsights,
@@ -786,6 +924,7 @@ function buildPersonalizedInsights(
     weekdayTitle,
     weekdaySubtitle,
     chronoEyebrow,
+    rhythmTitleKey: resolveRhythmTitleKey(weekday, chrono),
     rankingSubtitle,
     usersAheadText,
     heroMoment,
@@ -970,6 +1109,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
   const courseArc = buildCourseArcInsights(dashboard, tables, hexColors)
   const verdicts = buildVerdictInsights(dashboard, tables, hexColors)
   const rank = buildRankInsights(absoluteRanking, homepageStats)
+  const rankingHighlights = buildRankingHighlights(raw)
   const awards = buildAwardInsights(raw.awards, raw.period)
 
   return {
@@ -985,6 +1125,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     compilers,
     verdicts,
     rank,
+    rankingHighlights,
     awards,
     personalized: buildPersonalizedInsights(
       raw,

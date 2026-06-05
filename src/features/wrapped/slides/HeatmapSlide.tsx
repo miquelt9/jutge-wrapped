@@ -27,9 +27,7 @@ export function HeatmapSlide({ insights }: Props) {
   return (
     <StoryLayout
       align="start"
-      eyebrow={t("slides.heatmap.eyebrow")}
       title={personalized.heatmapTitle}
-      subtitle={personalized.heatmapSubtitle}
     >
       <div className="flex flex-col gap-4">
         <HeatmapStatSections heatmap={heatmap} layout={layoutVariant} />

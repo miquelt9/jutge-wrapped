@@ -22,7 +22,11 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
   const barMaxHeight = histogramBarMaxHeight(CHART_HEIGHT_PX)
 
   return (
-    <div className="w-full min-w-0">
+    <div
+      className="w-full min-w-0"
+      data-chart-interactive=""
+      onClick={(e) => e.stopPropagation()}
+    >
       <div
         className="border-jutge-border flex min-w-0 items-end justify-between gap-1 border-b px-1 sm:gap-2"
         style={{ height: CHART_HEIGHT_PX }}
@@ -44,7 +48,7 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
               onHover={setHoveredId}
             >
               <motion.div
-                className="w-full max-w-[56px] min-w-0 sm:min-w-[20px]"
+                className="w-full min-w-0"
                 style={{
                   backgroundColor: isPeak
                     ? "var(--jutge-green)"

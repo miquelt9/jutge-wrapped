@@ -26,15 +26,9 @@ export function IntroProfileCard({ raw, level, layout }: Props) {
       animate={fadeUpVisible()}
       transition={fadeUpTransition(reduceMotion, 0.08)}
     >
-      <div
-        className={`jutge-panel-body flex flex-col items-center gap-4 ${
-          layout === "wide" ? "sm:flex-row sm:items-center sm:gap-6" : "py-5"
-        }`}
-      >
+      <div className="jutge-panel-body flex flex-row items-center gap-4 py-4 sm:gap-6">
         <div
-          className={`border-jutge-border bg-jutge-panel shrink-0 overflow-hidden border ${
-            layout === "wide" ? "h-24 w-24 sm:h-32 sm:w-32" : "h-20 w-20"
-          }`}
+          className="border-jutge-border bg-jutge-panel h-24 w-24 shrink-0 overflow-hidden border sm:h-32 sm:w-32"
           style={{ borderRadius: 0 }}
         >
           {raw.avatarUrl ? (
@@ -51,9 +45,7 @@ export function IntroProfileCard({ raw, level, layout }: Props) {
             />
           )}
         </div>
-        <div
-          className={`min-w-0 ${layout === "wide" ? "text-center sm:text-left" : "text-center"}`}
-        >
+        <div className="min-w-0 text-left">
           <p className="text-jutge-muted text-xs font-bold uppercase">
             {t("slides.intro.judgeLevel")}
           </p>

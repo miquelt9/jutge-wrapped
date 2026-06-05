@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useLayoutVariant, type LayoutVariant } from "@/hooks/useLayoutVariant"
 
-const MIN_DONUT_PX = 220
-const MAX_DONUT_PX = 720
-const MAX_DONUT_PX_STACKED = 360
+const MIN_DONUT_PX_WIDE = 220
+const MAX_DONUT_PX_WIDE = 680
+const MIN_DONUT_PX_STACKED = 280
+const MAX_DONUT_PX_STACKED = 440
+const WIDE_SIZE_SCALE = 1
 
 type Props = {
   children: (displaySize: number) => ReactNode
@@ -16,8 +18,9 @@ export function DonutChartPanel({ children, variant: variantProp }: Props) {
   const layoutVariant = useLayoutVariant()
   const variant = variantProp ?? layoutVariant
   const ref = useRef<HTMLDivElement>(null)
-  const [displaySize, setDisplaySize] = useState(MIN_DONUT_PX)
-  const maxSize = variant === "wide" ? MAX_DONUT_PX : MAX_DONUT_PX_STACKED
+  const minSize = variant === "wide" ? MIN_DONUT_PX_WIDE : MIN_DONUT_PX_STACKED
+  const maxSize = variant === "wide" ? MAX_DONUT_PX_WIDE : MAX_DONUT_PX_STACKED
+  const [displaySize, setDisplaySize] = useState(minSize)
 
   useEffect(() => {
     const el = ref.current
@@ -25,8 +28,11 @@ export function DonutChartPanel({ children, variant: variantProp }: Props) {
 
     const measure = () => {
       const { width, height } = el.getBoundingClientRect()
-      const fit = Math.floor(Math.min(width, height))
-      setDisplaySize(Math.max(MIN_DONUT_PX, Math.min(fit, maxSize)))
+      const fit =
+        variant === "wide"
+          ? Math.floor(Math.min(width, height) * WIDE_SIZE_SCALE)
+          : Math.floor(width)
+      setDisplaySize(Math.max(minSize, Math.min(fit, maxSize)))
     }
 
     measure()
@@ -38,28 +44,20 @@ export function DonutChartPanel({ children, variant: variantProp }: Props) {
       observer.disconnect()
       window.removeEventListener("resize", measure)
     }
-  }, [maxSize])
+  }, [maxSize, minSize, variant])
 
   return (
     <div
-      className={`jutge-donut-panel ${
-        variant === "wide"
-          ? "jutge-donut-panel--hero"
-          : "jutge-donut-panel--stacked"
+      ref={ref}
+      className={`jutge-donut-panel-body w-full ${
+        variant === "wide" ? "jutge-donut-panel-body--hero" : ""
       }`}
     >
       <div
-        ref={ref}
-        className={`jutge-donut-panel-body ${
-          variant === "wide" ? "jutge-donut-panel-body--hero" : ""
-        }`}
+        className="mx-auto shrink-0"
+        style={{ width: displaySize, height: displaySize }}
       >
-        <div
-          className="mx-auto shrink-0"
-          style={{ width: displaySize, height: displaySize }}
-        >
-          {children(displaySize)}
-        </div>
+        {children(displaySize)}
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { Github, Info, Lock, LogIn, Shield } from "lucide-react"
 
 const GITHUB_REPO_URL = "https://github.com/miquelt9/jutge-wrapped"
 import { useAuth } from "@/context/AuthContext"
+import { AppVersionBadge } from "@/components/AppVersionBadge"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { NavControls } from "@/components/NavControls"
 import { SnapshotLoadButton } from "@/components/SnapshotLoadButton"
@@ -42,6 +43,7 @@ export function LoginPage() {
             <span className="hidden text-sm text-white/70 sm:inline">
               {t("common.wrapped")}
             </span>
+            <AppVersionBadge className="hidden text-xs text-white/45 sm:inline" />
           </div>
           <div className="jutge-nav-end">
             <NavControls onDark compact />

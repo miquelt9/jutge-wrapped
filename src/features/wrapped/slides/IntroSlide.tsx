@@ -15,7 +15,6 @@ export function IntroSlide({ raw, insights }: Props) {
     <StoryLayout
       eyebrow={t("slides.intro.eyebrow")}
       title={insights.displayName}
-      subtitle={insights.personalized.introSubtitle}
     >
       <IntroSlideBody raw={raw} insights={insights} />
     </StoryLayout>

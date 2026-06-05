@@ -79,12 +79,12 @@
       "submissions": "Enviaments",
       "acRate": "Taxa AC",
       "problemSuccessRate": "{{rate}}% dels problemes intentats van arribar a acceptació en aquest període.",
-      "avatarAlt": "Avatar de Jutge",
-      "mascotAlt": "Mascota de Jutge"
+      "avatarAlt": "Avatar del Jutge",
+      "mascotAlt": "Mascota del Jutge"
     },
     "heatmap": {
       "eyebrow": "Mapa d'activitat",
-      "title": "El joc llarg",
+      "title": "La teva activitat",
       "peakDay": "{{period}} · Dia pic: {{count}} el {{date}}.",
       "summary": "{{period}} · {{submissions}} en {{days}} dies actius.",
       "activeDays": "Dies actius",
@@ -111,12 +111,32 @@
       "peakHour": "Hora pic",
       "submissionsAtPeak": "{{count}} enviaments"
     },
+    "rhythm": {
+      "eyebrow": "Ritme del campus",
+      "subtitle": "Més actiu els {{peakDay}} · hora pic {{peakHour}}:00",
+      "subtitleWithQuietest": "Més actiu els {{peakDay}} (més tranquil: {{quietest}}) · hora pic {{peakHour}}:00",
+      "titles": {
+        "balancedGrinder": "Programador sense horari",
+        "nightOwl": "Gremlin de les 3 AM",
+        "earlyRiser": "Compila abans de l'esmorzar",
+        "eveningCoder": "Programador post-classe",
+        "afternoonOperator": "Llegenda del dinar",
+        "weekendWarrior": "Guerrer de cap de setmana",
+        "sundayScrambler": "Programador en pànic diumengera",
+        "saturdaySpecial": "Club d'enviaments del dissabte",
+        "fridayFinisher": "Programador de l’‘un AC més’ del divendres",
+        "mondayMenace": "Amenaça del dilluns al matí",
+        "midweekMachine": "Màquina de mig de setmana"
+      }
+    },
     "courseArc": {
-      "eyebrow": "Llenguatges i compiladors"
+      "eyebrow": "Llenguatges i compiladors",
+      "title": "Llenguatges i compiladors"
     },
     "verdict": {
       "eyebrow": "Distribució de veredictes",
-      "title": "El jutge ha parlat"
+      "title": "Distribució de veredictes",
+      "subtitle": "El jutge ha parlat"
     },
     "awards": {
       "eyebrow": "Vitrina de trofeus",
@@ -136,7 +156,7 @@
       "busiestDay": "Dia més actiu",
       "acRuns": "Execucions AC",
       "platformSubs": "Enviaments a la plataforma",
-      "judgeAlt": "Jutge de Jutge"
+      "judgeAlt": "Jutge del Jutge"
     },
     "share": {
       "eyebrow": "Comparteix el teu Wrapped",
@@ -154,7 +174,7 @@
       "nightOwl": "Noctàmbul",
       "earlyRiser": "Matiner",
       "eveningCoder": "Programador vespertí",
-      "afternoonOperator": "Operador de tarda"
+      "afternoonOperator": "Programador de tarda"
     },
     "narrativePeak": "El teu pic és cap a les {{hour}}:00 — un {{archetype}} en horari de campus.",
     "narrativeNight": "{{count}} enviaments entre mitjanit i les 5 AM."
@@ -181,8 +201,8 @@
     "subtitleFeatured": "Últim: {{title}} · {{date}}"
   },
   "rank": {
-    "eliteLabel": "Top {{percent}}% d'usuaris de Jutge",
-    "eliteLabelAnimated": "Top <0/>% d'usuaris de Jutge"
+    "eliteLabel": "Top {{percent}}% d'usuaris del Jutge",
+    "eliteLabelAnimated": "Top <0/>% d'usuaris del Jutge"
   },
   "personalization": {
     "intro": {
@@ -198,7 +218,7 @@
     },
     "ranking": {
       "subtitle": "{{period}} · {{elite}}",
-      "usersAhead": "Estàs per sobre de {{count}} de {{total}} usuaris de Jutge"
+      "usersAhead": "Estàs per sobre de {{count}} de {{total}} usuaris del Jutge"
     },
     "hero": {
       "label": "El teu problema destacat",
@@ -208,6 +228,28 @@
       "mostAttemptedDetail": "{{submissions}} en aquest període.",
       "firstAcHeadline": "Primer AC en aquest període: <0>{{problem}}</0>",
       "firstAcDetail": "{{submissions}} en aquest problema en total."
+    },
+    "rankingHighlights": {
+      "firstAttempt": {
+        "label": "Primer intent",
+        "headline": "Has resolt el {{percent}}% al primer intent",
+        "detail": "{{count}} de {{total}} problemes resolts"
+      },
+      "platformProblems": {
+        "label": "Cobertura de la plataforma",
+        "headline": "{{percent}}% dels problemes del Jutge",
+        "detail": "{{accepted}} de {{total}} problemes"
+      },
+      "platformSubmissions": {
+        "label": "Petjada d'enviaments",
+        "headline": "{{percent}}% dels enviaments del Jutge",
+        "detail": "{{yours}} de {{total}} enviaments"
+      },
+      "compileGrief": {
+        "label": "Dolor de compilació",
+        "headline": "El compilador t'ha cridat {{count}} vegades",
+        "detail": "{{percent}}% dels teus enviaments · Jutge no és el teu compilador"
+      }
     }
   },
   "weekdays": {
@@ -248,11 +290,11 @@
     "httpsRequired": "La compartició nativa només funciona amb HTTPS. Per provar-ho al mòbil en local, executa npm run dev:host. Els usuaris del lloc desplegat a GitHub Pages no veuran aquest missatge.",
     "copied": "Copiat!",
     "shared": "Compartit!",
+    "makeYours": "Fes el teu a {{url}}",
     "templates": {
       "intro": "El meu Jutge.org Wrapped! Nivell {{level}} ({{name}}). Acceptats: {{accepted}}, Enviaments: {{submissions}}, Percentatge AC: {{acRate}}%!",
       "heatmap": "El meu Jutge.org Wrapped! Dies actius: {{activeDays}}, Major ratxa: {{longestStreak}} dies!",
-      "weekday": "El meu Jutge.org Wrapped! Dia més actiu: {{busiestDay}}!",
-      "chrono": "El meu Jutge.org Wrapped! Hora punta: {{peakHour}}:00, Arquetip: {{archetype}}!",
+      "rhythm": "El meu Jutge.org Wrapped! Dia més actiu: {{busiestDay}}, hora punta {{peakHour}}:00 — {{archetype}}!",
       "course": "El meu Jutge.org Wrapped! Llenguatge principal: {{topLanguage}}!",
       "verdict": "El meu Jutge.org Wrapped! Enviaments AC: {{ac}} ({{acRate}}% d'acceptats)!",
       "awards": "El meu Jutge.org Wrapped! {{count}} premis — últim: {{title}}!",
@@ -267,11 +309,11 @@
   },
   "errors": {
     "unexpected": "S'ha produït un error inesperat.",
-    "network": "No s'ha pogut contactar amb l'API de Jutge. Sovint és per restriccions CORS del navegador o problemes de xarxa.",
+    "network": "No s'ha pogut contactar amb l'API del Jutge. Sovint és per restriccions CORS del navegador o problemes de xarxa.",
     "invalidRange": "L'interval de dates està invertit ({{start}} és posterior a {{end}}). Torna enrere i tria un interval vàlid.",
     "emptyRangeSnapshot": "Sense enviaments a {{label}}. Prova un interval més ampli o torna a exportar la instantània (npm run export:snapshot) amb l'historial complet.",
     "emptyRange": "No vas tenir enviaments a Jutge entre {{label}}. Tria un altre interval o selecciona Tot l'historial.",
-    "loadFailureEmpty": "No hem pogut carregar el teu historial d'enviaments des de Jutge. Torna-ho a provar o tria Tot l'historial.",
+    "loadFailureEmpty": "No hem pogut carregar el teu historial d'enviaments des del Jutge. Torna-ho a provar o tria Tot l'historial.",
     "loadFailure": "Alguna cosa ha fallat en carregar els teus enviaments. Torna-ho a provar o tria Tot l'historial."
   },
   "submission_one": "{{count}} enviament",

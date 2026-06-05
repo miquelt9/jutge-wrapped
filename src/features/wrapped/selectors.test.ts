@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest"
 import type { Award, Submission } from "@/api/client"
-import { buildAwardInsights, buildWrappedInsights, shuffleAwardsForDisplay } from "./selectors"
-import type { WrappedRawData } from "./types"
+import {
+  buildAwardInsights,
+  buildRankingHighlights,
+  buildWrappedInsights,
+  resolveRhythmTitleKey,
+  shuffleAwardsForDisplay,
+} from "./selectors"
+import type { ChronoInsights, WeekdayInsights, WrappedRawData } from "./types"
 
 function makeSubmission(
   timeIn: string,
@@ -46,7 +52,13 @@ const baseRaw = {
   },
   level: "P1",
   absoluteRanking: 42,
-  homepageStats: { users: 1000, submissions: 50000 },
+  homepageStats: {
+    users: 1000,
+    submissions: 50000,
+    problems: 4000,
+    exams: 0,
+    contests: 0,
+  },
   hexColors: {},
   tables: {
     compilers: { G__17: { name: "GNU C++17", language: "C++" } },
@@ -94,6 +106,167 @@ describe("buildWrappedInsights hero moment", () => {
     }
 
     expect(buildWrappedInsights(raw).personalized.heroMoment).toBeNull()
+  })
+})
+
+describe("buildRankingHighlights", () => {
+  it("computes first-attempt rate from submission history", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      dashboard: {
+        ...baseRaw.dashboard,
+        stats: {
+          number_of_submissions: 5,
+          number_of_accepted_problems: 2,
+          number_of_rejected_problems: 0,
+        },
+      },
+      homepageStats: {
+    users: 1000,
+    submissions: 50000,
+    problems: 4000,
+    exams: 0,
+    contests: 0,
+  },
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "P001",
+        }),
+        makeSubmission("2025-01-02T10:00:00Z", {
+          veredict: "WA",
+          problem_id: "P002",
+        }),
+        makeSubmission("2025-01-03T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "P002",
+        }),
+      ],
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(highlights.items).toContainEqual({
+      kind: "first_attempt",
+      percent: 50,
+      numerator: 1,
+      denominator: 2,
+    })
+  })
+
+  it("includes platform problem and submission shares", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      dashboard: {
+        ...baseRaw.dashboard,
+        stats: {
+          number_of_submissions: 100,
+          number_of_accepted_problems: 40,
+          number_of_rejected_problems: 0,
+        },
+      },
+      homepageStats: {
+    users: 1000,
+    submissions: 50000,
+    problems: 4000,
+    exams: 0,
+    contests: 0,
+  },
+      submissions: [
+        makeSubmission("2025-01-01T10:00:00Z", {
+          veredict: "AC",
+          problem_id: "P001",
+        }),
+      ],
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(highlights.items).toContainEqual({
+      kind: "platform_problems",
+      percent: 1,
+      numerator: 40,
+      denominator: 4000,
+    })
+    expect(highlights.items).toContainEqual({
+      kind: "platform_submissions",
+      percent: 0.2,
+      numerator: 100,
+      denominator: 50000,
+    })
+  })
+
+  it("preserves extra precision for tiny platform submission shares", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      dashboard: {
+        ...baseRaw.dashboard,
+        stats: {
+          number_of_submissions: 4,
+          number_of_accepted_problems: 1,
+          number_of_rejected_problems: 0,
+        },
+      },
+      homepageStats: {
+        users: 1000,
+        submissions: 500_000,
+        problems: 4000,
+        exams: 0,
+        contests: 0,
+      },
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(highlights.items).toContainEqual({
+      kind: "platform_submissions",
+      percent: 0.0008,
+      numerator: 4,
+      denominator: 500_000,
+    })
+  })
+
+  it("omits first-attempt card without submission history", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: undefined,
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(
+      highlights.items.some((item) => item.kind === "first_attempt"),
+    ).toBe(false)
+  })
+
+  it("includes compile grief when CE verdicts exist", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      dashboard: {
+        ...baseRaw.dashboard,
+        distributions: {
+          ...baseRaw.dashboard.distributions,
+          verdicts: { AC: 80, CE: 142, WA: 50 },
+        },
+      },
+    }
+
+    const highlights = buildRankingHighlights(raw)
+
+    expect(highlights.items).toContainEqual({
+      kind: "compile_grief",
+      percent: 52.2,
+      numerator: 142,
+      denominator: 272,
+    })
+  })
+
+  it("omits compile grief when there are no CE verdicts", () => {
+    const highlights = buildRankingHighlights(baseRaw)
+
+    expect(
+      highlights.items.some((item) => item.kind === "compile_grief"),
+    ).toBe(false)
   })
 })
 
@@ -215,5 +388,53 @@ describe("buildAwardInsights", () => {
 
     expect(insights.count).toBe(12)
     expect(insights.items).toHaveLength(10)
+  })
+})
+
+describe("resolveRhythmTitleKey", () => {
+  const chrono = {
+    archetypeKey: "afternoonOperator",
+    archetype: "Afternoon Coder",
+    nightSubmissions: 0,
+    peakHour: 15,
+    peakHourCount: 10,
+    hours: [],
+    narrative: "",
+  } satisfies ChronoInsights
+
+  it("prefers weekend warrior when most submissions land on Saturday and Sunday", () => {
+    const weekday = {
+      weekdays: [
+        { key: "monday", label: "Monday", count: 5, percent: 10 },
+        { key: "tuesday", label: "Tuesday", count: 5, percent: 10 },
+        { key: "wednesday", label: "Wednesday", count: 5, percent: 10 },
+        { key: "thursday", label: "Thursday", count: 5, percent: 10 },
+        { key: "friday", label: "Friday", count: 5, percent: 10 },
+        { key: "saturday", label: "Saturday", count: 12, percent: 24 },
+        { key: "sunday", label: "Sunday", count: 13, percent: 26 },
+      ],
+      peak: { key: "sunday", label: "Sunday", count: 13, percent: 26 },
+      quietest: { key: "monday", label: "Monday", count: 5, percent: 10 },
+    } satisfies WeekdayInsights
+
+    expect(resolveRhythmTitleKey(weekday, chrono)).toBe("weekendWarrior")
+  })
+
+  it("falls back to chrono archetype on weekday-heavy schedules", () => {
+    const weekday = {
+      weekdays: [
+        { key: "monday", label: "Monday", count: 4, percent: 10 },
+        { key: "tuesday", label: "Tuesday", count: 8, percent: 20 },
+        { key: "wednesday", label: "Wednesday", count: 10, percent: 25 },
+        { key: "thursday", label: "Thursday", count: 8, percent: 20 },
+        { key: "friday", label: "Friday", count: 6, percent: 15 },
+        { key: "saturday", label: "Saturday", count: 2, percent: 5 },
+        { key: "sunday", label: "Sunday", count: 2, percent: 5 },
+      ],
+      peak: { key: "wednesday", label: "Wednesday", count: 10, percent: 25 },
+      quietest: { key: "saturday", label: "Saturday", count: 2, percent: 5 },
+    } satisfies WeekdayInsights
+
+    expect(resolveRhythmTitleKey(weekday, chrono)).toBe("midweekMachine")
   })
 })

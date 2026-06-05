@@ -30,8 +30,7 @@ import {
 import { slidePanelTransition } from "@/components/motionPresets"
 import { IntroSlide } from "./slides/IntroSlide"
 import { HeatmapSlide } from "./slides/HeatmapSlide"
-import { WeekdaySlide } from "./slides/WeekdaySlide"
-import { ChronoSlide } from "./slides/ChronoSlide"
+import { RhythmSlide } from "./slides/RhythmSlide"
 import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
 import { AwardsSlide } from "./slides/AwardsSlide"
@@ -171,10 +170,8 @@ export function WrappedDeck() {
           return <IntroSlide key="intro" raw={raw} insights={insights} />
         case "heatmap":
           return <HeatmapSlide key="heatmap" insights={insights} />
-        case "weekday":
-          return <WeekdaySlide key="weekday" insights={insights} />
-        case "chrono":
-          return <ChronoSlide key="chrono" insights={insights} />
+        case "rhythm":
+          return <RhythmSlide key="rhythm" insights={insights} />
         case "course":
           return <CourseArcSlide key="course" insights={insights} />
         case "verdict":
@@ -182,13 +179,7 @@ export function WrappedDeck() {
         case "awards":
           return <AwardsSlide key="awards" insights={insights} />
         case "ranking":
-          return (
-            <RankingSlide
-              key="rank"
-              insights={insights}
-              homepageStats={raw.homepageStats}
-            />
-          )
+          return <RankingSlide key="rank" insights={insights} />
         default:
           return null
       }
@@ -391,7 +382,13 @@ export function WrappedDeck() {
         className="jutge-page relative flex h-full flex-col"
         onClick={(e) => {
           const target = e.target as HTMLElement
-          if (target.closest("header, footer, button, a, input, select")) return
+          if (
+            target.closest(
+              "header, footer, button, a, input, select, [data-chart-interactive], [data-histogram-column]",
+            )
+          ) {
+            return
+          }
           const mid = window.innerWidth / 2
           if (e.clientX > mid) next()
           else prev()
@@ -490,7 +487,7 @@ export function WrappedDeck() {
             <motion.div
               key={index}
               {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
-              className="absolute inset-0 overflow-x-hidden overflow-y-auto pb-32 sm:pb-0"
+              className="absolute inset-0 overflow-x-hidden overflow-y-auto"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -498,7 +495,7 @@ export function WrappedDeck() {
               <div
                 ref={slideCaptureRef}
                 data-slide-export={slideId}
-                className="bg-jutge-bg flex h-full min-h-full flex-col"
+                className="bg-jutge-bg flex min-h-full flex-col"
               >
                 {renderSlide(index)}
               </div>
