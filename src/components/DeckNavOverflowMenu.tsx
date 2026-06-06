@@ -112,7 +112,7 @@ export function DeckNavOverflowMenu({
       {open && (
         <div
           role="menu"
-          className="jutge-panel border-jutge-border absolute top-full right-0 z-50 mt-1 min-w-[14rem] overflow-hidden border py-1 shadow-lg"
+          className="jutge-panel border-jutge-border absolute top-full right-0 z-50 mt-1 max-w-[calc(100vw-2rem)] min-w-[17rem] overflow-hidden border py-1 shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
           <MenuActionRow
@@ -131,7 +131,7 @@ export function DeckNavOverflowMenu({
           />
           <MenuActionRow
             icon={<Calendar className="h-4 w-4 shrink-0" />}
-            label={t("deck.dates")}
+            label={t("deck.changeDates")}
             onClick={() => {
               onChangeDates()
               close()

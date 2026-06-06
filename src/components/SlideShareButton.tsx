@@ -1,4 +1,4 @@
-import { useEffect, useState, type MutableRefObject } from "react"
+import { useEffect, useRef, useState, type MutableRefObject } from "react"
 import { useTranslation } from "react-i18next"
 import { Share2, Loader2 } from "lucide-react"
 import { useCaptureExportLayout } from "@/context/SlideExportModeContext"
@@ -7,6 +7,7 @@ import {
   captureSlideImage,
   getSlideShareText,
   exportFilename,
+  isCaptureAbortError,
   type SlideId,
 } from "@/features/wrapped/shareExport"
 import type { WrappedInsights } from "@/features/wrapped/types"
@@ -35,6 +36,7 @@ export function SlideShareButton({
   const { t } = useTranslation()
   const { shareImage, isSharing, canShare } = useWebImageShare()
   const withExportLayout = useCaptureExportLayout()
+  const captureAbortRef = useRef<AbortController | null>(null)
   const [isBusy, setIsBusy] = useState(false)
   const [imageReady, setImageReady] = useState(() =>
     imageCacheRef.current.has(slideId),
@@ -52,7 +54,12 @@ export function SlideShareButton({
         window.clearInterval(id)
       }
     }, 250)
-    return () => window.clearInterval(id)
+    return () => {
+      window.clearInterval(id)
+      captureAbortRef.current?.abort()
+      captureAbortRef.current = null
+      setIsBusy(false)
+    }
   }, [slideId, imageCacheRef])
 
   function triggerDownload(imageUrl: string) {
@@ -67,10 +74,27 @@ export function SlideShareButton({
     if (cached) return cached
     const node = captureRef.current
     if (!node) return null
-    const dataUrl = await withExportLayout(() => captureSlideImage(node))
-    imageCacheRef.current.set(slideId, dataUrl)
-    setImageReady(true)
-    return dataUrl
+
+    captureAbortRef.current?.abort()
+    const controller = new AbortController()
+    captureAbortRef.current = controller
+
+    try {
+      const dataUrl = await withExportLayout(() =>
+        captureSlideImage(node, { signal: controller.signal }),
+      )
+      if (controller.signal.aborted) return null
+      imageCacheRef.current.set(slideId, dataUrl)
+      setImageReady(true)
+      return dataUrl
+    } catch (err) {
+      if (isCaptureAbortError(err)) return null
+      throw err
+    } finally {
+      if (captureAbortRef.current === controller) {
+        captureAbortRef.current = null
+      }
+    }
   }
 
   function handleClick() {
@@ -95,7 +119,11 @@ export function SlideShareButton({
       .then((imageUrl) => {
         if (imageUrl) triggerDownload(imageUrl)
       })
-      .catch((err) => console.error("Share/export failed:", err))
+      .catch((err) => {
+        if (!isCaptureAbortError(err)) {
+          console.error("Share/export failed:", err)
+        }
+      })
       .finally(() => setIsBusy(false))
   }
 

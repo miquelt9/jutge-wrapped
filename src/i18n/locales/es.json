@@ -222,7 +222,7 @@
   "personalization": {
     "intro": {
       "subtitle": "{{period}} · {{rate}}% de los problemas intentados llegaron a aceptación.",
-      "activity": "Activo en Jutge desde {{span}}."
+      "activity": "Tu Wrapped desde {{span}}."
     },
     "heatmap": {
       "titleStreak": "{{count}} seguidos",

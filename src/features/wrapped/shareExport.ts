@@ -121,6 +121,16 @@ export function dataUrlToPngFile(dataUrl: string, fileName: string): File {
   return new File([bytes], fileName, { type: mime })
 }
 
+export function isCaptureAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError"
+}
+
+function throwIfCaptureAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("Capture aborted", "AbortError")
+  }
+}
+
 /**
  * Capture a DOM node to a PNG data URL.
  *
@@ -131,12 +141,18 @@ export function dataUrlToPngFile(dataUrl: string, fileName: string): File {
  * embedding makes capture fast and reliable; the score font gracefully falls
  * back to the monospace stack defined in the CSS.
  */
-export async function captureSlideImage(node: HTMLElement): Promise<string> {
+export async function captureSlideImage(
+  node: HTMLElement,
+  options?: { signal?: AbortSignal },
+): Promise<string> {
+  throwIfCaptureAborted(options?.signal)
   const { toPng } = await import("html-to-image")
-  return toPng(node, {
+  const dataUrl = await toPng(node, {
     pixelRatio: 2,
     cacheBust: true,
     skipFonts: true,
     backgroundColor: getComputedStyle(node).backgroundColor || undefined,
   })
+  throwIfCaptureAborted(options?.signal)
+  return dataUrl
 }

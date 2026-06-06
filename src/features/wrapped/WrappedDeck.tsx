@@ -25,6 +25,7 @@ import {
   canShareFiles,
   captureSlideImage,
   getActiveSlideIds,
+  isCaptureAbortError,
   SLIDE_IDS,
   type SlideId,
 } from "./shareExport"
@@ -55,6 +56,7 @@ export function WrappedDeck() {
   const precomputeCaptureRef = useRef<HTMLDivElement>(null)
   const shareImageCacheRef = useRef<Map<SlideId, string>>(new Map())
   const shouldPrecomputeShareImages = useRef(canShareFiles())
+  const precomputeAbortRef = useRef<AbortController | null>(null)
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
   const [isPrecomputing, setIsPrecomputing] = useState(false)
   const loadingLine = t("deck.loadingLine")
@@ -146,12 +148,15 @@ export function WrappedDeck() {
   useEffect(() => {
     const currentSlideId = activeSlideIds[index]
     if (!currentSlideId) return
+    precomputeAbortRef.current?.abort()
+    precomputeAbortRef.current = null
     const currentImage = shareImageCacheRef.current.get(currentSlideId)
     shareImageCacheRef.current.clear()
     if (currentImage) {
       shareImageCacheRef.current.set(currentSlideId, currentImage)
     }
     setPrecomputeIndex(null)
+    setIsPrecomputing(false)
   }, [activeSlideIds, index])
 
   useEffect(() => {
@@ -192,6 +197,11 @@ export function WrappedDeck() {
     if (state.status !== "ready" || precomputeIndex === null) return
 
     let cancelled = false
+    const captureIndex = precomputeIndex
+    const abortController = new AbortController()
+    precomputeAbortRef.current?.abort()
+    precomputeAbortRef.current = abortController
+    const { signal } = abortController
     const idleWindow = window as Window & {
       requestIdleCallback?: (
         callback: IdleRequestCallback,
@@ -201,29 +211,41 @@ export function WrappedDeck() {
     }
 
     const runCapture = async () => {
+      if (signal.aborted || cancelled) return
+
       if (isTouchActiveRef.current) {
-        if (!cancelled) setPrecomputeIndex(null)
+        if (!signal.aborted && !cancelled) setPrecomputeIndex(null)
         return
       }
 
       const node = precomputeCaptureRef.current
-      const slideId = activeSlideIds[precomputeIndex]
+      const slideId = activeSlideIds[captureIndex]
       if (!node || !slideId) {
-        if (!cancelled) setPrecomputeIndex(null)
+        if (!signal.aborted && !cancelled) setPrecomputeIndex(null)
+        return
+      }
+
+      if (captureIndex !== index) {
+        setPrecomputeIndex(null)
         return
       }
 
       setIsPrecomputing(true)
       try {
-        const dataUrl = await captureSlideImage(node)
-        if (!cancelled) {
+        const dataUrl = await captureSlideImage(node, { signal })
+        if (!signal.aborted && !cancelled) {
           shareImageCacheRef.current.set(slideId, dataUrl)
         }
       } catch (err) {
-        console.error(`Failed to precompute share image for ${slideId}:`, err)
+        if (!isCaptureAbortError(err)) {
+          console.error(`Failed to precompute share image for ${slideId}:`, err)
+        }
       } finally {
-        if (!cancelled) {
-          setIsPrecomputing(false)
+        if (precomputeAbortRef.current === abortController) {
+          precomputeAbortRef.current = null
+        }
+        setIsPrecomputing(false)
+        if (!signal.aborted && !cancelled) {
           setPrecomputeIndex(null)
         }
       }
@@ -247,12 +269,14 @@ export function WrappedDeck() {
 
     return () => {
       cancelled = true
+      abortController.abort()
       if (idleId !== null && idleWindow.cancelIdleCallback)
         idleWindow.cancelIdleCallback(idleId)
       if (timeoutId !== null) window.clearTimeout(timeoutId)
     }
   }, [
     activeSlideIds,
+    index,
     isTouchActiveRef,
     precomputeIndex,
     showLoadingScreen,

@@ -75,10 +75,10 @@ export function IntroMetricDrilldownSheet({
           reduceMotion ? { opacity: 0 } : isWide ? { x: "100%" } : { y: "100%" }
         }
         transition={reduceMotion ? { duration: 0 } : springTransition}
-        className={`jutge-panel bg-jutge-panel flex min-h-0 w-full flex-col shadow-xl ${
+        className={`jutge-panel bg-jutge-panel flex w-full flex-col shadow-xl ${
           isWide
-            ? "h-full max-w-md border-l"
-            : "max-h-[min(75vh,100%)] rounded-t-xl border-b-0 pb-[env(safe-area-inset-bottom)]"
+            ? "h-full max-w-md border-l min-h-0"
+            : "h-auto max-h-[min(75vh,100%)] rounded-t-xl border-b-0 pb-[env(safe-area-inset-bottom)]"
         }`}
         onClick={(event) => event.stopPropagation()}
         role="dialog"

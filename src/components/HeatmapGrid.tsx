@@ -52,10 +52,15 @@ function monthLabelSpanPx(
 }
 
 function useHeatmapCellMetrics() {
-  const [metrics, setMetrics] = useState({
-    cellPx: CELL_PX_DESKTOP,
-    gapPx: CELL_GAP_PX_DESKTOP,
-    isMobile: false,
+  const [metrics, setMetrics] = useState(() => {
+    const isMobile =
+      typeof window !== "undefined" &&
+      window.matchMedia(HEATMAP_MOBILE_MEDIA).matches
+    return {
+      cellPx: isMobile ? CELL_PX_MOBILE : CELL_PX_DESKTOP,
+      gapPx: isMobile ? CELL_GAP_PX_MOBILE : CELL_GAP_PX_DESKTOP,
+      isMobile,
+    }
   })
 
   useEffect(() => {
@@ -74,7 +79,6 @@ function useHeatmapCellMetrics() {
               isMobile: false,
             },
       )
-    update()
     mq.addEventListener("change", update)
     return () => mq.removeEventListener("change", update)
   }, [])
