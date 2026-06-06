@@ -5,6 +5,7 @@ import { useCaptureExportLayout } from "@/context/SlideExportModeContext"
 import { useWebImageShare } from "@/hooks/useWebImageShare"
 import {
   captureSlideImage,
+  dataUrlToPngFile,
   getSlideShareText,
   exportFilename,
   isCaptureAbortError,
@@ -46,35 +47,28 @@ export function SlideShareButton({
   const withExportLayout = useCaptureExportLayout()
   const captureAbortRef = useRef<AbortController | null>(null)
   const [isBusy, setIsBusy] = useState(false)
-  const [imageReady, setImageReady] = useState(() =>
-    imageCacheRef.current.has(cacheKey),
-  )
 
   useEffect(() => {
-    if (imageCacheRef.current.has(cacheKey)) {
-      setImageReady(true)
-      return
-    }
-    setImageReady(false)
-    const id = window.setInterval(() => {
-      if (imageCacheRef.current.has(cacheKey)) {
-        setImageReady(true)
-        window.clearInterval(id)
-      }
-    }, 250)
     return () => {
-      window.clearInterval(id)
       captureAbortRef.current?.abort()
       captureAbortRef.current = null
       setIsBusy(false)
     }
-  }, [cacheKey, imageCacheRef])
+  }, [])
 
   function triggerDownload(imageUrl: string) {
+    const file = dataUrlToPngFile(
+      imageUrl,
+      exportFilename(username, slideId, awardsPage),
+    )
+    const objectUrl = URL.createObjectURL(file)
     const link = document.createElement("a")
-    link.download = exportFilename(username, slideId, awardsPage)
-    link.href = imageUrl
+    link.download = file.name
+    link.href = objectUrl
+    document.body.append(link)
     link.click()
+    link.remove()
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0)
   }
 
   async function captureForDownload() {
@@ -93,7 +87,6 @@ export function SlideShareButton({
       )
       if (controller.signal.aborted) return null
       imageCacheRef.current.set(cacheKey, dataUrl)
-      setImageReady(true)
       return dataUrl
     } catch (err) {
       if (isCaptureAbortError(err)) return null
@@ -148,15 +141,13 @@ export function SlideShareButton({
       ? "jutge-btn-default border-white/30 bg-transparent text-white hover:bg-white/10"
       : "jutge-btn-default"
 
-  const preparing = canShare && !imageReady
   const disabled = isBusy || isSharing
-  const showSpinner = disabled || preparing
-  const icon = showSpinner ? (
+  const icon = disabled ? (
     <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
   ) : (
     <Share2 className="h-4 w-4 shrink-0" />
   )
-  const label = showSpinner ? t("share.preparing") : t("share.shareSlide")
+  const label = disabled ? t("share.preparing") : t("share.shareSlide")
 
   return (
     <button
