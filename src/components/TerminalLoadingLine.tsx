@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useReducedMotion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import {
   charTypingDelay,
   hesitationPauseMs,

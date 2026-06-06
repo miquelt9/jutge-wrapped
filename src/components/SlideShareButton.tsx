@@ -8,16 +8,21 @@ import {
   getSlideShareText,
   exportFilename,
   isCaptureAbortError,
+  type ShareCacheKey,
   type SlideId,
+  type SlideShareTextOptions,
 } from "@/features/wrapped/shareExport"
 import type { WrappedInsights } from "@/features/wrapped/types"
 
 type Props = {
   slideId: SlideId
+  cacheKey: ShareCacheKey
   insights: WrappedInsights
   captureRef: React.RefObject<HTMLElement | null>
-  imageCacheRef: MutableRefObject<Map<SlideId, string>>
+  imageCacheRef: MutableRefObject<Map<ShareCacheKey, string>>
   username: string
+  shareTextOptions?: SlideShareTextOptions
+  awardsPage?: number
   className?: string
   variant?: "default" | "onDark"
   compact?: boolean
@@ -25,10 +30,13 @@ type Props = {
 
 export function SlideShareButton({
   slideId,
+  cacheKey,
   insights,
   captureRef,
   imageCacheRef,
   username,
+  shareTextOptions,
+  awardsPage,
   className = "",
   variant = "default",
   compact = false,
@@ -39,17 +47,17 @@ export function SlideShareButton({
   const captureAbortRef = useRef<AbortController | null>(null)
   const [isBusy, setIsBusy] = useState(false)
   const [imageReady, setImageReady] = useState(() =>
-    imageCacheRef.current.has(slideId),
+    imageCacheRef.current.has(cacheKey),
   )
 
   useEffect(() => {
-    if (imageCacheRef.current.has(slideId)) {
+    if (imageCacheRef.current.has(cacheKey)) {
       setImageReady(true)
       return
     }
     setImageReady(false)
     const id = window.setInterval(() => {
-      if (imageCacheRef.current.has(slideId)) {
+      if (imageCacheRef.current.has(cacheKey)) {
         setImageReady(true)
         window.clearInterval(id)
       }
@@ -60,17 +68,17 @@ export function SlideShareButton({
       captureAbortRef.current = null
       setIsBusy(false)
     }
-  }, [slideId, imageCacheRef])
+  }, [cacheKey, imageCacheRef])
 
   function triggerDownload(imageUrl: string) {
     const link = document.createElement("a")
-    link.download = exportFilename(username, slideId)
+    link.download = exportFilename(username, slideId, awardsPage)
     link.href = imageUrl
     link.click()
   }
 
   async function captureForDownload() {
-    const cached = imageCacheRef.current.get(slideId)
+    const cached = imageCacheRef.current.get(cacheKey)
     if (cached) return cached
     const node = captureRef.current
     if (!node) return null
@@ -84,7 +92,7 @@ export function SlideShareButton({
         captureSlideImage(node, { signal: controller.signal }),
       )
       if (controller.signal.aborted) return null
-      imageCacheRef.current.set(slideId, dataUrl)
+      imageCacheRef.current.set(cacheKey, dataUrl)
       setImageReady(true)
       return dataUrl
     } catch (err) {
@@ -101,15 +109,15 @@ export function SlideShareButton({
     if (isBusy || isSharing) return
 
     if (canShare) {
-      const imageUrl = imageCacheRef.current.get(slideId)
+      const imageUrl = imageCacheRef.current.get(cacheKey)
       if (!imageUrl) return
 
       setIsBusy(true)
       const title = t("common.brand") + " Wrapped"
-      const text = getSlideShareText(slideId, insights, t)
+      const text = getSlideShareText(slideId, insights, t, shareTextOptions)
       void shareImage(imageUrl, title, text, {
         clickTimestamp: Date.now(),
-        fileName: exportFilename(username, slideId),
+        fileName: exportFilename(username, slideId, awardsPage),
       }).finally(() => setIsBusy(false))
       return
     }
@@ -155,7 +163,7 @@ export function SlideShareButton({
     >
       {icon}
       <span
-        className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}
+        className={compact ? "inline" : undefined}
       >
         {label}
       </span>

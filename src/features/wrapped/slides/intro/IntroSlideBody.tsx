@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import {
   fadeUpHidden,
   fadeUpTransition,

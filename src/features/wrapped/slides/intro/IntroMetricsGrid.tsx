@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { ChevronRight, ThumbsDown, ThumbsUp, Send, Gavel } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { AnimatedCounter, AnimatedPercent } from "@/components/AnimatedCounter"
@@ -144,7 +145,7 @@ function MetricCard({
         aria-label={ariaLabel ?? label}
         className={`${className} group cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80`}
       >
-        <span className="block motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-110 motion-safe:group-focus-visible:scale-110">
+        <span className="block motion-safe:transition-transform motion-safe:duration-200">
           {icon}
         </span>
         <p className="mt-2 text-xs font-bold uppercase opacity-90 sm:mt-3">

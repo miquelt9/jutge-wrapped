@@ -318,6 +318,7 @@
       "course": "El meu Jutge.org Wrapped! Llenguatge principal: {{topLanguage}}!",
       "verdict": "El meu Jutge.org Wrapped! Enviaments AC: {{ac}} ({{acRate}}% d'acceptats)!",
       "awards": "El meu Jutge.org Wrapped! {{count}} premis — últim: {{title}}!",
+      "awardsPage": "En aquesta pàgina: {{titles}}",
       "ranking": "El meu Jutge.org Wrapped! {{elite}}!"
     }
   },

@@ -13,7 +13,26 @@ export const SLIDE_IDS = [
 
 export type SlideId = (typeof SLIDE_IDS)[number]
 
+export type ShareCacheKey = SlideId | `awards:${number}`
+
 export const WRAPPED_APP_URL = "https://miquelt9.github.io/jutge-wrapped/"
+
+export const AWARDS_PER_PAGE_STACKED = 5
+export const AWARDS_PER_PAGE_WIDE = 10
+
+export function getAwardsPerPage(isWide: boolean): number {
+  return isWide ? AWARDS_PER_PAGE_WIDE : AWARDS_PER_PAGE_STACKED
+}
+
+export function getShareCacheKey(
+  slideId: SlideId,
+  awardsPage?: number,
+): ShareCacheKey {
+  if (slideId === "awards" && awardsPage !== undefined) {
+    return `awards:${awardsPage}`
+  }
+  return slideId
+}
 
 export function getActiveSlideIds(insights: WrappedInsights): SlideId[] {
   if (insights.awards.count === 0) {
@@ -44,10 +63,16 @@ export function canShareFiles(): boolean {
   }
 }
 
+export type SlideShareTextOptions = {
+  awardsPage?: number
+  awardsPerPage?: number
+}
+
 function slideShareTemplate(
   slideId: SlideId,
   insights: WrappedInsights,
   t: TFunction,
+  options?: SlideShareTextOptions,
 ): string {
   switch (slideId) {
     case "intro":
@@ -78,11 +103,25 @@ function slideShareTemplate(
         ac: insights.verdicts.ac,
         acRate: insights.verdicts.acRate,
       })
-    case "awards":
-      return t("share.templates.awards", {
+    case "awards": {
+      const base = t("share.templates.awards", {
         count: insights.awards.count,
         title: insights.awards.featured?.title ?? "—",
       })
+      const { awardsPage, awardsPerPage } = options ?? {}
+      if (awardsPage === undefined || awardsPerPage === undefined) {
+        return base
+      }
+      const pageStart = awardsPage * awardsPerPage
+      const pageTitles = insights.awards.items
+        .slice(pageStart, pageStart + awardsPerPage)
+        .map((award) => award.title)
+      if (pageTitles.length === 0) return base
+      const pageLine = t("share.templates.awardsPage", {
+        titles: pageTitles.join(" · "),
+      })
+      return `${base}\n${pageLine}`
+    }
     case "ranking":
       return t("share.templates.ranking", {
         elite: insights.rank.eliteLabel,
@@ -96,19 +135,28 @@ export function getSlideShareText(
   slideId: SlideId,
   insights: WrappedInsights,
   t: TFunction,
+  options?: SlideShareTextOptions,
 ): string {
-  const template = slideShareTemplate(slideId, insights, t)
+  const template = slideShareTemplate(slideId, insights, t, options)
   const promo = t("share.makeYours", { url: WRAPPED_APP_URL })
   return `${template}\n\n${promo}`
 }
 
-export function exportFilename(username: string, slideId: SlideId): string {
+export function exportFilename(
+  username: string,
+  slideId: SlideId,
+  awardsPage?: number,
+): string {
   const safe =
     username
       .replace(/[^a-zA-Z0-9_-]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .slice(0, 40) || "user"
-  return `jutge-wrapped-${safe}-${slideId}.png`
+  const slidePart =
+    slideId === "awards" && awardsPage !== undefined
+      ? `${slideId}-p${awardsPage + 1}`
+      : slideId
+  return `jutge-wrapped-${safe}-${slidePart}.png`
 }
 
 /** Synchronous data-URL → File conversion (preserves user activation for navigator.share). */

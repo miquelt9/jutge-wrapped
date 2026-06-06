@@ -318,6 +318,7 @@
       "course": "¡Mi Jutge.org Wrapped! Lenguaje principal: {{topLanguage}}!",
       "verdict": "¡Mi Jutge.org Wrapped! Envíos AC: {{ac}} ({{acRate}}% de aceptados)!",
       "awards": "¡Mi Jutge.org Wrapped! {{count}} premios — último: {{title}}!",
+      "awardsPage": "En esta página: {{titles}}",
       "ranking": "¡Mi Jutge.org Wrapped! {{elite}}!"
     }
   },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { animate, useReducedMotion } from "framer-motion"
+import { animate } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { EASE_OUT } from "./motionPresets"
 
 const START_FRACTION = 0.12

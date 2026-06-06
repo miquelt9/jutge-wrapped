@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import {
   ArrowUp,
   Calendar,
@@ -21,13 +22,16 @@ import { NavControls } from "@/components/NavControls"
 import { TerminalLoadingLine } from "@/components/TerminalLoadingLine"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { useWrappedData } from "./useWrappedData"
+import { useLayoutVariant } from "@/hooks/useLayoutVariant"
 import {
   canShareFiles,
   captureSlideImage,
   getActiveSlideIds,
+  getAwardsPerPage,
+  getShareCacheKey,
   isCaptureAbortError,
   SLIDE_IDS,
-  type SlideId,
+  type ShareCacheKey,
 } from "./shareExport"
 import { slidePanelTransition } from "@/components/motionPresets"
 import { IntroSlide } from "./slides/IntroSlide"
@@ -50,11 +54,13 @@ export function WrappedDeck() {
   const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { state } = useWrappedData(client, period, snapshot)
   const [index, setIndex] = useState(0)
+  const [awardsPageIndex, setAwardsPageIndex] = useState(0)
   const slideDirectionRef = useRef<1 | -1>(1)
   const reduceMotion = useReducedMotion()
+  const layoutVariant = useLayoutVariant()
   const slideCaptureRef = useRef<HTMLDivElement>(null)
   const precomputeCaptureRef = useRef<HTMLDivElement>(null)
-  const shareImageCacheRef = useRef<Map<SlideId, string>>(new Map())
+  const shareImageCacheRef = useRef<Map<ShareCacheKey, string>>(new Map())
   const shouldPrecomputeShareImages = useRef(canShareFiles())
   const precomputeAbortRef = useRef<AbortController | null>(null)
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
@@ -116,7 +122,7 @@ export function WrappedDeck() {
   }, [next, prev])
 
   const renderSlide = useCallback(
-    (targetIndex: number) => {
+    (targetIndex: number, awardsPage: number) => {
       if (state.status !== "ready") return null
 
       const slideId = activeSlideIds[targetIndex]
@@ -135,7 +141,14 @@ export function WrappedDeck() {
         case "verdict":
           return <VerdictSlide key="verdict" insights={insights} />
         case "awards":
-          return <AwardsSlide key="awards" insights={insights} />
+          return (
+            <AwardsSlide
+              key={`awards-${awardsPage}`}
+              insights={insights}
+              pageIndex={awardsPage}
+              onPageIndexChange={setAwardsPageIndex}
+            />
+          )
         case "ranking":
           return <RankingSlide key="rank" insights={insights} />
         default:
@@ -147,17 +160,28 @@ export function WrappedDeck() {
 
   useEffect(() => {
     const currentSlideId = activeSlideIds[index]
+    if (currentSlideId !== "awards") {
+      setAwardsPageIndex(0)
+    }
+  }, [activeSlideIds, index])
+
+  useEffect(() => {
+    const currentSlideId = activeSlideIds[index]
     if (!currentSlideId) return
     precomputeAbortRef.current?.abort()
     precomputeAbortRef.current = null
-    const currentImage = shareImageCacheRef.current.get(currentSlideId)
+    const cacheKey = getShareCacheKey(
+      currentSlideId,
+      currentSlideId === "awards" ? awardsPageIndex : undefined,
+    )
+    const currentImage = shareImageCacheRef.current.get(cacheKey)
     shareImageCacheRef.current.clear()
     if (currentImage) {
-      shareImageCacheRef.current.set(currentSlideId, currentImage)
+      shareImageCacheRef.current.set(cacheKey, currentImage)
     }
     setPrecomputeIndex(null)
     setIsPrecomputing(false)
-  }, [activeSlideIds, index])
+  }, [activeSlideIds, awardsPageIndex, index])
 
   useEffect(() => {
     if (
@@ -171,7 +195,11 @@ export function WrappedDeck() {
 
     const currentSlideId = activeSlideIds[index]
     if (!currentSlideId) return
-    if (shareImageCacheRef.current.has(currentSlideId)) return
+    const cacheKey = getShareCacheKey(
+      currentSlideId,
+      currentSlideId === "awards" ? awardsPageIndex : undefined,
+    )
+    if (shareImageCacheRef.current.has(cacheKey)) return
 
     const delay = prefersCoarsePointer()
       ? MOBILE_PRECOMPUTE_DELAY_MS
@@ -179,13 +207,14 @@ export function WrappedDeck() {
 
     const scheduleTimer = window.setTimeout(() => {
       if (isTouchActiveRef.current) return
-      if (shareImageCacheRef.current.has(currentSlideId)) return
+      if (shareImageCacheRef.current.has(cacheKey)) return
       setPrecomputeIndex(index)
     }, delay)
 
     return () => window.clearTimeout(scheduleTimer)
   }, [
     activeSlideIds,
+    awardsPageIndex,
     index,
     isPrecomputing,
     isTouchActiveRef,
@@ -198,6 +227,7 @@ export function WrappedDeck() {
 
     let cancelled = false
     const captureIndex = precomputeIndex
+    const captureAwardsPage = awardsPageIndex
     const abortController = new AbortController()
     precomputeAbortRef.current?.abort()
     precomputeAbortRef.current = abortController
@@ -230,11 +260,21 @@ export function WrappedDeck() {
         return
       }
 
+      if (slideId === "awards" && captureAwardsPage !== awardsPageIndex) {
+        setPrecomputeIndex(null)
+        return
+      }
+
+      const cacheKey = getShareCacheKey(
+        slideId,
+        slideId === "awards" ? captureAwardsPage : undefined,
+      )
+
       setIsPrecomputing(true)
       try {
         const dataUrl = await captureSlideImage(node, { signal })
         if (!signal.aborted && !cancelled) {
-          shareImageCacheRef.current.set(slideId, dataUrl)
+          shareImageCacheRef.current.set(cacheKey, dataUrl)
         }
       } catch (err) {
         if (!isCaptureAbortError(err)) {
@@ -276,6 +316,7 @@ export function WrappedDeck() {
     }
   }, [
     activeSlideIds,
+    awardsPageIndex,
     index,
     isTouchActiveRef,
     precomputeIndex,
@@ -369,7 +410,7 @@ export function WrappedDeck() {
                 ref={precomputeCaptureRef}
                 className="bg-jutge-bg min-h-screen"
               >
-                {renderSlide(precomputeIndex)}
+                {renderSlide(precomputeIndex, awardsPageIndex)}
               </div>
             </div>
           </SlideExportModeProvider>
@@ -385,6 +426,15 @@ export function WrappedDeck() {
   const username =
     raw.profile.username ?? raw.profile.email.split("@")[0] ?? "user"
   const slideId = activeSlideIds[index]!
+  const shareCacheKey = getShareCacheKey(
+    slideId,
+    slideId === "awards" ? awardsPageIndex : undefined,
+  )
+  const awardsPerPage = getAwardsPerPage(layoutVariant === "wide")
+  const shareTextOptions =
+    slideId === "awards"
+      ? { awardsPage: awardsPageIndex, awardsPerPage }
+      : undefined
 
   return (
     <SlideExportModeProvider>
@@ -411,10 +461,15 @@ export function WrappedDeck() {
               <div className="flex items-center gap-1 sm:hidden">
                 <SlideShareButton
                   slideId={slideId}
+                  cacheKey={shareCacheKey}
                   insights={insights}
                   captureRef={slideCaptureRef}
                   imageCacheRef={shareImageCacheRef}
                   username={username}
+                  shareTextOptions={shareTextOptions}
+                  awardsPage={
+                    slideId === "awards" ? awardsPageIndex : undefined
+                  }
                   variant="onDark"
                   compact
                 />
@@ -435,10 +490,15 @@ export function WrappedDeck() {
                 <NavControls onDark compact />
                 <SlideShareButton
                   slideId={slideId}
+                  cacheKey={shareCacheKey}
                   insights={insights}
                   captureRef={slideCaptureRef}
                   imageCacheRef={shareImageCacheRef}
                   username={username}
+                  shareTextOptions={shareTextOptions}
+                  awardsPage={
+                    slideId === "awards" ? awardsPageIndex : undefined
+                  }
                   variant="onDark"
                   compact
                 />
@@ -453,13 +513,13 @@ export function WrappedDeck() {
                     e.stopPropagation()
                     clearPeriod()
                   }}
-                  aria-label={t("deck.dates")}
-                  title={t("deck.dates")}
+                  aria-label={t("deck.changeDates")}
+                  title={t("deck.changeDates")}
                   className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
                 >
                   <Calendar className="h-4 w-4 shrink-0" />
                   <span className="sr-only sm:not-sr-only sm:inline">
-                    {t("deck.dates")}
+                    {t("deck.changeDates")}
                   </span>
                 </button>
                 {isSnapshotMode ? (
@@ -517,7 +577,7 @@ export function WrappedDeck() {
                 data-slide-export={slideId}
                 className="bg-jutge-bg flex min-h-full flex-col"
               >
-                {renderSlide(index)}
+                {renderSlide(index, awardsPageIndex)}
               </div>
             </motion.div>
           </AnimatePresence>
@@ -592,7 +652,7 @@ export function WrappedDeck() {
                 ref={precomputeCaptureRef}
                 className="bg-jutge-bg min-h-screen"
               >
-                {renderSlide(precomputeIndex)}
+                {renderSlide(precomputeIndex, awardsPageIndex)}
               </div>
             </div>
           </SlideExportModeProvider>

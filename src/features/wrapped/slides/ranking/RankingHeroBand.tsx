@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { Trans, useTranslation } from "react-i18next"
 import { AnimatedDescendingPercent } from "@/components/AnimatedCounter"
 import {

@@ -318,6 +318,7 @@
       "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
       "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
       "awards": "My Jutge.org Wrapped! {{count}} awards — latest: {{title}}!",
+      "awardsPage": "On this page: {{titles}}",
       "ranking": "My Jutge.org Wrapped! {{elite}}!"
     }
   },

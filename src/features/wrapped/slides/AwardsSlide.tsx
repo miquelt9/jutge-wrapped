@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { getAwardsPerPage } from "../shareExport"
+import { motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { ChevronLeft, ChevronRight, Medal, Youtube } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { StaggerGroup, StaggerItem } from "@/components/StaggerReveal"
@@ -13,29 +15,38 @@ import { useLayoutVariant } from "@/hooks/useLayoutVariant"
 import { jutgeAwardUrl, jutgeProblemUrl, jutgeYoutubeUrl } from "../jutgeLinks"
 import type { AwardItem, WrappedInsights } from "../types"
 
-type Props = { insights: WrappedInsights }
+type Props = {
+  insights: WrappedInsights
+  pageIndex: number
+  onPageIndexChange: (page: number) => void
+}
 
-export function AwardsSlide({ insights }: Props) {
+export function AwardsSlide({
+  insights,
+  pageIndex,
+  onPageIndexChange,
+}: Props) {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
   const { awards } = insights
   const layoutVariant = useLayoutVariant()
   const isWide = layoutVariant === "wide"
-  const awardsPerPage = isWide ? 10 : 5
+  const awardsPerPage = getAwardsPerPage(isWide)
   const totalPages = Math.max(1, Math.ceil(awards.items.length / awardsPerPage))
-  const [pageIndex, setPageIndex] = useState(0)
 
   useEffect(() => {
-    setPageIndex((current) => Math.min(current, totalPages - 1))
-  }, [totalPages])
+    if (pageIndex > totalPages - 1) {
+      onPageIndexChange(Math.max(0, totalPages - 1))
+    }
+  }, [onPageIndexChange, pageIndex, totalPages])
 
   const pageStart = pageIndex * awardsPerPage
   const pageAwards = awards.items.slice(pageStart, pageStart + awardsPerPage)
   const canPaginate = totalPages > 1
 
-  const goPrev = () => setPageIndex((current) => Math.max(0, current - 1))
+  const goPrev = () => onPageIndexChange(Math.max(0, pageIndex - 1))
   const goNext = () =>
-    setPageIndex((current) => Math.min(totalPages - 1, current + 1))
+    onPageIndexChange(Math.min(totalPages - 1, pageIndex + 1))
 
   return (
     <StoryLayout

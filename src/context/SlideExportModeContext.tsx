@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
+import { useReducedMotion } from "framer-motion"
 
 type SlideExportModeContextValue = {
   exportMode: boolean
@@ -43,6 +44,13 @@ export function SlideExportModeProvider({
 
 export function useSlideExportMode(): boolean {
   return useContext(SlideExportModeContext).exportMode
+}
+
+/** Like framer-motion's useReducedMotion, but also true while capturing a share image. */
+export function useAppReducedMotion(): boolean {
+  const systemReducedMotion = useReducedMotion()
+  const { exportMode } = useContext(SlideExportModeContext)
+  return !!(systemReducedMotion || exportMode)
 }
 
 /** Briefly enables export layout (e.g. desktop heatmap) while capturing a share image. */

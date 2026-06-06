@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
+import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useLayoutVariant } from "@/hooks/useLayoutVariant"
