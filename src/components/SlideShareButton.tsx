@@ -105,20 +105,28 @@ export function SlideShareButton({
     }
   }
 
+  async function shareCapturedImage() {
+    setIsBusy(true)
+    try {
+      const imageUrl = await captureForDownload()
+      if (!imageUrl) return
+
+      const title = t("common.brand") + " Wrapped"
+      const text = getSlideShareText(slideId, insights, t, shareTextOptions)
+      await shareImage(imageUrl, title, text, {
+        clickTimestamp: Date.now(),
+        fileName: exportFilename(username, slideId, awardsPage),
+      })
+    } finally {
+      setIsBusy(false)
+    }
+  }
+
   function handleClick() {
     if (isBusy || isSharing) return
 
     if (canShare) {
-      const imageUrl = imageCacheRef.current.get(cacheKey)
-      if (!imageUrl) return
-
-      setIsBusy(true)
-      const title = t("common.brand") + " Wrapped"
-      const text = getSlideShareText(slideId, insights, t, shareTextOptions)
-      void shareImage(imageUrl, title, text, {
-        clickTimestamp: Date.now(),
-        fileName: exportFilename(username, slideId, awardsPage),
-      }).finally(() => setIsBusy(false))
+      void shareCapturedImage()
       return
     }
 
@@ -141,18 +149,19 @@ export function SlideShareButton({
       : "jutge-btn-default"
 
   const preparing = canShare && !imageReady
-  const busy = isBusy || isSharing || preparing
-  const icon = busy ? (
+  const disabled = isBusy || isSharing
+  const showSpinner = disabled || preparing
+  const icon = showSpinner ? (
     <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
   ) : (
     <Share2 className="h-4 w-4 shrink-0" />
   )
-  const label = busy ? t("share.preparing") : t("share.shareSlide")
+  const label = showSpinner ? t("share.preparing") : t("share.shareSlide")
 
   return (
     <button
       type="button"
-      disabled={busy}
+      disabled={disabled}
       onClick={(e) => {
         e.stopPropagation()
         handleClick()
