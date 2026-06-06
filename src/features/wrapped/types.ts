@@ -38,10 +38,21 @@ export type DistributionItem = {
 
 export type IntroMetricKind = "accepted" | "rejected" | "submissions"
 
+export type IntroProblemAward = {
+  awardId: string
+  title: string
+  iconUrl: string
+}
+
 export type IntroProblemItem = {
   problemId: string
   problemLabel: string
   problemTitle: string | null
+  submissionCount?: number
+  attemptsBeforeAc?: number
+  acceptedAtLabel?: string | null
+  lastVerdictLabel?: string | null
+  awards?: IntroProblemAward[]
 }
 
 export type IntroSubmissionItem = {

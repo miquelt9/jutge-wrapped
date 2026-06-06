@@ -136,7 +136,77 @@ describe("buildIntroMetricDrilldowns", () => {
     expect(drilldowns.submissions[1]?.verdictLabel).toBe("Wrong Answer")
     expect(drilldowns.submissions[1]?.problemTitle).toBe("Rejected only")
     expect(drilldowns.acceptedProblems[0]?.problemTitle).toBe("First problem")
+    expect(drilldowns.acceptedProblems[0]).toMatchObject({
+      submissionCount: 1,
+      attemptsBeforeAc: 0,
+    })
+    expect(drilldowns.acceptedProblems[1]).toMatchObject({
+      submissionCount: 1,
+      attemptsBeforeAc: 0,
+    })
+    expect(drilldowns.rejectedProblems[0]).toMatchObject({
+      problemId: "P003",
+      submissionCount: 1,
+      lastVerdictLabel: "Wrong Answer",
+    })
     expect(insights.journey.drilldowns).toEqual(drilldowns)
+  })
+
+  it("attaches period awards to accepted problems", () => {
+    const submissions = [
+      makeSubmission("2025-01-01T10:00:00Z", {
+        veredict: "AC",
+        problem_id: "P001",
+        submission_id: "sub-1",
+      }),
+    ]
+    const awards: Record<string, Award> = {
+      A1: {
+        award_id: "A1",
+        time: "2025-01-01T12:00:00Z",
+        type: "funs",
+        icon: "25.png",
+        title: "First blood",
+        info: "Nice one",
+        youtube: null,
+        submission: submissions[0]!,
+      },
+      A2: {
+        award_id: "A2",
+        time: "2024-01-01T12:00:00Z",
+        type: "funs",
+        icon: "26.png",
+        title: "Old award",
+        info: "Outside period",
+        youtube: null,
+        submission: submissions[0]!,
+      },
+    }
+    const period = {
+      start: "2025-01-01",
+      end: "2025-12-31",
+      label: "2025",
+    }
+
+    const drilldowns = buildIntroMetricDrilldowns(
+      submissions,
+      baseRaw.tables,
+      undefined,
+      awards,
+      period,
+    )
+
+    expect(drilldowns.acceptedProblems[0]?.awards).toEqual([
+      {
+        awardId: "A1",
+        title: "First blood",
+        iconUrl: "https://jutge.org/awards/funs/25.png",
+      },
+    ])
+    expect(drilldowns.acceptedProblems[0]).toMatchObject({
+      submissionCount: 1,
+      attemptsBeforeAc: 0,
+    })
   })
 })
 

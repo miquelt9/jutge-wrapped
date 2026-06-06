@@ -1,3 +1,5 @@
+import type { ThemeId } from "@/theme/themes"
+
 /** Jutge.org dashboard palette (style guide) */
 export const JUTGE = {
   bg: "#F8F8F8",
@@ -105,4 +107,82 @@ export function compilerColor(key: string, apiHex?: string): string {
   if (COMPILER_COLOR_OVERRIDES[key]) return COMPILER_COLOR_OVERRIDES[key]
   const base = apiHex ?? JUTGE.muted
   return ensureContrastOnLightBg(base)
+}
+
+/** Ordered palette for the compiler donut — index 0 is the dominant segment. */
+export const COMPILER_DONUT_PALETTES: Record<ThemeId, readonly string[]> = {
+  jutge: [
+    "#5cb85c",
+    "#337ab7",
+    "#f0ad4e",
+    "#d9534f",
+    "#8e44ad",
+    "#00a8ff",
+    "#16a085",
+  ],
+  fib: [
+    "#c5003e",
+    "#e05a76",
+    "#9c546a",
+    "#5c628c",
+    "#d9822b",
+    "#5c8c74",
+    "#7d5c8c",
+  ],
+  upc: [
+    "#0077c8",
+    "#00a896",
+    "#4c609c",
+    "#d9822b",
+    "#2e7d32",
+    "#d9534f",
+    "#8e44ad",
+  ],
+  dark: [
+    "#6dd47e",
+    "#6bb3ff",
+    "#ff6b6b",
+    "#ffc36b",
+    "#c39bd3",
+    "#4db6ac",
+    "#ff9f43",
+  ],
+}
+
+const COMPILER_DONUT_OVERFLOW_MIX: Record<ThemeId, string> = {
+  jutge: "#808080",
+  fib: "#b8a0a8",
+  upc: "#888888",
+  dark: "#3a3a3a",
+}
+
+function mixRgb(
+  a: [number, number, number],
+  b: [number, number, number],
+  t: number,
+): [number, number, number] {
+  const blend = Math.min(Math.max(t, 0), 1)
+  return [
+    Math.round(a[0] * (1 - blend) + b[0] * blend),
+    Math.round(a[1] * (1 - blend) + b[1] * blend),
+    Math.round(a[2] * (1 - blend) + b[2] * blend),
+  ]
+}
+
+/**
+ * Theme-aware compiler donut color by sorted rank (0 = largest slice).
+ * Cycles the palette and mutes each lap so overflow compilers stay distinct.
+ */
+export function compilerDonutColor(theme: ThemeId, index: number): string {
+  const palette = COMPILER_DONUT_PALETTES[theme]
+  const lap = Math.floor(index / palette.length)
+  const base = palette[index % palette.length] ?? JUTGE.muted
+  if (lap === 0) return base
+
+  const parsed = parseHex(base)
+  const mixTarget = parseHex(COMPILER_DONUT_OVERFLOW_MIX[theme])
+  if (!parsed || !mixTarget) return base
+
+  const t = Math.min(0.16 + (lap - 1) * 0.12, 0.52)
+  return toHex(mixRgb(parsed, mixTarget, t))
 }

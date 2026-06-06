@@ -72,7 +72,12 @@ function AbsoluteRankLabel({
     <Trans
       i18nKey="rank.absoluteRankAnimated"
       components={[
-        <AnimatedCounter key="rank" value={rank} locale={locale} />,
+        <AnimatedCounter
+          key="rank"
+          value={rank}
+          locale={locale}
+          className="text-inherit"
+        />,
       ]}
     />
   )

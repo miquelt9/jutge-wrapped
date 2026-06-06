@@ -70,6 +70,7 @@ function EliteLabel({ percent }: { percent: number }) {
           key="percent"
           value={percent}
           showSuffix={false}
+          className="text-inherit"
         />,
       ]}
     />

@@ -52,8 +52,9 @@ export function WeekdayHistogram({ days, peakKey }: Props) {
                 className="w-full min-w-0"
                 style={{
                   backgroundColor: isPeak
-                    ? "var(--jutge-green)"
+                    ? "var(--jutge-heatmap-active)"
                     : "var(--jutge-blue)",
+                  opacity: isPeak ? 1 : 0.4,
                   borderRadius: 0,
                 }}
                 initial={{ height: reduceMotion ? barHeight : 0 }}

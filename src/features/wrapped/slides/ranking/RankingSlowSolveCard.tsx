@@ -36,7 +36,7 @@ export function RankingSlowSolveCard({
           <Trans
             i18nKey="personalization.slowSolve.headline"
             values={{
-              problem: slowSolve.problemLabel,
+              problem: slowSolve.problemId,
               duration: slowSolve.durationLabel,
             }}
             components={[
@@ -47,6 +47,7 @@ export function RankingSlowSolveCard({
                 rel="noopener noreferrer"
                 className="text-jutge-blue hover:underline"
               />,
+              <span key="1" className="font-bold text-jutge-blue" />,
             ]}
           />
         </p>

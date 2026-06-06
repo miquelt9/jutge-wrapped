@@ -15,6 +15,12 @@ const HERO_HEADLINE_KEYS = {
   first_ac: "personalization.hero.firstAcHeadline",
 } as const
 
+const HERO_DETAIL_KEYS = {
+  grind: "personalization.hero.grindDetail",
+  most_attempted: "personalization.hero.mostAttemptedDetail",
+  first_ac: "personalization.hero.firstAcDetail",
+} as const
+
 type Props = {
   hero: HeroMomentInsight
   animationDelay?: number
@@ -50,7 +56,12 @@ export function IntroHeroMoment({ hero, animationDelay = 0.22 }: Props) {
             ]}
           />
         </p>
-        <p className="text-jutge-muted mt-1 text-sm">{hero.detail}</p>
+        <p className="text-jutge-muted mt-1 text-sm">
+          {t(HERO_DETAIL_KEYS[hero.kind], {
+            attempts: hero.attemptsBeforeAc,
+            submissions: t("submission", { count: hero.submissionCount }),
+          })}
+        </p>
       </div>
     </motion.div>
   )

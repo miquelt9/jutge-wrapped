@@ -1,8 +1,12 @@
 # Jutge Wrapped
 
-A Spotify Wrapped–style recap for [Jutge.org](https://jutge.org) students. Fully client-side: log in with your Jutge credentials, and your stats are fetched directly from `api.jutge.org` in the browser.
+A Spotify Wrapped–style recap for [Jutge.org](https://jutge.org) students. Fully client-side: log in with your Jutge credentials, and your stats are fetched directly from the [Jutge API](https://api.jutge.org/api) in the browser.
 
 This is an unofficial fan project and is not affiliated with Jutge.org or the UPC.
+
+## Jutge API
+
+All live data comes from the official [Jutge API](https://api.jutge.org/api) (`api.jutge.org`) — the same backend that powers the Jutge website. The app calls it directly from the browser; there is no separate server or data store.
 
 ## Stack
 

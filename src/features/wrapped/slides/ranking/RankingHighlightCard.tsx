@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import {
   fadeUpHidden,
   fadeUpTransition,
@@ -77,7 +77,11 @@ export function RankingHighlightCard({
           {t(LABEL_KEYS[kind])}
         </p>
         <p className="jutge-score text-jutge-text mt-1 text-lg">
-          {t(HEADLINE_KEYS[kind], { percent: percentLabel, count: numerator })}
+          <Trans
+            i18nKey={HEADLINE_KEYS[kind]}
+            values={{ percent: percentLabel, count: numerator }}
+            components={[<span key="0" className="font-bold text-jutge-blue" />]}
+          />
         </p>
         <p className="text-jutge-muted mt-1 text-sm">
           {t(DETAIL_KEYS[kind], {

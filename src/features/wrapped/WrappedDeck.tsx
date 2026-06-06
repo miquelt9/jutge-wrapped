@@ -35,7 +35,8 @@ import {
 } from "./shareExport"
 import { slidePanelTransition } from "@/components/motionPresets"
 import { IntroSlide } from "./slides/IntroSlide"
-import { HeatmapSlide } from "./slides/HeatmapSlide"
+import { HeatmapStatsSlide } from "./slides/HeatmapStatsSlide"
+import { HeatmapCalendarSlide } from "./slides/HeatmapCalendarSlide"
 import { RhythmSlide } from "./slides/RhythmSlide"
 import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
@@ -133,8 +134,12 @@ export function WrappedDeck() {
       switch (slideId) {
         case "intro":
           return <IntroSlide key="intro" raw={raw} insights={insights} />
-        case "heatmap":
-          return <HeatmapSlide key="heatmap" insights={insights} />
+        case "heatmap_stats":
+          return <HeatmapStatsSlide key="heatmap_stats" insights={insights} />
+        case "heatmap_calendar":
+          return (
+            <HeatmapCalendarSlide key="heatmap_calendar" insights={insights} />
+          )
         case "rhythm":
           return <RhythmSlide key="rhythm" insights={insights} />
         case "course":

@@ -27,7 +27,7 @@ export function RhythmSlide({ insights }: Props) {
 
   const weekdayAside =
     peak != null ? (
-      <div className="jutge-metric-green flex flex-col justify-center p-6">
+      <div className="jutge-metric-primary flex flex-col justify-center p-6">
         <p className="text-xs font-bold uppercase opacity-90">
           {t("slides.weekday.busiestDay")}
         </p>
@@ -55,13 +55,13 @@ export function RhythmSlide({ insights }: Props) {
         {t("slides.chrono.chartHeading")}
       </div>
       <div className="jutge-chart-panel-body">
-        <ChronoHistogram hours={chrono.hours} />
+        <ChronoHistogram hours={chrono.hours} peakHour={chrono.peakHour} />
       </div>
     </div>
   )
 
   const chronoAside = (
-    <div className="jutge-metric-blue p-6">
+    <div className="jutge-metric-primary p-6">
       <p className="text-xs font-bold uppercase opacity-90">
         {t("slides.chrono.peakHour")}
       </p>

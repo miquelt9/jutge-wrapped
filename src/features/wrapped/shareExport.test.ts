@@ -56,7 +56,8 @@ const awardsInsights = {
 describe("getShareCacheKey", () => {
   it("returns slide id for non-awards slides", () => {
     expect(getShareCacheKey("intro")).toBe("intro")
-    expect(getShareCacheKey("heatmap")).toBe("heatmap")
+    expect(getShareCacheKey("heatmap_stats")).toBe("heatmap_stats")
+    expect(getShareCacheKey("heatmap_calendar")).toBe("heatmap_calendar")
   })
 
   it("returns awards page key when awards page is provided", () => {

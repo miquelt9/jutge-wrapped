@@ -1,14 +1,15 @@
-import { useEffect } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { motion } from "framer-motion"
 import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
-import { X } from "lucide-react"
+import { Medal, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useLayoutVariant } from "@/hooks/useLayoutVariant"
-import { jutgeProblemUrl } from "../../jutgeLinks"
+import { jutgeAwardUrl, jutgeProblemUrl } from "../../jutgeLinks"
 import type {
   IntroMetricDrilldowns,
   IntroMetricKind,
+  IntroProblemAward,
   IntroProblemItem,
   IntroSubmissionItem,
 } from "../../types"
@@ -117,13 +118,13 @@ export function IntroMetricDrilldownSheet({
           ) : kind === "submissions" ? (
             <ul className="divide-jutge-border divide-y">
               {(items as IntroSubmissionItem[]).map((item) => (
-                <SubmissionRow key={item.submissionId} item={item} />
+                <SubmissionRow key={item.submissionId} item={item} isWide={isWide} />
               ))}
             </ul>
           ) : (
             <ul className="divide-jutge-border divide-y">
               {(items as IntroProblemItem[]).map((item) => (
-                <ProblemRow key={item.problemId} item={item} />
+                <ProblemRow key={item.problemId} item={item} kind={kind} isWide={isWide} />
               ))}
             </ul>
           )}
@@ -149,31 +150,143 @@ function getItemsForKind(
   }
 }
 
-function ProblemTitleDetail({ title }: { title: string }) {
+function ProblemMetaDetail({
+  children,
+  isWide,
+}: {
+  children: ReactNode
+  isWide: boolean
+}) {
   return (
-    <p className="text-jutge-muted mt-0.5 line-clamp-2 text-xs leading-relaxed">
-      {title}
+    <p
+      className={`text-jutge-muted mt-0.5 leading-relaxed ${
+        isWide ? "text-xs sm:text-sm" : "text-xs"
+      }`}
+    >
+      {children}
     </p>
   )
 }
 
-function ProblemRow({ item }: { item: IntroProblemItem }) {
+function ProblemRow({
+  item,
+  kind,
+  isWide,
+}: {
+  item: IntroProblemItem
+  kind: IntroMetricKind
+  isWide: boolean
+}) {
+  const { t } = useTranslation()
+  const displayName = item.problemTitle ?? item.problemLabel
+
   return (
     <li className="px-1 py-3">
       <a
         href={jutgeProblemUrl(item.problemId)}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-jutge-blue hover:bg-jutge-border/40 block text-sm font-semibold no-underline hover:underline"
+        className={`text-jutge-blue hover:bg-jutge-border/40 block font-semibold no-underline hover:underline ${
+          isWide ? "text-sm sm:text-base" : "text-sm"
+        }`}
       >
-        {item.problemLabel}
+        {displayName}
       </a>
-      {item.problemTitle && <ProblemTitleDetail title={item.problemTitle} />}
+      {item.problemTitle && (
+        <ProblemMetaDetail isWide={isWide}>
+          {t("slides.intro.drilldown.problemId", { id: item.problemLabel })}
+        </ProblemMetaDetail>
+      )}
+      {kind === "accepted" && item.submissionCount != null && (
+        <ProblemMetaDetail isWide={isWide}>
+          {item.attemptsBeforeAc === 0
+            ? t("slides.intro.drilldown.acceptedFirstTry", {
+                submissions: t("submission", { count: item.submissionCount }),
+              })
+            : t("slides.intro.drilldown.acceptedMeta", {
+                submissions: t("submission", { count: item.submissionCount }),
+                attempts: item.attemptsBeforeAc ?? 0,
+              })}
+          {item.acceptedAtLabel
+            ? ` · ${t("slides.intro.drilldown.acceptedOn", {
+                date: item.acceptedAtLabel,
+              })}`
+            : null}
+        </ProblemMetaDetail>
+      )}
+      {kind === "rejected" && item.submissionCount != null && (
+        <ProblemMetaDetail isWide={isWide}>
+          {item.lastVerdictLabel
+            ? t("slides.intro.drilldown.rejectedMeta", {
+                submissions: t("submission", { count: item.submissionCount }),
+                verdict: item.lastVerdictLabel,
+              })
+            : t("submission", { count: item.submissionCount })}
+        </ProblemMetaDetail>
+      )}
+      {kind === "accepted" && item.awards && item.awards.length > 0 && (
+        <ul className="mt-2 flex flex-col gap-1.5">
+          {item.awards.map((award) => (
+            <ProblemAwardRow key={award.awardId} award={award} isWide={isWide} />
+          ))}
+        </ul>
+      )}
     </li>
   )
 }
 
-function SubmissionRow({ item }: { item: IntroSubmissionItem }) {
+function ProblemAwardRow({
+  award,
+  isWide,
+}: {
+  award: IntroProblemAward
+  isWide: boolean
+}) {
+  const { t } = useTranslation()
+  const [iconFailed, setIconFailed] = useState(false)
+
+  return (
+    <li>
+      <a
+        href={jutgeAwardUrl(award.awardId)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`text-jutge-blue hover:bg-jutge-border/40 flex items-center gap-2 rounded-sm no-underline hover:underline ${
+          isWide ? "text-xs sm:text-sm" : "text-xs"
+        }`}
+      >
+        {iconFailed ? (
+          <span
+            className="border-jutge-border bg-jutge-panel flex h-5 w-5 shrink-0 items-center justify-center border"
+            aria-hidden
+          >
+            <Medal className="text-jutge-blue h-3 w-3" />
+          </span>
+        ) : (
+          <img
+            src={award.iconUrl}
+            alt=""
+            className="h-5 w-5 shrink-0 object-contain"
+            onError={() => setIconFailed(true)}
+          />
+        )}
+        <span className="min-w-0 leading-snug font-medium">
+          {t("slides.intro.drilldown.awardForProblem", { title: award.title })}
+        </span>
+      </a>
+    </li>
+  )
+}
+
+function SubmissionRow({
+  item,
+  isWide,
+}: {
+  item: IntroSubmissionItem
+  isWide: boolean
+}) {
+  const displayName = item.problemTitle ?? item.problemLabel
+
   return (
     <li className="flex items-start justify-between gap-3 px-1 py-3">
       <div className="min-w-0">
@@ -181,14 +294,22 @@ function SubmissionRow({ item }: { item: IntroSubmissionItem }) {
           href={jutgeProblemUrl(item.problemId)}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-jutge-blue block truncate text-sm font-semibold no-underline hover:underline"
+          className={`text-jutge-blue block truncate font-semibold no-underline hover:underline ${
+            isWide ? "text-sm sm:text-base" : "text-sm"
+          }`}
         >
-          {item.problemLabel}
+          {displayName}
         </a>
-        {item.problemTitle && <ProblemTitleDetail title={item.problemTitle} />}
-        <p className="text-jutge-muted mt-0.5 text-xs">{item.timeLabel}</p>
+        {item.problemTitle && (
+          <ProblemMetaDetail isWide={isWide}>{item.problemLabel}</ProblemMetaDetail>
+        )}
+        <ProblemMetaDetail isWide={isWide}>{item.timeLabel}</ProblemMetaDetail>
       </div>
-      <span className="text-jutge-text shrink-0 text-xs font-bold uppercase">
+      <span
+        className={`text-jutge-text shrink-0 font-bold uppercase ${
+          isWide ? "text-xs sm:text-sm" : "text-xs"
+        }`}
+      >
         {item.verdictLabel}
       </span>
     </li>

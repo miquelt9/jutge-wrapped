@@ -3,7 +3,8 @@ import type { WrappedInsights } from "./types"
 
 export const SLIDE_IDS = [
   "intro",
-  "heatmap",
+  "heatmap_stats",
+  "heatmap_calendar",
   "rhythm",
   "course",
   "verdict",
@@ -84,10 +85,15 @@ function slideShareTemplate(
         submissions: insights.journey.totalSubmissions,
         acRate: insights.verdicts.acRate,
       })
-    case "heatmap":
-      return t("share.templates.heatmap", {
+    case "heatmap_stats":
+      return t("share.templates.heatmap_stats", {
         activeDays: insights.heatmap.totalActiveDays,
         longestStreak: insights.heatmap.longestStreak,
+      })
+    case "heatmap_calendar":
+      return t("share.templates.heatmap_calendar", {
+        activeDays: insights.heatmap.totalActiveDays,
+        submissions: insights.heatmap.totalSubmissions,
       })
     case "rhythm":
       return t("share.templates.rhythm", {

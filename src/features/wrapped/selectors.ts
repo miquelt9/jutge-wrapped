@@ -39,6 +39,7 @@ import type {
   HeroMomentInsight,
   HeroMomentKind,
   IntroMetricDrilldowns,
+  IntroProblemAward,
   IntroProblemItem,
   IntroSubmissionItem,
   JourneyInsights,
@@ -394,31 +395,129 @@ function toIntroProblemItem(
   }
 }
 
+function buildAwardsByProblem(
+  awards: Record<string, Award> | undefined,
+  period: WrappedPeriod | undefined,
+  acceptedProblemIds: Set<string>,
+): Map<string, IntroProblemAward[]> {
+  const byProblem = new Map<string, IntroProblemAward[]>()
+  if (!awards || !period) return byProblem
+
+  for (const award of Object.values(awards)) {
+    if (!awardInPeriod(award, period)) continue
+    const problemId = award.submission?.problem_id
+    if (!problemId || !acceptedProblemIds.has(problemId)) continue
+
+    const list = byProblem.get(problemId) ?? []
+    list.push({
+      awardId: award.award_id,
+      title: award.title,
+      iconUrl: jutgeAwardIconUrl(award.icon, award.type),
+    })
+    byProblem.set(problemId, list)
+  }
+
+  for (const [problemId, list] of byProblem) {
+    byProblem.set(
+      problemId,
+      [...list].sort((a, b) => a.title.localeCompare(b.title)),
+    )
+  }
+
+  return byProblem
+}
+
+function latestSubmissionForProblem(
+  submissions: Submission[],
+  problemId: string,
+): Submission | null {
+  let latest: Submission | null = null
+  for (const sub of submissions) {
+    if (sub.problem_id !== problemId) continue
+    if (!latest || submissionTimeMs(sub) > submissionTimeMs(latest)) {
+      latest = sub
+    }
+  }
+  return latest
+}
+
+function firstAcceptedSubmission(submissions: Submission[]): Submission | null {
+  let earliest: Submission | null = null
+  for (const sub of submissions) {
+    if (!isAcceptedVerdict(sub.veredict)) continue
+    if (!earliest || submissionTimeMs(sub) < submissionTimeMs(earliest)) {
+      earliest = sub
+    }
+  }
+  return earliest
+}
+
+function attemptsBeforeFirstAc(submissions: Submission[]): number {
+  const sorted = [...submissions].sort(
+    (a, b) => submissionTimeMs(a) - submissionTimeMs(b),
+  )
+  const firstAcIdx = sorted.findIndex((sub) => isAcceptedVerdict(sub.veredict))
+  return firstAcIdx >= 0 ? firstAcIdx : 0
+}
+
 export function buildIntroMetricDrilldowns(
   submissions: Submission[] | undefined,
   tables: AllTables | undefined,
   problemTitles?: Record<string, string>,
+  awards?: Record<string, Award>,
+  period?: WrappedPeriod,
 ): IntroMetricDrilldowns {
   if (!submissions?.length) return EMPTY_INTRO_DRILLDOWNS
 
   const problemsWithAc = new Set<string>()
   const problemsAttempted = new Set<string>()
+  const submissionsByProblem = new Map<string, Submission[]>()
 
   for (const sub of submissions) {
     problemsAttempted.add(sub.problem_id)
     if (isAcceptedVerdict(sub.veredict)) {
       problemsWithAc.add(sub.problem_id)
     }
+    const list = submissionsByProblem.get(sub.problem_id) ?? []
+    list.push(sub)
+    submissionsByProblem.set(sub.problem_id, list)
   }
+
+  const awardsByProblem = buildAwardsByProblem(awards, period, problemsWithAc)
 
   const acceptedProblems = [...problemsWithAc]
     .sort((a, b) => a.localeCompare(b))
-    .map((problemId) => toIntroProblemItem(problemId, problemTitles))
+    .map((problemId) => {
+      const item = toIntroProblemItem(problemId, problemTitles)
+      const problemSubs = submissionsByProblem.get(problemId) ?? []
+      const firstAc = firstAcceptedSubmission(problemSubs)
+      const problemAwards = awardsByProblem.get(problemId)
+      return {
+        ...item,
+        submissionCount: problemSubs.length,
+        attemptsBeforeAc: attemptsBeforeFirstAc(problemSubs),
+        acceptedAtLabel: firstAc
+          ? formatSubmissionTime(firstAc.time_in)
+          : null,
+        ...(problemAwards?.length ? { awards: problemAwards } : {}),
+      }
+    })
 
   const rejectedProblems = [...problemsAttempted]
     .filter((problemId) => !problemsWithAc.has(problemId))
     .sort((a, b) => a.localeCompare(b))
-    .map((problemId) => toIntroProblemItem(problemId, problemTitles))
+    .map((problemId) => {
+      const item = toIntroProblemItem(problemId, problemTitles)
+      const problemSubs = submissionsByProblem.get(problemId) ?? []
+      const latest = latestSubmissionForProblem(problemSubs, problemId)
+      return {
+        ...item,
+        submissionCount: problemSubs.length,
+        lastVerdictLabel: latest
+          ? verdictLabel(latest.veredict, tables)
+          : null,
+      }
+    })
 
   const submissionItems: IntroSubmissionItem[] = [...submissions]
     .sort((a, b) => submissionTimeMs(b) - submissionTimeMs(a))
@@ -1294,7 +1393,13 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
 
   const journey = buildJourneyInsights(
     dashboard,
-    buildIntroMetricDrilldowns(raw.submissions, tables, raw.problemTitles),
+    buildIntroMetricDrilldowns(
+      raw.submissions,
+      tables,
+      raw.problemTitles,
+      raw.awards,
+      raw.period,
+    ),
   )
   const heatmap = buildHeatmapInsights(dashboard, raw.period)
   const weekday = buildWeekdayInsights(dashboard)

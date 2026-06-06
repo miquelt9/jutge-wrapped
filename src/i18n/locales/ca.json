@@ -93,7 +93,13 @@
         "unknownVerdict": "Desconegut",
         "openAccepted": "Veure problemes acceptats",
         "openRejected": "Veure problemes rebutjats",
-        "openSubmissions": "Veure enviaments"
+        "openSubmissions": "Veure enviaments",
+        "problemId": "{{id}}",
+        "rejectedMeta": "{{submissions}} · darrer {{verdict}}",
+        "acceptedFirstTry": "{{submissions}} · AC al primer intent",
+        "acceptedMeta": "{{submissions}} · {{attempts}} intents abans de l'AC",
+        "acceptedOn": "AC el {{date}}",
+        "awardForProblem": "{{title}}"
       }
     },
     "heatmap": {
@@ -207,8 +213,8 @@
     "fallbackCompiler": "el teu compilador principal"
   },
   "verdicts": {
-    "narrativeClean": "Vas registrar {{ac}} execucions totalment acceptades de {{total}} enviaments jutjats.",
-    "narrativeFriction": "En {{total}} execucions jutjades, vas obtenir {{ac}} veredictes AC mentre lluitaves amb {{count}} {{label}}.",
+    "narrativeClean": "Vas registrar {{ac}} execucions totalment acceptades de {{total}} enviaments.",
+    "narrativeFriction": "En {{total}} execucions, vas obtenir {{ac}} veredictes AC mentre lluitaves amb {{count}} {{label}}.",
     "wrongAnswers": "respostes incorrectes",
     "compilationErrors": "errors de compilació",
     "executionErrors": "errors d'execució",
@@ -250,29 +256,29 @@
       "firstAcDetail": "{{submissions}} en aquest problema en total."
     },
     "slowSolve": {
-      "label": "Camí més llarg fins a l'AC",
-      "headline": "<0>{{problem}}</0> va ser el problema que més vas trigar a resoldre",
-      "detail": "{{duration}} des del primer enviament fins al primer AC."
+      "label": "Temps més llarg per resoldre",
+      "headline": "<0>{{problem}}</0> et va costar <1>{{duration}}</1> resoldre'l",
+      "detail": "des del primer enviament fins al primer AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
         "label": "Primer intent",
-        "headline": "Has resolt el {{percent}}% al primer intent",
+        "headline": "Has resolt el <0>{{percent}}%</0> al primer intent",
         "detail": "{{count}} de {{total}} problemes resolts"
       },
       "platformProblems": {
         "label": "Cobertura de la plataforma",
-        "headline": "{{percent}}% dels problemes del Jutge",
+        "headline": "<0>{{percent}}%</0> dels problemes del Jutge",
         "detail": "{{accepted}} de {{total}} problemes"
       },
       "platformSubmissions": {
         "label": "Petjada d'enviaments",
-        "headline": "{{percent}}% dels enviaments del Jutge",
+        "headline": "<0>{{percent}}%</0> dels enviaments del Jutge",
         "detail": "{{yours}} de {{total}} enviaments"
       },
       "compileGrief": {
         "label": "Dolor de compilació",
-        "headline": "El compilador t'ha esbroncat {{count}} vegades",
+        "headline": "<0>{{count}}</0> errors de compilació",
         "detail": "{{percent}}% dels teus enviaments · Jutge no és el teu compilador"
       }
     }
@@ -318,7 +324,8 @@
     "makeYours": "Fes el teu a {{url}}",
     "templates": {
       "intro": "El meu Jutge.org Wrapped! Nivell {{level}} ({{name}}). Acceptats: {{accepted}}, Enviaments: {{submissions}}, Percentatge AC: {{acRate}}%!",
-      "heatmap": "El meu Jutge.org Wrapped! Dies actius: {{activeDays}}, Major ratxa: {{longestStreak}} dies!",
+      "heatmap_stats": "El meu Jutge.org Wrapped! Dies actius: {{activeDays}}, Major ratxa: {{longestStreak}} dies!",
+      "heatmap_calendar": "El meu Jutge.org Wrapped! {{submissions}} enviaments en {{activeDays}} dies actius — mira el meu calendari d'activitat!",
       "rhythm": "El meu Jutge.org Wrapped! Dia més actiu: {{busiestDay}}, hora punta {{peakHour}}:00 — {{archetype}}!",
       "course": "El meu Jutge.org Wrapped! Llenguatge principal: {{topLanguage}}!",
       "verdict": "El meu Jutge.org Wrapped! Enviaments AC: {{ac}} ({{acRate}}% d'acceptats)!",

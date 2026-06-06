@@ -12,9 +12,10 @@ type HourPoint = { hour: number; count: number }
 
 type Props = {
   hours: HourPoint[]
+  peakHour?: number | null
 }
 
-export function ChronoHistogram({ hours }: Props) {
+export function ChronoHistogram({ hours, peakHour }: Props) {
   const reduceMotion = useReducedMotion()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const maxCount = Math.max(...hours.map((h) => h.count), 1)
@@ -32,6 +33,7 @@ export function ChronoHistogram({ hours }: Props) {
       >
         {hours.map(({ hour, count }, index) => {
           const columnId = String(hour)
+          const isPeak = hour === peakHour && count > 0
           const barHeight =
             count === 0
               ? 0
@@ -49,8 +51,12 @@ export function ChronoHistogram({ hours }: Props) {
               <motion.div
                 className="w-full min-w-[4px]"
                 style={{
-                  backgroundColor:
-                    count > 0 ? "var(--jutge-blue)" : "transparent",
+                  backgroundColor: isPeak
+                    ? "var(--jutge-heatmap-active)"
+                    : count > 0
+                      ? "var(--jutge-blue)"
+                      : "transparent",
+                  opacity: count > 0 && !isPeak ? 0.4 : 1,
                   borderRadius: 0,
                 }}
                 initial={{ height: reduceMotion ? barHeight : 0 }}
@@ -67,12 +73,15 @@ export function ChronoHistogram({ hours }: Props) {
       </div>
       <div className="mt-1 flex justify-between gap-px">
         {hours.map(({ hour }) => {
+          const isPeak = hour === peakHour
           const isHovered = hoveredId === String(hour)
           return hour % 3 === 0 ? (
             <span
               key={hour}
               className={`flex-1 text-center font-mono text-[9px] ${
-                isHovered ? "text-jutge-text font-bold" : "text-jutge-muted"
+                isPeak || isHovered
+                  ? "text-jutge-text font-bold"
+                  : "text-jutge-muted"
               }`}
             >
               {String(hour).padStart(2, "0")}

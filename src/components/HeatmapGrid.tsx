@@ -27,9 +27,9 @@ const ROW_KEYS = [
   "saturday",
   "sunday",
 ] as const
-const CELL_PX_DESKTOP = 12
+const CELL_PX_DESKTOP = 20
 const CELL_GAP_PX_DESKTOP = 3
-const CELL_PX_MOBILE = 14
+const CELL_PX_MOBILE = 20
 const CELL_GAP_PX_MOBILE = 3
 const MOBILE_MONTH_LABEL_WIDTH_PX = 56
 /** Height for diagonal month names above the week columns. */
