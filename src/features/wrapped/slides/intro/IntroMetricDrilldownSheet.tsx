@@ -24,7 +24,11 @@ const TITLE_KEYS: Record<IntroMetricKind, string> = {
   submissions: "slides.intro.drilldown.submissionsTitle",
 }
 
-export function IntroMetricDrilldownSheet({ kind, drilldowns, onClose }: Props) {
+export function IntroMetricDrilldownSheet({
+  kind,
+  drilldowns,
+  onClose,
+}: Props) {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
   const layout = useLayoutVariant()
@@ -65,20 +69,10 @@ export function IntroMetricDrilldownSheet({ kind, drilldowns, onClose }: Props) 
       role="presentation"
     >
       <motion.aside
-        initial={
-          reduceMotion
-            ? false
-            : isWide
-              ? { x: "100%" }
-              : { y: "100%" }
-        }
+        initial={reduceMotion ? false : isWide ? { x: "100%" } : { y: "100%" }}
         animate={reduceMotion ? { opacity: 1 } : isWide ? { x: 0 } : { y: 0 }}
         exit={
-          reduceMotion
-            ? { opacity: 0 }
-            : isWide
-              ? { x: "100%" }
-              : { y: "100%" }
+          reduceMotion ? { opacity: 0 } : isWide ? { x: "100%" } : { y: "100%" }
         }
         transition={reduceMotion ? { duration: 0 } : springTransition}
         className={`jutge-panel bg-jutge-panel flex min-h-0 w-full flex-col shadow-xl ${
@@ -91,48 +85,48 @@ export function IntroMetricDrilldownSheet({ kind, drilldowns, onClose }: Props) 
         aria-modal="true"
         aria-labelledby="intro-metric-drilldown-title"
       >
-          {!isWide && (
-            <div className="flex shrink-0 justify-center pt-2 pb-1">
-              <span className="bg-jutge-border h-1 w-10 rounded-full" />
-            </div>
+        {!isWide && (
+          <div className="flex shrink-0 justify-center pt-2 pb-1">
+            <span className="bg-jutge-border h-1 w-10 rounded-full" />
+          </div>
+        )}
+
+        <div className="jutge-panel-heading flex shrink-0 items-start justify-between gap-4">
+          <h2
+            id="intro-metric-drilldown-title"
+            className="text-jutge-text text-base font-semibold"
+          >
+            {t(TITLE_KEYS[kind])}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-jutge-muted hover:text-jutge-text shrink-0"
+            aria-label={t("common.dismiss")}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="jutge-panel-body min-h-0 flex-1 overflow-y-auto py-0">
+          {items.length === 0 ? (
+            <p className="text-jutge-muted py-4 text-sm">
+              {t("slides.intro.drilldown.empty")}
+            </p>
+          ) : kind === "submissions" ? (
+            <ul className="divide-jutge-border divide-y">
+              {(items as IntroSubmissionItem[]).map((item) => (
+                <SubmissionRow key={item.submissionId} item={item} />
+              ))}
+            </ul>
+          ) : (
+            <ul className="divide-jutge-border divide-y">
+              {(items as IntroProblemItem[]).map((item) => (
+                <ProblemRow key={item.problemId} item={item} />
+              ))}
+            </ul>
           )}
-
-          <div className="jutge-panel-heading flex shrink-0 items-start justify-between gap-4">
-            <h2
-              id="intro-metric-drilldown-title"
-              className="text-jutge-text text-base font-semibold"
-            >
-              {t(TITLE_KEYS[kind])}
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-jutge-muted hover:text-jutge-text shrink-0"
-              aria-label={t("common.dismiss")}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="jutge-panel-body min-h-0 flex-1 overflow-y-auto py-0">
-            {items.length === 0 ? (
-              <p className="text-jutge-muted py-4 text-sm">
-                {t("slides.intro.drilldown.empty")}
-              </p>
-            ) : kind === "submissions" ? (
-              <ul className="divide-jutge-border divide-y">
-                {(items as IntroSubmissionItem[]).map((item) => (
-                  <SubmissionRow key={item.submissionId} item={item} />
-                ))}
-              </ul>
-            ) : (
-              <ul className="divide-jutge-border divide-y">
-                {(items as IntroProblemItem[]).map((item) => (
-                  <ProblemRow key={item.problemId} item={item} />
-                ))}
-              </ul>
-            )}
-          </div>
+        </div>
       </motion.aside>
     </motion.div>
   )

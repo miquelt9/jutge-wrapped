@@ -486,7 +486,10 @@ export function resolveRhythmTitleKey(
   if (peak?.key === "sunday" && (peak.percent >= 18 || weekendShare >= 0.28)) {
     return "sundayScrambler"
   }
-  if (peak?.key === "saturday" && (peak.percent >= 18 || weekendShare >= 0.28)) {
+  if (
+    peak?.key === "saturday" &&
+    (peak.percent >= 18 || weekendShare >= 0.28)
+  ) {
     return "saturdaySpecial"
   }
   if (peak?.key === "friday" && peak.percent >= 20) return "fridayFinisher"
@@ -877,7 +880,9 @@ function buildSlowSolveInsight(
     const first = sorted[0]
     if (!first || isAcceptedVerdict(first.veredict)) continue
 
-    const firstAcIdx = sorted.findIndex((sub) => isAcceptedVerdict(sub.veredict))
+    const firstAcIdx = sorted.findIndex((sub) =>
+      isAcceptedVerdict(sub.veredict),
+    )
     if (firstAcIdx <= 0) continue
 
     const durationMs =
@@ -899,7 +904,9 @@ function buildSlowSolveInsight(
   const durationLabel = formatSolveDuration(slowest.durationMs)
   return {
     problemId: slowest.problemId,
-    problemLabel: resolveProblemTitle(slowest.problemId, problemTitles) ?? slowest.problemId,
+    problemLabel:
+      resolveProblemTitle(slowest.problemId, problemTitles) ??
+      slowest.problemId,
     durationMs: slowest.durationMs,
     durationLabel,
     submissionsBeforeAc: slowest.submissionsBeforeAc,
@@ -1180,11 +1187,7 @@ function interleaveAwardPools(
 
   while (youtube.length > 0 || plain.length > 0) {
     const pickYoutube =
-      youtube.length === 0
-        ? false
-        : plain.length === 0
-          ? true
-          : random() < 0.5
+      youtube.length === 0 ? false : plain.length === 0 ? true : random() < 0.5
 
     if (pickYoutube) result.push(youtube.shift()!)
     else result.push(plain.shift()!)

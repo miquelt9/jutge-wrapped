@@ -23,13 +23,25 @@ export function getActiveSlideIds(insights: WrappedInsights): SlideId[] {
 }
 
 /** True when the Web Share API can share files (typical mobile browsers). */
-export function canUseNativeImageShare(): boolean {
-  return (
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
-    typeof window !== "undefined" &&
-    window.isSecureContext
-  )
+export function canShareFiles(): boolean {
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.share !== "function"
+  ) {
+    return false
+  }
+  if (typeof window === "undefined" || !window.isSecureContext) {
+    return false
+  }
+  if (typeof navigator.canShare !== "function" || typeof File === "undefined") {
+    return false
+  }
+  try {
+    const dummyFile = new File([""], "probe.png", { type: "image/png" })
+    return navigator.canShare({ files: [dummyFile] })
+  } catch {
+    return false
+  }
 }
 
 function slideShareTemplate(

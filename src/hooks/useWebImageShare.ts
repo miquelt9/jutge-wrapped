@@ -1,8 +1,5 @@
 import { useState, useCallback } from "react"
-import {
-  canUseNativeImageShare,
-  dataUrlToPngFile,
-} from "@/features/wrapped/shareExport"
+import { canShareFiles, dataUrlToPngFile } from "@/features/wrapped/shareExport"
 
 interface ShareResult {
   success: boolean
@@ -30,9 +27,8 @@ export const useWebImageShare = (): UseWebImageShareReturn => {
   const [isSharing, setIsSharing] = useState(false)
 
   const [{ canShare, isSecureContext }] = useState(() => ({
-    canShare: canUseNativeImageShare(),
-    isSecureContext:
-      typeof window !== "undefined" && window.isSecureContext,
+    canShare: canShareFiles(),
+    isSecureContext: typeof window !== "undefined" && window.isSecureContext,
   }))
 
   const shareImage = useCallback(

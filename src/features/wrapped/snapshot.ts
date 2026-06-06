@@ -136,9 +136,7 @@ export async function resolveSnapshotSubmissions(
     return embedded
   }
   try {
-    const all = normalizeSubmissions(
-      await client.student.submissions.getAll(),
-    )
+    const all = normalizeSubmissions(await client.student.submissions.getAll())
     return hasSubmissionHistory(all) ? all : embedded
   } catch {
     return embedded

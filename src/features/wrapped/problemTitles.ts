@@ -2,7 +2,9 @@ import { NotFoundError, type JutgeApiClient } from "@/api/client"
 
 export type ProblemTitleMap = Record<string, string>
 
-export function uniqueProblemIds(submissions: { problem_id: string }[]): string[] {
+export function uniqueProblemIds(
+  submissions: { problem_id: string }[],
+): string[] {
   return [...new Set(submissions.map((sub) => sub.problem_id))]
 }
 

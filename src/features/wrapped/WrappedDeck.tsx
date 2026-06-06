@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
 import { SlideShareButton } from "@/components/SlideShareButton"
+import { DeckNavOverflowMenu } from "@/components/DeckNavOverflowMenu"
 import { useAuth } from "@/context/AuthContext"
 import { SlideExportModeProvider } from "@/context/SlideExportModeContext"
 import { useSnapshot } from "@/context/SnapshotContext"
@@ -21,7 +22,7 @@ import { TerminalLoadingLine } from "@/components/TerminalLoadingLine"
 import { CorsOverlay } from "@/components/CorsOverlay"
 import { useWrappedData } from "./useWrappedData"
 import {
-  canUseNativeImageShare,
+  canShareFiles,
   captureSlideImage,
   getActiveSlideIds,
   SLIDE_IDS,
@@ -53,7 +54,7 @@ export function WrappedDeck() {
   const slideCaptureRef = useRef<HTMLDivElement>(null)
   const precomputeCaptureRef = useRef<HTMLDivElement>(null)
   const shareImageCacheRef = useRef<Map<SlideId, string>>(new Map())
-  const shouldPrecomputeShareImages = useRef(canUseNativeImageShare())
+  const shouldPrecomputeShareImages = useRef(canShareFiles())
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
   const [isPrecomputing, setIsPrecomputing] = useState(false)
   const loadingLine = t("deck.loadingLine")
@@ -383,71 +384,95 @@ export function WrappedDeck() {
               </div>
             </div>
             <div className="jutge-nav-end">
-              <NavControls onDark compact />
-              <SlideShareButton
-                slideId={slideId}
-                insights={insights}
-                captureRef={slideCaptureRef}
-                imageCacheRef={shareImageCacheRef}
-                username={username}
-                className="sm:hidden"
-                variant="onDark"
-                compact
-              />
-              <SnapshotDownloadButton
-                raw={exportRaw}
-                variant="onDark"
-                compact
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  clearPeriod()
-                }}
-                aria-label={t("deck.dates")}
-                title={t("deck.dates")}
-                className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
-              >
-                <Calendar className="h-4 w-4 shrink-0" />
-                <span className="sr-only sm:not-sr-only sm:inline">
-                  {t("deck.dates")}
-                </span>
-              </button>
-              {isSnapshotMode ? (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    clearSnapshot()
-                  }}
-                  aria-label={t("deck.exit")}
-                  title={t("deck.exit")}
-                  className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
-                >
-                  <LogOut className="h-4 w-4 shrink-0" />
-                  <span className="sr-only sm:not-sr-only sm:inline">
-                    {t("deck.exit")}
-                  </span>
-                </button>
-              ) : (
+              <div className="flex items-center gap-1 sm:hidden">
+                <SlideShareButton
+                  slideId={slideId}
+                  insights={insights}
+                  captureRef={slideCaptureRef}
+                  imageCacheRef={shareImageCacheRef}
+                  username={username}
+                  variant="onDark"
+                  compact
+                />
+                <DeckNavOverflowMenu
+                  raw={exportRaw}
+                  onChangeDates={clearPeriod}
+                  onExit={
+                    isSnapshotMode
+                      ? clearSnapshot
+                      : () => {
+                          clearPeriod()
+                          logout()
+                        }
+                  }
+                />
+              </div>
+              <div className="hidden sm:contents">
+                <NavControls onDark compact />
+                <SlideShareButton
+                  slideId={slideId}
+                  insights={insights}
+                  captureRef={slideCaptureRef}
+                  imageCacheRef={shareImageCacheRef}
+                  username={username}
+                  variant="onDark"
+                  compact
+                />
+                <SnapshotDownloadButton
+                  raw={exportRaw}
+                  variant="onDark"
+                  compact
+                />
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
                     clearPeriod()
-                    logout()
                   }}
-                  aria-label={t("deck.exit")}
-                  title={t("deck.exit")}
+                  aria-label={t("deck.dates")}
+                  title={t("deck.dates")}
                   className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
                 >
-                  <LogOut className="h-4 w-4 shrink-0" />
+                  <Calendar className="h-4 w-4 shrink-0" />
                   <span className="sr-only sm:not-sr-only sm:inline">
-                    {t("deck.exit")}
+                    {t("deck.dates")}
                   </span>
                 </button>
-              )}
+                {isSnapshotMode ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      clearSnapshot()
+                    }}
+                    aria-label={t("deck.exit")}
+                    title={t("deck.exit")}
+                    className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span className="sr-only sm:not-sr-only sm:inline">
+                      {t("deck.exit")}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      clearPeriod()
+                      logout()
+                    }}
+                    aria-label={t("deck.exit")}
+                    title={t("deck.exit")}
+                    className="jutge-btn-default flex shrink-0 items-center gap-1 border-white/30 bg-transparent px-2 text-white hover:bg-white/10 sm:px-3"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span className="sr-only sm:not-sr-only sm:inline">
+                      {t("deck.exit")}
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </header>

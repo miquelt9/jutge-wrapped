@@ -25,10 +25,7 @@ export function HeatmapSlide({ insights }: Props) {
       : "flex justify-center px-1 py-4 sm:py-6"
 
   return (
-    <StoryLayout
-      align="start"
-      title={personalized.heatmapTitle}
-    >
+    <StoryLayout align="start" title={personalized.heatmapTitle}>
       <div className="flex flex-col gap-4">
         <HeatmapStatSections heatmap={heatmap} layout={layoutVariant} />
         <motion.div

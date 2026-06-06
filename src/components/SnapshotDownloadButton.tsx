@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Download } from "lucide-react"
+import { FileJson } from "lucide-react"
 import { downloadSnapshotJson } from "@/features/wrapped/snapshot"
 import type { WrappedRawData } from "@/features/wrapped/types"
 
@@ -53,7 +53,7 @@ export function SnapshotDownloadButton({
       title={compact ? label : undefined}
       className={`${btnClass} ${className} flex shrink-0 items-center gap-1 disabled:opacity-40`}
     >
-      <Download className="h-4 w-4 shrink-0" />
+      <FileJson className="h-4 w-4 shrink-0" />
       <span
         className={compact ? "sr-only sm:not-sr-only sm:inline" : undefined}
       >

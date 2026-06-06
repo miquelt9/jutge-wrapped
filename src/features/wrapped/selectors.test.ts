@@ -124,12 +124,12 @@ describe("buildIntroMetricDrilldowns", () => {
     const insights = buildWrappedInsights(raw)
 
     expect(drilldowns.available).toBe(true)
-    expect(drilldowns.acceptedProblems.map((problem) => problem.problemId)).toEqual(
-      ["P001", "P002"],
-    )
-    expect(drilldowns.rejectedProblems.map((problem) => problem.problemId)).toEqual(
-      ["P003"],
-    )
+    expect(
+      drilldowns.acceptedProblems.map((problem) => problem.problemId),
+    ).toEqual(["P001", "P002"])
+    expect(
+      drilldowns.rejectedProblems.map((problem) => problem.problemId),
+    ).toEqual(["P003"])
     expect(
       drilldowns.submissions.map((submission) => submission.submissionId),
     ).toEqual(["sub-3", "sub-2", "sub-1"])
@@ -248,12 +248,12 @@ describe("buildRankingHighlights", () => {
         },
       },
       homepageStats: {
-    users: 1000,
-    submissions: 50000,
-    problems: 4000,
-    exams: 0,
-    contests: 0,
-  },
+        users: 1000,
+        submissions: 50000,
+        problems: 4000,
+        exams: 0,
+        contests: 0,
+      },
       submissions: [
         makeSubmission("2025-01-01T10:00:00Z", {
           veredict: "AC",
@@ -292,12 +292,12 @@ describe("buildRankingHighlights", () => {
         },
       },
       homepageStats: {
-    users: 1000,
-    submissions: 50000,
-    problems: 4000,
-    exams: 0,
-    contests: 0,
-  },
+        users: 1000,
+        submissions: 50000,
+        problems: 4000,
+        exams: 0,
+        contests: 0,
+      },
       submissions: [
         makeSubmission("2025-01-01T10:00:00Z", {
           veredict: "AC",
@@ -360,9 +360,9 @@ describe("buildRankingHighlights", () => {
 
     const highlights = buildRankingHighlights(raw)
 
-    expect(
-      highlights.items.some((item) => item.kind === "first_attempt"),
-    ).toBe(false)
+    expect(highlights.items.some((item) => item.kind === "first_attempt")).toBe(
+      false,
+    )
   })
 
   it("includes compile grief when CE verdicts exist", () => {
@@ -390,9 +390,9 @@ describe("buildRankingHighlights", () => {
   it("omits compile grief when there are no CE verdicts", () => {
     const highlights = buildRankingHighlights(baseRaw)
 
-    expect(
-      highlights.items.some((item) => item.kind === "compile_grief"),
-    ).toBe(false)
+    expect(highlights.items.some((item) => item.kind === "compile_grief")).toBe(
+      false,
+    )
   })
 
   it("orders highlights in narrative sequence", () => {
@@ -500,7 +500,10 @@ describe("buildAwardInsights", () => {
     const insights = buildAwardInsights(awards, allTime, () => 0)
 
     expect(insights.count).toBe(2)
-    expect(insights.items.map((item) => item.awardId).sort()).toEqual(["a", "b"])
+    expect(insights.items.map((item) => item.awardId).sort()).toEqual([
+      "a",
+      "b",
+    ])
   })
 
   it("strips unreachable YouTube ids from award items", () => {

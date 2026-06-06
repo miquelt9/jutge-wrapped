@@ -11,7 +11,10 @@ export function CourseArcSlide({ insights }: Props) {
   const { courseArc } = insights
 
   return (
-    <StoryLayout title={t("slides.courseArc.title")} subtitle={courseArc.subtitle}>
+    <StoryLayout
+      title={t("slides.courseArc.title")}
+      subtitle={courseArc.subtitle}
+    >
       <DonutChartPanel>
         {(displaySize) => (
           <CompilerDonut

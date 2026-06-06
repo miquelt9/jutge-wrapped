@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react"
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type TouchEvent,
+} from "react"
 import {
   computePullDisplayDistance,
   isPrimarilyVerticalGesture,
@@ -19,7 +25,11 @@ type Options = {
   onAdvance: () => void
 }
 
-export function useDeckPullNavigation({ index, slideCount, onAdvance }: Options) {
+export function useDeckPullNavigation({
+  index,
+  slideCount,
+  onAdvance,
+}: Options) {
   const [pullUI, setPullUI] = useState<PullUI>({ distance: 0, visible: false })
 
   const pullDistanceRef = useRef(0)

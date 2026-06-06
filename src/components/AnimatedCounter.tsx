@@ -138,9 +138,5 @@ export function AnimatedCounter({
     return () => controls.stop()
   }, [reduceMotion, startFraction, value])
 
-  return (
-    <span className={className}>
-      {display.toLocaleString(locale)}
-    </span>
-  )
+  return <span className={className}>{display.toLocaleString(locale)}</span>
 }

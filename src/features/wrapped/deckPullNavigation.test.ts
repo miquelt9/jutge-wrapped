@@ -35,7 +35,9 @@ describe("computePullDisplayDistance", () => {
 
   it("linearly maps pull below the threshold", () => {
     expect(computePullDisplayDistance(40)).toBe(40)
-    expect(computePullDisplayDistance(PULL_THRESHOLD_PX)).toBe(PULL_THRESHOLD_PX)
+    expect(computePullDisplayDistance(PULL_THRESHOLD_PX)).toBe(
+      PULL_THRESHOLD_PX,
+    )
   })
 
   it("applies rubber-band damping above the threshold", () => {

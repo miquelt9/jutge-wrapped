@@ -6,7 +6,11 @@ import {
   fadeUpVisible,
 } from "@/components/motionPresets"
 import { useLayoutVariant } from "@/hooks/useLayoutVariant"
-import type { IntroMetricKind, WrappedInsights, WrappedRawData } from "../../types"
+import type {
+  IntroMetricKind,
+  WrappedInsights,
+  WrappedRawData,
+} from "../../types"
 import { IntroMetricDrilldownSheet } from "./IntroMetricDrilldownSheet"
 import { IntroMetricsGrid } from "./IntroMetricsGrid"
 import { IntroProfileCard } from "./IntroProfileCard"

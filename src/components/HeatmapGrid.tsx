@@ -223,9 +223,7 @@ function HeatmapCell({
       aria-label={exportMode ? undefined : label || undefined}
       tabIndex={exportMode ? -1 : 0}
     >
-      {showTooltip && (
-        <HeatmapCellTooltip anchorRef={cellRef} label={label} />
-      )}
+      {showTooltip && <HeatmapCellTooltip anchorRef={cellRef} label={label} />}
       <div
         className="h-full w-full"
         style={{

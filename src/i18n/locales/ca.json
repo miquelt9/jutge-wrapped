@@ -66,6 +66,9 @@
     "backToLogin": "Torna a l'inici",
     "dates": "Dates",
     "exit": "Surt",
+    "menu": "Menú",
+    "menuAria": "Obre el menú",
+    "downloadJson": "Baixa la instantània JSON",
     "pullToNext": "Llisca cap avall per a la següent diapositiva",
     "releaseToNext": "Deixa anar per a la següent diapositiva"
   },

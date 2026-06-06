@@ -132,7 +132,11 @@ function MetricCard({
         whileHover={
           reduceMotion
             ? undefined
-            : { scale: 1.04, y: -3, boxShadow: "0 10px 24px rgba(0, 0, 0, 0.18)" }
+            : {
+                scale: 1.04,
+                y: -3,
+                boxShadow: "0 10px 24px rgba(0, 0, 0, 0.18)",
+              }
         }
         whileTap={reduceMotion ? undefined : { scale: 0.98, y: 0 }}
         transition={{ type: "spring", stiffness: 420, damping: 26 }}

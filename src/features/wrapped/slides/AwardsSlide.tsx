@@ -15,22 +15,22 @@ import type { AwardItem, WrappedInsights } from "../types"
 
 type Props = { insights: WrappedInsights }
 
-const AWARDS_PER_PAGE = 10
-
 export function AwardsSlide({ insights }: Props) {
   const { t } = useTranslation()
   const reduceMotion = useReducedMotion()
   const { awards } = insights
   const layoutVariant = useLayoutVariant()
-  const totalPages = Math.max(1, Math.ceil(awards.items.length / AWARDS_PER_PAGE))
+  const isWide = layoutVariant === "wide"
+  const awardsPerPage = isWide ? 10 : 5
+  const totalPages = Math.max(1, Math.ceil(awards.items.length / awardsPerPage))
   const [pageIndex, setPageIndex] = useState(0)
 
   useEffect(() => {
     setPageIndex((current) => Math.min(current, totalPages - 1))
   }, [totalPages])
 
-  const pageStart = pageIndex * AWARDS_PER_PAGE
-  const pageAwards = awards.items.slice(pageStart, pageStart + AWARDS_PER_PAGE)
+  const pageStart = pageIndex * awardsPerPage
+  const pageAwards = awards.items.slice(pageStart, pageStart + awardsPerPage)
   const canPaginate = totalPages > 1
 
   const goPrev = () => setPageIndex((current) => Math.max(0, current - 1))

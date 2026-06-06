@@ -48,9 +48,9 @@ describe("jutgeYoutubeUrl", () => {
 
 describe("jutgeAwardIconUrl", () => {
   it("returns absolute URLs unchanged", () => {
-    expect(
-      jutgeAwardIconUrl("https://jutge.org/awards/funs/25.png"),
-    ).toBe("https://jutge.org/awards/funs/25.png")
+    expect(jutgeAwardIconUrl("https://jutge.org/awards/funs/25.png")).toBe(
+      "https://jutge.org/awards/funs/25.png",
+    )
   })
 
   it("builds award image URLs under /awards/", () => {

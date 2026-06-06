@@ -1,6 +1,6 @@
 import { useEffect, useState, type MutableRefObject } from "react"
 import { useTranslation } from "react-i18next"
-import { Share2, Download, Loader2 } from "lucide-react"
+import { Share2, Loader2 } from "lucide-react"
 import { useCaptureExportLayout } from "@/context/SlideExportModeContext"
 import { useWebImageShare } from "@/hooks/useWebImageShare"
 import {
@@ -33,8 +33,7 @@ export function SlideShareButton({
   compact = false,
 }: Props) {
   const { t } = useTranslation()
-  const { shareImage, isSharing, canShare, isSecureContext } =
-    useWebImageShare()
+  const { shareImage, isSharing, canShare } = useWebImageShare()
   const withExportLayout = useCaptureExportLayout()
   const [isBusy, setIsBusy] = useState(false)
   const [imageReady, setImageReady] = useState(() =>
@@ -77,11 +76,6 @@ export function SlideShareButton({
   function handleClick() {
     if (isBusy || isSharing) return
 
-    if (!isSecureContext) {
-      window.alert(t("share.httpsRequired"))
-      return
-    }
-
     if (canShare) {
       const imageUrl = imageCacheRef.current.get(slideId)
       if (!imageUrl) return
@@ -110,21 +104,14 @@ export function SlideShareButton({
       ? "jutge-btn-default border-white/30 bg-transparent text-white hover:bg-white/10"
       : "jutge-btn-default"
 
-  const showShareIcon = !isSecureContext || canShare
   const preparing = canShare && !imageReady
   const busy = isBusy || isSharing || preparing
   const icon = busy ? (
     <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-  ) : showShareIcon ? (
-    <Share2 className="h-4 w-4 shrink-0" />
   ) : (
-    <Download className="h-4 w-4 shrink-0" />
+    <Share2 className="h-4 w-4 shrink-0" />
   )
-  const label = busy
-    ? t("share.preparing")
-    : showShareIcon
-      ? t("share.shareSlide")
-      : t("share.downloadSlide")
+  const label = busy ? t("share.preparing") : t("share.shareSlide")
 
   return (
     <button

@@ -12,11 +12,7 @@ function formatHighlightPercent(
   value: number,
 ): string {
   const decimals =
-    kind === "platform_submissions"
-      ? 4
-      : kind === "platform_problems"
-        ? 3
-        : 1
+    kind === "platform_submissions" ? 4 : kind === "platform_problems" ? 3 : 1
   return new Intl.NumberFormat(undefined, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -42,7 +38,8 @@ const HEADLINE_KEYS = {
 
 const DETAIL_KEYS = {
   first_attempt: "personalization.rankingHighlights.firstAttempt.detail",
-  platform_problems: "personalization.rankingHighlights.platformProblems.detail",
+  platform_problems:
+    "personalization.rankingHighlights.platformProblems.detail",
   platform_submissions:
     "personalization.rankingHighlights.platformSubmissions.detail",
   compile_grief: "personalization.rankingHighlights.compileGrief.detail",

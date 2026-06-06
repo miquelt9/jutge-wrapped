@@ -66,6 +66,9 @@
     "backToLogin": "Volver al inicio",
     "dates": "Fechas",
     "exit": "Salir",
+    "menu": "Menú",
+    "menuAria": "Abrir menú",
+    "downloadJson": "Descargar instantánea JSON",
     "pullToNext": "Desliza hacia abajo para la siguiente diapositiva",
     "releaseToNext": "Suelta para la siguiente diapositiva"
   },

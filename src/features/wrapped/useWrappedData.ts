@@ -9,10 +9,7 @@ import type { JutgeApiClient, Submission } from "@/api/client"
 import { fetchFullAwards } from "./awards"
 import { fetchProblemTitles, uniqueProblemIds } from "./problemTitles"
 import { buildWrappedInsights } from "./selectors"
-import {
-  hasSubmissionHistory,
-  resolveSnapshotSubmissions,
-} from "./snapshot"
+import { hasSubmissionHistory, resolveSnapshotSubmissions } from "./snapshot"
 import type { WrappedRawData } from "./types"
 import {
   emptyRangeMessage,
@@ -111,11 +108,7 @@ export function useWrappedData(
         resolvedSubmissions,
         period,
       )
-      if (
-        !problemTitles &&
-        periodSubmissions?.length &&
-        client?.meta?.token
-      ) {
+      if (!problemTitles && periodSubmissions?.length && client?.meta?.token) {
         try {
           problemTitles = await fetchProblemTitles(
             client,

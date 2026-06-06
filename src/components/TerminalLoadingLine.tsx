@@ -12,11 +12,7 @@ import {
   DECK_LOADING_DOT_INTERVAL_MS,
 } from "@/features/wrapped/useDeckLoadingUX"
 
-function schedule(
-  fn: () => void,
-  ms: number,
-  timeouts: number[],
-): number {
+function schedule(fn: () => void, ms: number, timeouts: number[]): number {
   const id = window.setTimeout(fn, ms)
   timeouts.push(id)
   return id

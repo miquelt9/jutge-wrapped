@@ -154,10 +154,7 @@ export function submissionInPeriod(
   return true
 }
 
-export function awardInPeriod(
-  award: Award,
-  period: WrappedPeriod,
-): boolean {
+export function awardInPeriod(award: Award, period: WrappedPeriod): boolean {
   if (isAllTimePeriod(period)) return true
   const dayTs = utcDayTimestamp(parseSubmissionTime(award.time))
   if (period.start && dayTs < utcDayTsFromIso(period.start)) return false
