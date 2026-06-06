@@ -31,9 +31,8 @@ export function RankingSlide({ insights }: Props) {
 
   return (
     <StoryLayout
-      eyebrow={t("slides.ranking.eyebrow")}
+      eyebrow={`${t("slides.ranking.eyebrow")} · ${insights.periodLabel}`}
       title={`${insights.displayName} · ${insights.level}`}
-      subtitle={insights.periodLabel}
     >
       <div className="flex flex-col gap-6">
         <RankingHeroBand insights={insights} layout={layoutVariant} />
