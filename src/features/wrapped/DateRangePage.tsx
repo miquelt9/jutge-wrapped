@@ -238,8 +238,8 @@ export function DateRangePage() {
   }, [bounds, heatmap, year, t, last12Label])
 
   return (
-    <div className="jutge-page flex min-h-full flex-col">
-      <header className="jutge-nav">
+    <div className="jutge-page flex h-full min-h-0 flex-col">
+      <header className="jutge-nav shrink-0">
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start min-w-0">
             <span className="truncate font-bold text-white">
@@ -269,8 +269,9 @@ export function DateRangePage() {
         </div>
       </header>
 
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="jutge-panel w-full max-w-lg">
+      <div className="jutge-standalone-body">
+        <div className="jutge-standalone-body-inner">
+          <div className="jutge-panel w-full max-w-lg">
           <div className="jutge-panel-heading flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             {t("dateRange.heading")}
@@ -357,6 +358,7 @@ export function DateRangePage() {
               </>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>

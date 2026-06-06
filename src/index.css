@@ -157,6 +157,17 @@ body {
     @apply bg-jutge-bg text-jutge-text min-h-full overflow-x-hidden;
   }
 
+  /* Standalone pages (login, date range): body overflow is hidden for the deck. */
+  .jutge-standalone-body {
+    @apply min-h-0 flex-1 overflow-x-hidden overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .jutge-standalone-body-inner {
+    @apply flex min-h-full w-full items-center justify-center p-6 py-8;
+  }
+
   .jutge-deck-scroller {
     touch-action: pan-y;
     overscroll-behavior-y: contain;

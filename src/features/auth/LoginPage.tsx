@@ -33,8 +33,8 @@ export function LoginPage() {
   const errorMessage = error ? translateApiError(error) : null
 
   return (
-    <div className="jutge-page relative flex min-h-full flex-col">
-      <header className="jutge-nav">
+    <div className="jutge-page relative flex h-full min-h-0 flex-col">
+      <header className="jutge-nav shrink-0">
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start min-w-0">
             <span className="truncate font-bold text-white">
@@ -43,7 +43,7 @@ export function LoginPage() {
             <span className="hidden text-sm text-white/70 sm:inline">
               {t("common.wrapped")}
             </span>
-            <AppVersionBadge className="hidden text-xs text-white/45 sm:inline" />
+            <AppVersionBadge className="shrink-0 text-xs text-white/45" />
           </div>
           <div className="jutge-nav-end">
             <NavControls onDark compact />
@@ -59,8 +59,9 @@ export function LoginPage() {
         />
       )}
 
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="jutge-panel w-full max-w-md">
+      <div className="jutge-standalone-body">
+        <div className="jutge-standalone-body-inner">
+          <div className="jutge-panel w-full max-w-md">
           <div className="jutge-panel-heading">{t("login.signIn")}</div>
           <div className="jutge-panel-body">
             <h1 className="text-jutge-text text-center text-lg font-black sm:text-xl">
@@ -151,6 +152,7 @@ export function LoginPage() {
               </a>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
