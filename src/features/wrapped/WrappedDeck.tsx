@@ -38,6 +38,7 @@ import { AwardsSlide } from "./slides/AwardsSlide"
 import { PerformanceSlide } from "./slides/PerformanceSlide"
 import { RankingSlide } from "./slides/RankingSlide"
 import {
+  getTouchMotionQuality,
   isTouchNavigationTarget,
   prefersCoarsePointer,
 } from "./deckSwipeNavigation"
@@ -47,6 +48,7 @@ import { useDeckSwipeNavigation } from "./useDeckSwipeNavigation"
 const MOBILE_PRECOMPUTE_DELAY_MS = 1200
 const DESKTOP_PRECOMPUTE_DELAY_MS = 150
 const ENABLE_TOUCH_WARMUP = true
+const MAX_WARMUP_QUEUE = 4
 const TOUCH_WARMUP_SLIDES = [
   "intro",
   "heatmap_stats",
@@ -104,12 +106,22 @@ export function WrappedDeck() {
   }, [])
 
   const touchNavigation = isTouchNavigationTarget()
-  const { setTrackRef, swipeUI, isTouchActiveRef, swipeTransition } =
+  const motionQuality = useMemo(() => getTouchMotionQuality(), [])
+  const isReducedQuality = motionQuality === "reduced"
+  const {
+    setTrackRef,
+    swipeUI,
+    isTouchActiveRef,
+    isInteractionActive,
+    lastCommittedDirection,
+    swipeTransition,
+  } =
     useDeckSwipeNavigation({
       index,
       slideCount,
       onNext: next,
       onPrev: prev,
+      motionQuality,
     })
 
   useEffect(() => {
@@ -219,26 +231,43 @@ export function WrappedDeck() {
       !ENABLE_TOUCH_WARMUP ||
       !touchNavigation ||
       !showLoadingScreen ||
+      isInteractionActive ||
       state.status !== "ready"
     ) {
       return
     }
 
     const firstSlides = [0, 1, 2].filter((targetIndex) => targetIndex < slideCount)
-    const heavySlides = TOUCH_WARMUP_SLIDES.map((name) =>
+    const heavyCandidates = isReducedQuality
+      ? TOUCH_WARMUP_SLIDES.slice(0, 3)
+      : TOUCH_WARMUP_SLIDES
+    const heavySlides = heavyCandidates.map((name) =>
       activeSlideIds.indexOf(name),
     ).filter((targetIndex) => targetIndex >= 0)
-    const nextQueue = Array.from(new Set([...firstSlides, ...heavySlides])).filter(
-      (targetIndex) => {
+    const directionCandidates =
+      lastCommittedDirection === "prev"
+        ? [index - 1, index - 2]
+        : [index + 1, index + 2]
+    const directionalSlides = directionCandidates.filter(
+      (targetIndex) => targetIndex >= 0 && targetIndex < slideCount,
+    )
+    const nextQueue = Array.from(
+      new Set([...directionalSlides, ...firstSlides, ...heavySlides]),
+    )
+      .filter((targetIndex) => {
         const key = getTouchPanelKey(targetIndex)
         if (!key) return false
         return !warmedSlideKeysRef.current.has(key)
-      },
-    )
+      })
+      .slice(0, MAX_WARMUP_QUEUE)
     setWarmupQueue(nextQueue)
   }, [
     activeSlideIds,
     getTouchPanelKey,
+    index,
+    isInteractionActive,
+    isReducedQuality,
+    lastCommittedDirection,
     showLoadingScreen,
     slideCount,
     state.status,
@@ -250,6 +279,7 @@ export function WrappedDeck() {
       !ENABLE_TOUCH_WARMUP ||
       !touchNavigation ||
       !showLoadingScreen ||
+      isInteractionActive ||
       state.status !== "ready" ||
       warmupIndex !== null ||
       warmupQueue.length === 0
@@ -259,6 +289,7 @@ export function WrappedDeck() {
     setWarmupIndex(warmupQueue[0]!)
   }, [
     showLoadingScreen,
+    isInteractionActive,
     state.status,
     touchNavigation,
     warmupIndex,
@@ -270,6 +301,7 @@ export function WrappedDeck() {
       !ENABLE_TOUCH_WARMUP ||
       !touchNavigation ||
       !showLoadingScreen ||
+      isInteractionActive ||
       state.status !== "ready" ||
       warmupIndex === null
     ) {
@@ -311,6 +343,7 @@ export function WrappedDeck() {
   }, [
     getTouchPanelKey,
     showLoadingScreen,
+    isInteractionActive,
     state.status,
     touchNavigation,
     warmupIndex,
@@ -338,6 +371,7 @@ export function WrappedDeck() {
     if (
       !shouldPrecomputeShareImages.current ||
       state.status !== "ready" ||
+      isInteractionActive ||
       isPrecomputing ||
       precomputeIndex !== null
     ) {
@@ -357,7 +391,7 @@ export function WrappedDeck() {
       : DESKTOP_PRECOMPUTE_DELAY_MS
 
     const scheduleTimer = window.setTimeout(() => {
-      if (isTouchActiveRef.current) return
+      if (isTouchActiveRef.current || isInteractionActive) return
       if (shareImageCacheRef.current.has(cacheKey)) return
       setPrecomputeIndex(index)
     }, delay)
@@ -367,6 +401,7 @@ export function WrappedDeck() {
     activeSlideIds,
     awardsPageIndex,
     index,
+    isInteractionActive,
     isPrecomputing,
     isTouchActiveRef,
     precomputeIndex,
@@ -394,7 +429,7 @@ export function WrappedDeck() {
     const runCapture = async () => {
       if (signal.aborted || cancelled) return
 
-      if (isTouchActiveRef.current) {
+      if (isTouchActiveRef.current || isInteractionActive) {
         if (!signal.aborted && !cancelled) setPrecomputeIndex(null)
         return
       }
@@ -469,6 +504,7 @@ export function WrappedDeck() {
     activeSlideIds,
     awardsPageIndex,
     index,
+    isInteractionActive,
     isTouchActiveRef,
     precomputeIndex,
     showLoadingScreen,
@@ -572,16 +608,14 @@ export function WrappedDeck() {
           </SlideExportModeProvider>
         )}
         {state.status === "ready" && warmupIndex !== null && (
-          <SlideExportModeProvider deckExportMode>
-            <div
-              aria-hidden
-              className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
-            >
-              <div className="bg-jutge-bg min-h-screen">
-                {renderSlide(warmupIndex, awardsPageIndex)}
-              </div>
+          <div
+            aria-hidden
+            className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
+          >
+            <div className="bg-jutge-bg min-h-screen">
+              {renderSlide(warmupIndex, awardsPageIndex)}
             </div>
-          </SlideExportModeProvider>
+          </div>
         )}
       </div>
     )

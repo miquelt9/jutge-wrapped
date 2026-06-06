@@ -1,7 +1,9 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -196,6 +198,7 @@ type HeatmapCellProps = {
   hoveredId: string | null
   onHover: (id: string | null) => void
   exportMode?: boolean
+  interactive?: boolean
 }
 
 function HeatmapCell({
@@ -207,25 +210,27 @@ function HeatmapCell({
   hoveredId,
   onHover,
   exportMode = false,
+  interactive = true,
 }: HeatmapCellProps) {
   const { t } = useTranslation()
   const cellRef = useRef<HTMLDivElement>(null)
   const max = maxValue || 1
   const isHovered = hoveredId === cellId
   const label = cellAriaLabel(value, dateLabel, t)
-  const showTooltip = !exportMode && isHovered && dateLabel && label
+  const interactionsEnabled = interactive && !exportMode
+  const showTooltip = interactionsEnabled && isHovered && dateLabel && label
 
   return (
     <div
       ref={cellRef}
       className="relative shrink-0"
       style={{ width: cellPx, height: cellPx }}
-      onMouseEnter={exportMode ? undefined : () => onHover(cellId)}
-      onMouseLeave={exportMode ? undefined : () => onHover(null)}
-      onFocus={exportMode ? undefined : () => onHover(cellId)}
-      onBlur={exportMode ? undefined : () => onHover(null)}
-      aria-label={exportMode ? undefined : label || undefined}
-      tabIndex={exportMode ? -1 : 0}
+      onMouseEnter={interactionsEnabled ? () => onHover(cellId) : undefined}
+      onMouseLeave={interactionsEnabled ? () => onHover(null) : undefined}
+      onFocus={interactionsEnabled ? () => onHover(cellId) : undefined}
+      onBlur={interactionsEnabled ? () => onHover(null) : undefined}
+      aria-label={interactionsEnabled ? label || undefined : undefined}
+      tabIndex={interactionsEnabled ? 0 : -1}
     >
       {showTooltip && <HeatmapCellTooltip anchorRef={cellRef} label={label} />}
       <div
@@ -237,12 +242,14 @@ function HeatmapCell({
     </div>
   )
 }
+const MemoHeatmapCell = memo(HeatmapCell)
 
 type WeekHeatmapGridProps = {
   block: HeatmapYearBlock
   maxValue: number
   showYearLabel: boolean
   exportMode?: boolean
+  interactive?: boolean
 }
 
 type MobileWeekHeatmapGridProps = {
@@ -253,6 +260,7 @@ type MobileWeekHeatmapGridProps = {
   gapPx: number
   hoveredId: string | null
   onHover: (id: string | null) => void
+  interactive?: boolean
 }
 
 function shortWeekdayLabel(label: string): string {
@@ -267,6 +275,7 @@ function MobileWeekHeatmapGrid({
   gapPx,
   hoveredId,
   onHover,
+  interactive = true,
 }: MobileWeekHeatmapGridProps) {
   const { t } = useTranslation()
   const { grid, labels, monthLabels } = block
@@ -326,7 +335,7 @@ function MobileWeekHeatmapGrid({
                   const dateLabel = labels[rowIdx]?.[weekIdx] ?? null
                   const cellId = `${block.year}-${rowIdx}-${weekIdx}`
                   return (
-                    <HeatmapCell
+                    <MemoHeatmapCell
                       key={cellId}
                       cellId={cellId}
                       cellPx={cellPx}
@@ -335,6 +344,7 @@ function MobileWeekHeatmapGrid({
                       maxValue={maxValue}
                       hoveredId={hoveredId}
                       onHover={onHover}
+                      interactive={interactive}
                     />
                   )
                 })}
@@ -352,6 +362,7 @@ function WeekHeatmapGrid({
   maxValue,
   showYearLabel,
   exportMode = false,
+  interactive = true,
 }: WeekHeatmapGridProps) {
   const { t } = useTranslation()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
@@ -375,6 +386,7 @@ function WeekHeatmapGrid({
         gapPx={gapPx}
         hoveredId={hoveredId}
         onHover={setHoveredId}
+        interactive={interactive}
       />
     )
   }
@@ -444,7 +456,7 @@ function WeekHeatmapGrid({
                   const dateLabel = labels[rowIdx]?.[colIdx] ?? null
                   const cellId = `${block.year}-${rowIdx}-${colIdx}`
                   return (
-                    <HeatmapCell
+                    <MemoHeatmapCell
                       key={cellId}
                       cellId={cellId}
                       cellPx={cellPx}
@@ -454,6 +466,7 @@ function WeekHeatmapGrid({
                       hoveredId={hoveredId}
                       onHover={setHoveredId}
                       exportMode={exportMode}
+                      interactive={interactive}
                     />
                   )
                 })}
@@ -465,18 +478,23 @@ function WeekHeatmapGrid({
     </div>
   )
 }
+const MemoWeekHeatmapGrid = memo(WeekHeatmapGrid)
 
 /** GitHub-style submission calendar for slide-level heatmap insights. */
 export function ActivityCalendar({
   heatmap,
   exportMode: exportModeProp = false,
+  interactive = true,
 }: {
   heatmap: HeatmapInsights
   exportMode?: boolean
+  interactive?: boolean
 }) {
   const { t } = useTranslation()
   const slideExportMode = useSlideExportMode()
   const exportMode = exportModeProp || slideExportMode
+  const yearBlocks = useMemo(() => heatmap.yearBlocks, [heatmap.yearBlocks])
+  const effectiveInteractive = interactive && !exportMode
 
   if (heatmap.yearBlocks.length === 0) {
     return <p className="text-jutge-muted text-sm">{t("heatmap.noActivity")}</p>
@@ -493,13 +511,14 @@ export function ActivityCalendar({
           : "flex w-full max-w-full min-w-0 flex-col items-center gap-8 sm:w-auto"
       }
     >
-      {heatmap.yearBlocks.map((block) => (
-        <WeekHeatmapGrid
+      {yearBlocks.map((block) => (
+        <MemoWeekHeatmapGrid
           key={block.year}
           block={block}
           maxValue={globalMax}
           showYearLabel={showYearLabels}
           exportMode={exportMode}
+          interactive={effectiveInteractive}
         />
       ))}
     </div>

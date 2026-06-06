@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { useTranslation } from "react-i18next"
@@ -18,6 +19,37 @@ export function HeatmapCalendarSlide({ insights }: Props) {
   const reduceMotion = useReducedMotion()
   const layoutVariant = useLayoutVariant()
   const { heatmap } = insights
+  const [interactiveCalendar, setInteractiveCalendar] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number
+      cancelIdleCallback?: (handle: number) => void
+    }
+    let idleId: number | null = null
+    let timeoutId: number | null = null
+    const enableInteractive = () => {
+      if (!cancelled) setInteractiveCalendar(true)
+    }
+
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(enableInteractive, { timeout: 180 })
+    } else {
+      timeoutId = window.setTimeout(enableInteractive, 120)
+    }
+
+    return () => {
+      cancelled = true
+      if (idleId !== null && idleWindow.cancelIdleCallback) {
+        idleWindow.cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== null) window.clearTimeout(timeoutId)
+    }
+  }, [heatmap])
 
   const calendarPadding =
     layoutVariant === "wide"
@@ -33,7 +65,7 @@ export function HeatmapCalendarSlide({ insights }: Props) {
         transition={fadeUpTransition(reduceMotion, 0.24)}
       >
         <div className={`jutge-chart-panel-body ${calendarPadding}`}>
-          <ActivityCalendar heatmap={heatmap} />
+          <ActivityCalendar heatmap={heatmap} interactive={interactiveCalendar} />
         </div>
       </motion.div>
     </StoryLayout>

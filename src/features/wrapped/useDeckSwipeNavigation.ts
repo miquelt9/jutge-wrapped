@@ -13,7 +13,8 @@ import {
   isSwipeAllowed,
   isTouchNavigationTarget,
   resolveGestureLock,
-  shouldChangeSlide,
+  shouldChangeSlideWithVelocity,
+  type MotionQuality,
   type GestureLock,
   type SwipeDirection,
 } from "./deckSwipeNavigation"
@@ -21,8 +22,10 @@ import {
 export const DECK_SWIPE_TRANSITION =
   "transform 280ms cubic-bezier(0.4, 0, 0.2, 1)"
 
-const SNAP_BACK_MS = 280
-const COMMIT_ANIMATION_MS = 280
+const SNAP_BACK_MS_NORMAL = 280
+const SNAP_BACK_MS_REDUCED = 200
+const COMMIT_ANIMATION_MS_NORMAL = 280
+const COMMIT_ANIMATION_MS_REDUCED = 220
 
 export type SwipeUI = {
   translateX: number
@@ -41,6 +44,7 @@ type Options = {
   slideCount: number
   onNext: () => void
   onPrev: () => void
+  motionQuality?: MotionQuality
 }
 
 export function useDeckSwipeNavigation({
@@ -48,10 +52,12 @@ export function useDeckSwipeNavigation({
   slideCount,
   onNext,
   onPrev,
+  motionQuality = "normal",
 }: Options) {
   const [swipeUI, setSwipeUI] = useState<SwipeUI>(IDLE_SWIPE_UI)
 
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const touchStartAtRef = useRef<number | null>(null)
   const gestureLockRef = useRef<GestureLock | null>(null)
   const signedDxRef = useRef(0)
   const rafRef = useRef<number | null>(null)
@@ -64,6 +70,16 @@ export function useDeckSwipeNavigation({
   const snapTimerRef = useRef<number | null>(null)
   const commitTimerRef = useRef<number | null>(null)
   const listenerCleanupRef = useRef<(() => void) | null>(null)
+  const [isInteractionActive, setIsInteractionActive] = useState(false)
+  const [lastCommittedDirection, setLastCommittedDirection] =
+    useState<SwipeDirection | null>(null)
+
+  const commitAnimationMs =
+    motionQuality === "reduced"
+      ? COMMIT_ANIMATION_MS_REDUCED
+      : COMMIT_ANIMATION_MS_NORMAL
+  const snapBackMs =
+    motionQuality === "reduced" ? SNAP_BACK_MS_REDUCED : SNAP_BACK_MS_NORMAL
 
   useEffect(() => {
     onNextRef.current = onNext
@@ -109,6 +125,7 @@ export function useDeckSwipeNavigation({
     clearCommitTimer()
     gestureLockRef.current = null
     signedDxRef.current = 0
+    touchStartAtRef.current = null
     pendingUIRef.current = IDLE_SWIPE_UI
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current)
@@ -127,8 +144,8 @@ export function useDeckSwipeNavigation({
     snapTimerRef.current = window.setTimeout(() => {
       snapTimerRef.current = null
       resetSwipe()
-    }, SNAP_BACK_MS)
-  }, [clearSnapTimer, resetSwipe, scheduleUIUpdate])
+    }, snapBackMs)
+  }, [clearSnapTimer, resetSwipe, scheduleUIUpdate, snapBackMs])
 
   const commitSwipe = useCallback(
     (direction: SwipeDirection) => {
@@ -143,13 +160,15 @@ export function useDeckSwipeNavigation({
       clearCommitTimer()
       commitTimerRef.current = window.setTimeout(() => {
         commitTimerRef.current = null
+        setLastCommittedDirection(direction)
         if (direction === "next") onNextRef.current()
         else onPrevRef.current()
         resetSwipe()
         isTouchActiveRef.current = false
-      }, COMMIT_ANIMATION_MS)
+        setIsInteractionActive(false)
+      }, commitAnimationMs)
     },
-    [clearCommitTimer, resetSwipe, scheduleUIUpdate],
+    [clearCommitTimer, commitAnimationMs, resetSwipe, scheduleUIUpdate],
   )
 
   const attachListeners = useCallback(
@@ -160,7 +179,9 @@ export function useDeckSwipeNavigation({
 
         clearSnapTimer()
         isTouchActiveRef.current = true
+        setIsInteractionActive(true)
         touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+        touchStartAtRef.current = performance.now()
         gestureLockRef.current = null
         signedDxRef.current = 0
         pendingUIRef.current = IDLE_SWIPE_UI
@@ -209,6 +230,7 @@ export function useDeckSwipeNavigation({
 
         if (gestureLockRef.current !== "horizontal") {
           isTouchActiveRef.current = false
+          setIsInteractionActive(false)
           resetSwipe()
           return
         }
@@ -224,18 +246,23 @@ export function useDeckSwipeNavigation({
           Math.abs(signedDx),
           window.innerWidth,
         )
+        const now = performance.now()
+        const elapsed = Math.max(1, now - (touchStartAtRef.current ?? now))
+        const velocityPxPerMs = signedDx / elapsed
 
-        if (allowed && shouldChangeSlide(progress)) {
+        if (allowed && shouldChangeSlideWithVelocity(progress, velocityPxPerMs)) {
           commitSwipe(direction)
           return
         }
 
         isTouchActiveRef.current = false
+        setIsInteractionActive(false)
         snapBack()
       }
 
       const handleTouchCancel = () => {
         isTouchActiveRef.current = false
+        setIsInteractionActive(false)
         touchStartRef.current = null
 
         if (gestureLockRef.current === "horizontal" && signedDxRef.current !== 0) {
@@ -298,6 +325,8 @@ export function useDeckSwipeNavigation({
     swipeUI,
     swipeTarget,
     isTouchActiveRef,
+    isInteractionActive,
+    lastCommittedDirection,
     swipeTransition: DECK_SWIPE_TRANSITION,
   }
 }

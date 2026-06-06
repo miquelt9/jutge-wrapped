@@ -3,9 +3,11 @@ export const GESTURE_DEAD_ZONE_PX = 10
 
 /** Fraction of viewport width required to commit a slide change. */
 export const SWIPE_THRESHOLD_RATIO = 0.25
+export const SWIPE_VELOCITY_COMMIT_PX_PER_MS = 0.6
 
 export type GestureLock = "vertical" | "horizontal"
 export type SwipeDirection = "next" | "prev"
+export type MotionQuality = "normal" | "reduced"
 
 export function prefersCoarsePointer(): boolean {
   return (
@@ -46,6 +48,14 @@ export function shouldChangeSlide(progress: number): boolean {
   return progress >= 1
 }
 
+export function shouldChangeSlideWithVelocity(
+  progress: number,
+  velocityPxPerMs: number,
+  velocityThreshold = SWIPE_VELOCITY_COMMIT_PX_PER_MS,
+): boolean {
+  return shouldChangeSlide(progress) || Math.abs(velocityPxPerMs) >= velocityThreshold
+}
+
 export function getSwipeDirection(signedDx: number): SwipeDirection {
   return signedDx < 0 ? "next" : "prev"
 }
@@ -63,4 +73,12 @@ export function isSwipeAllowed(
 ): boolean {
   if (direction === "prev") return index > 0
   return index < slideCount - 1
+}
+
+export function getTouchMotionQuality(): MotionQuality {
+  if (typeof navigator === "undefined") return "normal"
+  const coreCount = navigator.hardwareConcurrency ?? 8
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8
+  if (coreCount <= 4 || memory <= 4) return "reduced"
+  return "normal"
 }

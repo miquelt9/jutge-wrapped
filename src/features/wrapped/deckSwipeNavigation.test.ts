@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest"
 import {
   computeSwipeProgress,
   GESTURE_DEAD_ZONE_PX,
+  getTouchMotionQuality,
   getAdjacentOffsetVw,
   getSwipeDirection,
   isSwipeAllowed,
   resolveGestureLock,
   shouldChangeSlide,
+  shouldChangeSlideWithVelocity,
+  SWIPE_VELOCITY_COMMIT_PX_PER_MS,
   SWIPE_THRESHOLD_RATIO,
 } from "./deckSwipeNavigation"
 
@@ -54,6 +57,22 @@ describe("shouldChangeSlide", () => {
   })
 })
 
+describe("shouldChangeSlideWithVelocity", () => {
+  it("commits by distance threshold", () => {
+    expect(shouldChangeSlideWithVelocity(1, 0.1)).toBe(true)
+  })
+
+  it("commits by high swipe velocity below distance threshold", () => {
+    expect(
+      shouldChangeSlideWithVelocity(0.4, SWIPE_VELOCITY_COMMIT_PX_PER_MS + 0.1),
+    ).toBe(true)
+  })
+
+  it("does not commit on slow short swipe", () => {
+    expect(shouldChangeSlideWithVelocity(0.4, 0.2)).toBe(false)
+  })
+})
+
 describe("getSwipeDirection", () => {
   it("maps signed dx to next and prev", () => {
     expect(getSwipeDirection(-40)).toBe("next")
@@ -78,5 +97,11 @@ describe("isSwipeAllowed", () => {
   it("blocks next on the last slide", () => {
     expect(isSwipeAllowed("next", 4, 5)).toBe(false)
     expect(isSwipeAllowed("next", 3, 5)).toBe(true)
+  })
+})
+
+describe("getTouchMotionQuality", () => {
+  it("returns a valid quality value", () => {
+    expect(["normal", "reduced"]).toContain(getTouchMotionQuality())
   })
 })
