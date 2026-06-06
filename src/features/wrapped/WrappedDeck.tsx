@@ -3,13 +3,7 @@ import { useDeckLoadingUX } from "./useDeckLoadingUX"
 import { useTranslation } from "react-i18next"
 import { AnimatePresence, motion } from "framer-motion"
 import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
-import {
-  ArrowUp,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-} from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, LogOut } from "lucide-react"
 import { SnapshotDownloadButton } from "@/components/SnapshotDownloadButton"
 import { SlideShareButton } from "@/components/SlideShareButton"
 import { DeckNavOverflowMenu } from "@/components/DeckNavOverflowMenu"
@@ -43,11 +37,22 @@ import { VerdictSlide } from "./slides/VerdictSlide"
 import { AwardsSlide } from "./slides/AwardsSlide"
 import { PerformanceSlide } from "./slides/PerformanceSlide"
 import { RankingSlide } from "./slides/RankingSlide"
-import { prefersCoarsePointer } from "./deckPullNavigation"
-import { useDeckPullNavigation } from "./useDeckPullNavigation"
+import {
+  isTouchNavigationTarget,
+  prefersCoarsePointer,
+} from "./deckSwipeNavigation"
+import { DeckSlidePanel } from "./slides/DeckSlidePanel"
+import { useDeckSwipeNavigation } from "./useDeckSwipeNavigation"
 
 const MOBILE_PRECOMPUTE_DELAY_MS = 1200
 const DESKTOP_PRECOMPUTE_DELAY_MS = 150
+const ENABLE_TOUCH_WARMUP = true
+const TOUCH_WARMUP_SLIDES = [
+  "intro",
+  "heatmap_stats",
+  "heatmap_calendar",
+  "rhythm",
+] as const
 
 export function WrappedDeck() {
   const { t } = useTranslation()
@@ -65,8 +70,11 @@ export function WrappedDeck() {
   const shareImageCacheRef = useRef<Map<ShareCacheKey, string>>(new Map())
   const shouldPrecomputeShareImages = useRef(canShareFiles())
   const precomputeAbortRef = useRef<AbortController | null>(null)
+  const warmedSlideKeysRef = useRef<Set<string>>(new Set())
   const [precomputeIndex, setPrecomputeIndex] = useState<number | null>(null)
   const [isPrecomputing, setIsPrecomputing] = useState(false)
+  const [warmupQueue, setWarmupQueue] = useState<number[]>([])
+  const [warmupIndex, setWarmupIndex] = useState<number | null>(null)
   const loadingLine = t("deck.loadingLine")
   const { showLoadingScreen } = useDeckLoadingUX(
     state.status,
@@ -95,19 +103,14 @@ export function WrappedDeck() {
     setIndex((i) => Math.max(i - 1, 0))
   }, [])
 
-  const {
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-    handleTouchCancel,
-    pullDistance,
-    isPulling,
-    isTouchActiveRef,
-  } = useDeckPullNavigation({
-    index,
-    slideCount,
-    onAdvance: next,
-  })
+  const touchNavigation = isTouchNavigationTarget()
+  const { setTrackRef, swipeUI, isTouchActiveRef, swipeTransition } =
+    useDeckSwipeNavigation({
+      index,
+      slideCount,
+      onNext: next,
+      onPrev: prev,
+    })
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -172,6 +175,146 @@ export function WrappedDeck() {
       setAwardsPageIndex(0)
     }
   }, [activeSlideIds, index])
+
+  const getTouchPanelKey = useCallback(
+    (targetIndex: number) => {
+      const targetSlideId = activeSlideIds[targetIndex]
+      if (!targetSlideId) return null
+      if (targetSlideId === "awards") return `awards-${awardsPageIndex}`
+      return targetSlideId
+    },
+    [activeSlideIds, awardsPageIndex],
+  )
+  const touchPanels = useMemo(() => {
+    if (!touchNavigation) return []
+    const candidateIndexes = [index - 1, index, index + 1].filter(
+      (targetIndex) => targetIndex >= 0 && targetIndex < slideCount,
+    )
+    return candidateIndexes
+      .map((targetIndex) => {
+        const key = getTouchPanelKey(targetIndex)
+        if (!key) return null
+        const offset = (targetIndex - index) as -1 | 0 | 1
+        return {
+          key,
+          offset,
+          isCurrent: targetIndex === index,
+          slideId: activeSlideIds[targetIndex]!,
+          content: renderSlide(targetIndex, awardsPageIndex),
+        }
+      })
+      .filter((panel): panel is NonNullable<typeof panel> => panel !== null)
+  }, [
+    activeSlideIds,
+    awardsPageIndex,
+    getTouchPanelKey,
+    index,
+    renderSlide,
+    slideCount,
+    touchNavigation,
+  ])
+
+  useEffect(() => {
+    if (
+      !ENABLE_TOUCH_WARMUP ||
+      !touchNavigation ||
+      !showLoadingScreen ||
+      state.status !== "ready"
+    ) {
+      return
+    }
+
+    const firstSlides = [0, 1, 2].filter((targetIndex) => targetIndex < slideCount)
+    const heavySlides = TOUCH_WARMUP_SLIDES.map((name) =>
+      activeSlideIds.indexOf(name),
+    ).filter((targetIndex) => targetIndex >= 0)
+    const nextQueue = Array.from(new Set([...firstSlides, ...heavySlides])).filter(
+      (targetIndex) => {
+        const key = getTouchPanelKey(targetIndex)
+        if (!key) return false
+        return !warmedSlideKeysRef.current.has(key)
+      },
+    )
+    setWarmupQueue(nextQueue)
+  }, [
+    activeSlideIds,
+    getTouchPanelKey,
+    showLoadingScreen,
+    slideCount,
+    state.status,
+    touchNavigation,
+  ])
+
+  useEffect(() => {
+    if (
+      !ENABLE_TOUCH_WARMUP ||
+      !touchNavigation ||
+      !showLoadingScreen ||
+      state.status !== "ready" ||
+      warmupIndex !== null ||
+      warmupQueue.length === 0
+    ) {
+      return
+    }
+    setWarmupIndex(warmupQueue[0]!)
+  }, [
+    showLoadingScreen,
+    state.status,
+    touchNavigation,
+    warmupIndex,
+    warmupQueue,
+  ])
+
+  useEffect(() => {
+    if (
+      !ENABLE_TOUCH_WARMUP ||
+      !touchNavigation ||
+      !showLoadingScreen ||
+      state.status !== "ready" ||
+      warmupIndex === null
+    ) {
+      return
+    }
+
+    let cancelled = false
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions,
+      ) => number
+      cancelIdleCallback?: (handle: number) => void
+    }
+
+    const finalizeWarmup = () => {
+      if (cancelled) return
+      const key = getTouchPanelKey(warmupIndex)
+      if (key) warmedSlideKeysRef.current.add(key)
+      setWarmupQueue((queue) => queue.filter((entry) => entry !== warmupIndex))
+      setWarmupIndex(null)
+    }
+
+    let idleId: number | null = null
+    let timeoutId: number | null = null
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(finalizeWarmup, { timeout: 120 })
+    } else {
+      timeoutId = window.setTimeout(finalizeWarmup, 32)
+    }
+
+    return () => {
+      cancelled = true
+      if (idleId !== null && idleWindow.cancelIdleCallback) {
+        idleWindow.cancelIdleCallback(idleId)
+      }
+      if (timeoutId !== null) window.clearTimeout(timeoutId)
+    }
+  }, [
+    getTouchPanelKey,
+    showLoadingScreen,
+    state.status,
+    touchNavigation,
+    warmupIndex,
+  ])
 
   useEffect(() => {
     const currentSlideId = activeSlideIds[index]
@@ -428,6 +571,18 @@ export function WrappedDeck() {
             </div>
           </SlideExportModeProvider>
         )}
+        {state.status === "ready" && warmupIndex !== null && (
+          <SlideExportModeProvider deckExportMode>
+            <div
+              aria-hidden
+              className="bg-jutge-bg pointer-events-none fixed top-0 -left-[200vw] w-screen"
+            >
+              <div className="bg-jutge-bg min-h-screen">
+                {renderSlide(warmupIndex, awardsPageIndex)}
+              </div>
+            </div>
+          </SlideExportModeProvider>
+        )}
       </div>
     )
   }
@@ -448,6 +603,10 @@ export function WrappedDeck() {
     slideId === "awards"
       ? { awardsPage: awardsPageIndex, awardsPerPage }
       : undefined
+  const panelTransition = slidePanelTransition(
+    reduceMotion,
+    slideDirectionRef.current,
+  )
 
   return (
     <SlideExportModeProvider>
@@ -575,84 +734,53 @@ export function WrappedDeck() {
         </header>
 
         <main className="bg-jutge-bg relative flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              {...slidePanelTransition(reduceMotion, slideDirectionRef.current)}
-              className="jutge-deck-scroller absolute inset-0 overflow-x-hidden overflow-y-auto"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={handleTouchCancel}
+          {touchNavigation ? (
+            <div
+              ref={setTrackRef}
+              className="relative h-full w-full overflow-hidden"
+              style={{
+                touchAction:
+                  swipeUI.gestureLock === "horizontal" ? "none" : undefined,
+              }}
             >
-              <div
-                ref={slideCaptureRef}
-                data-slide-export={slideId}
-                className="bg-jutge-bg flex min-h-full flex-col"
-              >
-                {renderSlide(index, awardsPageIndex)}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Pull-up indicator */}
-          <AnimatePresence>
-            {isPulling && pullDistance > 0 && (
+              {touchPanels.map((panel) => (
+                <DeckSlidePanel
+                  key={panel.key}
+                  offsetVw={panel.offset}
+                  translateX={swipeUI.translateX}
+                  isAnimating={swipeUI.isAnimating}
+                  swipeTransition={swipeTransition}
+                  gestureLock={swipeUI.gestureLock}
+                  isCurrent={panel.isCurrent}
+                  slideExportId={panel.isCurrent ? panel.slideId : undefined}
+                  captureRef={panel.isCurrent ? slideCaptureRef : undefined}
+                >
+                  {panel.content}
+                </DeckSlidePanel>
+              ))}
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
               <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 50 }}
-                transition={{ duration: 0.15 }}
-                className="pointer-events-none absolute right-0 bottom-0 left-0 z-50 flex flex-col items-center justify-end pb-6"
-                style={{
-                  height: `${pullDistance}px`,
-                  background:
-                    "linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(15, 23, 42, 0) 100%)",
-                }}
+                key={index}
+                initial={panelTransition.initial}
+                animate={panelTransition.animate}
+                exit={panelTransition.exit}
+                transition={panelTransition.transition}
+                className="absolute inset-0 overflow-hidden"
               >
-                <div className="flex flex-col items-center gap-2 px-4 text-center">
-                  {/* Arrow that grows and animates */}
-                  <motion.div
-                    animate={{
-                      y: pullDistance >= 80 ? [0, -6, 0] : 0,
-                      scale:
-                        pullDistance >= 80
-                          ? 1.2
-                          : Math.min(0.8 + (pullDistance / 80) * 0.4, 1.2),
-                    }}
-                    transition={{
-                      y: {
-                        repeat: Infinity,
-                        duration: 0.6,
-                        ease: "easeInOut",
-                      },
-                      scale: { duration: 0.1 },
-                    }}
-                    className={`rounded-full p-2 ${
-                      pullDistance >= 80
-                        ? "bg-jutge-blue text-white"
-                        : "bg-white/10 text-white/70"
-                    }`}
+                <div className="jutge-deck-scroller h-full overflow-x-hidden overflow-y-auto">
+                  <div
+                    ref={slideCaptureRef}
+                    data-slide-export={slideId}
+                    className="bg-jutge-bg flex min-h-full flex-col"
                   >
-                    <ArrowUp className="h-5 w-5" />
-                  </motion.div>
-
-                  {/* Text feedback */}
-                  <motion.span
-                    className={`text-xs font-semibold tracking-wide uppercase transition-colors duration-200 ${
-                      pullDistance >= 80
-                        ? "text-jutge-blue font-bold"
-                        : "text-white/60"
-                    }`}
-                  >
-                    {pullDistance >= 80
-                      ? t("deck.releaseToNext")
-                      : t("deck.pullToNext")}
-                  </motion.span>
+                    {renderSlide(index, awardsPageIndex)}
+                  </div>
                 </div>
               </motion.div>
-            )}
-          </AnimatePresence>
+            </AnimatePresence>
+          )}
         </main>
 
         {precomputeIndex !== null && (

@@ -69,9 +69,7 @@
     "exit": "Exit",
     "menu": "Menu",
     "menuAria": "Open menu",
-    "downloadJson": "Download JSON snapshot",
-    "pullToNext": "Scroll down for next slide",
-    "releaseToNext": "Release for next slide"
+    "downloadJson": "Download JSON snapshot"
   },
   "slides": {
     "intro": {
