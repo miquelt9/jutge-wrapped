@@ -241,14 +241,14 @@ export function DateRangePage() {
     <div className="jutge-page flex h-full min-h-0 flex-col">
       <header className="jutge-nav shrink-0">
         <div className="jutge-nav-inner">
-          <div className="jutge-nav-start min-w-0">
-            <span className="truncate font-bold text-white">
-              {t("common.brand")}
-            </span>
-            <span className="hidden truncate text-sm text-white/70 sm:inline">
-              {t("dateRange.headerSuffix")}
-            </span>
-          </div>
+            <div className="jutge-nav-start min-w-0">
+              <span className="truncate font-bold text-white">
+                {t("common.brand")}
+              </span>
+              <span className="truncate text-sm text-white/70">
+                {t("dateRange.headerSuffix")}
+              </span>
+            </div>
           <div className="jutge-nav-end">
             {isSnapshotMode && (
               <button

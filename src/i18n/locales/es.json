@@ -1,6 +1,7 @@
 {
   "common": {
-    "brand": "Jutge.org",
+    "brand": "Jutge",
+    "brandFull": "Jutge.org",
     "wrapped": "Wrapped",
     "disclaimer": "Proyecto no oficial — sin afiliación con Jutge.org ni la UPC.",
     "snapshot": "Instantánea",

@@ -38,9 +38,9 @@ export function LoginPage() {
         <div className="jutge-nav-inner">
           <div className="jutge-nav-start min-w-0">
             <span className="truncate font-bold text-white">
-              {t("common.brand")}
+              {t("common.brandFull")}
             </span>
-            <span className="hidden text-sm text-white/70 sm:inline">
+            <span className="text-sm text-white/70">
               {t("common.wrapped")}
             </span>
             <AppVersionBadge className="shrink-0 text-xs text-white/45" />

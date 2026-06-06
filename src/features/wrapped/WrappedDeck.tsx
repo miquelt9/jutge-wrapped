@@ -332,9 +332,14 @@ export function WrappedDeck() {
         )}
         <header className="jutge-nav">
           <div className="jutge-nav-inner">
-            <span className="truncate font-bold text-white">
-              {t("common.brand")}
-            </span>
+            <div className="jutge-nav-start min-w-0">
+              <span className="truncate font-bold text-white">
+                {t("common.brand")}
+              </span>
+              <span className="text-sm text-white/70">
+                {t("common.wrapped")}
+              </span>
+            </div>
             <div className="jutge-nav-end">
               <NavControls onDark compact />
             </div>
@@ -388,7 +393,7 @@ export function WrappedDeck() {
               <span className="truncate font-bold text-white">
                 {t("common.brand")}
               </span>
-              <span className="hidden text-sm text-white/70 sm:inline">
+              <span className="text-sm text-white/70">
                 {t("common.wrapped")}
               </span>
             </div>
@@ -445,7 +450,7 @@ export function WrappedDeck() {
               <span className="truncate font-bold text-white">
                 {t("common.brand")}
               </span>
-              <span className="hidden text-sm text-white/70 sm:inline">
+              <span className="text-sm text-white/70">
                 {t("common.wrapped")}
               </span>
               {isSnapshotMode && (
