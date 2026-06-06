@@ -40,6 +40,7 @@ import { RhythmSlide } from "./slides/RhythmSlide"
 import { CourseArcSlide } from "./slides/CourseArcSlide"
 import { VerdictSlide } from "./slides/VerdictSlide"
 import { AwardsSlide } from "./slides/AwardsSlide"
+import { PerformanceSlide } from "./slides/PerformanceSlide"
 import { RankingSlide } from "./slides/RankingSlide"
 import { prefersCoarsePointer } from "./deckPullNavigation"
 import { useDeckPullNavigation } from "./useDeckPullNavigation"
@@ -151,6 +152,8 @@ export function WrappedDeck() {
           )
         case "ranking":
           return <RankingSlide key="rank" insights={insights} />
+        case "performance":
+          return <PerformanceSlide key="performance" insights={insights} />
         default:
           return null
       }

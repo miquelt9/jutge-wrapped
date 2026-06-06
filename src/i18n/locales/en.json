@@ -175,6 +175,9 @@
       "platformSubs": "Platform subs",
       "judgeAlt": "Jutge judge"
     },
+    "performance": {
+      "eyebrow": "Your achievements"
+    },
     "share": {
       "eyebrow": "Share your Wrapped",
       "title": "Show off your stats",
@@ -218,7 +221,8 @@
   },
   "rank": {
     "eliteLabel": "Top {{percent}}% of Jutge users",
-    "eliteLabelAnimated": "Top <0/>% of Jutge users"
+    "eliteLabelAnimated": "Top <0/>% of Jutge users",
+    "absoluteRankAnimated": "You are number #<0/> on Jutge"
   },
   "personalization": {
     "intro": {
@@ -320,7 +324,8 @@
       "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
       "awards": "My Jutge.org Wrapped! {{count}} awards — latest: {{title}}!",
       "awardsPage": "On this page: {{titles}}",
-      "ranking": "My Jutge.org Wrapped! {{elite}}!"
+      "ranking": "My Jutge.org Wrapped! {{elite}}!",
+      "performance": "My Jutge.org Wrapped! Rank #{{rank}}!"
     }
   },
   "cors": {

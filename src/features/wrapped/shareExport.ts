@@ -9,6 +9,7 @@ export const SLIDE_IDS = [
   "verdict",
   "awards",
   "ranking",
+  "performance",
 ] as const
 
 export type SlideId = (typeof SLIDE_IDS)[number]
@@ -125,6 +126,10 @@ function slideShareTemplate(
     case "ranking":
       return t("share.templates.ranking", {
         elite: insights.rank.eliteLabel,
+      })
+    case "performance":
+      return t("share.templates.performance", {
+        rank: insights.rank.rank,
       })
     default:
       return "Jutge.org Wrapped!"
