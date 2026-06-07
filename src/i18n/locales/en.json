@@ -25,7 +25,6 @@
   },
   "login": {
     "signIn": "Sign in",
-    "underDevelopmentTitle": "This website is under development",
     "intro": "Use your Jutge.org credentials. Your token stays in memory only — we never store your password.",
     "email": "Email",
     "password": "Password",

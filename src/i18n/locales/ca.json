@@ -25,7 +25,6 @@
   },
   "login": {
     "signIn": "Inicia sessió",
-    "underDevelopmentTitle": "Aquest lloc web està en desenvolupament",
     "intro": "Fes servir les credencials de Jutge.org. El token només es guarda en memòria — mai desem la contrasenya.",
     "email": "Correu",
     "password": "Contrasenya",

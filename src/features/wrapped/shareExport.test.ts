@@ -54,19 +54,23 @@ const awardsInsights = {
 } as WrappedInsights
 
 describe("getShareCacheKey", () => {
-  it("returns slide id for non-awards slides", () => {
-    expect(getShareCacheKey("intro")).toBe("intro")
-    expect(getShareCacheKey("heatmap_stats")).toBe("heatmap_stats")
-    expect(getShareCacheKey("heatmap_calendar")).toBe("heatmap_calendar")
+  it("returns theme-scoped key for non-awards slides", () => {
+    expect(getShareCacheKey("intro", "jutge")).toBe("jutge:intro")
+    expect(getShareCacheKey("heatmap_stats", "dark")).toBe(
+      "dark:heatmap_stats",
+    )
+    expect(getShareCacheKey("heatmap_calendar", "fib")).toBe(
+      "fib:heatmap_calendar",
+    )
   })
 
-  it("returns awards page key when awards page is provided", () => {
-    expect(getShareCacheKey("awards", 0)).toBe("awards:0")
-    expect(getShareCacheKey("awards", 3)).toBe("awards:3")
+  it("returns theme-scoped awards page key when page is provided", () => {
+    expect(getShareCacheKey("awards", "jutge", 0)).toBe("jutge:awards:0")
+    expect(getShareCacheKey("awards", "upc", 3)).toBe("upc:awards:3")
   })
 
-  it("returns awards slide id when page is omitted", () => {
-    expect(getShareCacheKey("awards")).toBe("awards")
+  it("returns theme-scoped awards slide id when page is omitted", () => {
+    expect(getShareCacheKey("awards", "dark")).toBe("dark:awards")
   })
 })
 

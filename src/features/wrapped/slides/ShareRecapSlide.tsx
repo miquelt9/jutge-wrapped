@@ -187,17 +187,14 @@ export function ShareRecapSlide({ raw, insights }: Props) {
                 )}
               </div>
               <div className="min-w-0 text-left">
-                <p className="text-jutge-muted text-xs font-bold uppercase">
-                  {t("slides.intro.judgeLevel")}
-                </p>
                 <p
-                  className={`jutge-score text-jutge-blue ${
+                  className={`jutge-score text-jutge-blue leading-tight ${
                     isStacked ? "text-xl" : "text-2xl"
                   }`}
                 >
                   {insights.level}
                 </p>
-                <p className="text-jutge-muted mt-1 truncate text-sm">
+                <p className="text-jutge-muted mt-1 line-clamp-2 break-words text-sm leading-snug">
                   {profileName}
                 </p>
               </div>
@@ -206,7 +203,7 @@ export function ShareRecapSlide({ raw, insights }: Props) {
         </StaggerGroup>
 
         <motion.p
-          className="text-jutge-muted text-center text-sm sm:text-left"
+          className="text-jutge-muted text-center text-xs sm:text-left"
           initial={fadeUpHidden(reduceMotion)}
           animate={fadeUpVisible()}
           transition={fadeUpTransition(reduceMotion, 0.28)}

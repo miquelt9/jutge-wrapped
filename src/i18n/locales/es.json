@@ -25,7 +25,6 @@
   },
   "login": {
     "signIn": "Iniciar sesión",
-    "underDevelopmentTitle": "Este sitio web está en desarrollo",
     "intro": "Usa tus credenciales de Jutge.org. El token solo se guarda en memoria — nunca almacenamos tu contraseña.",
     "email": "Correo",
     "password": "Contraseña",

@@ -1,4 +1,5 @@
 import type { TFunction } from "i18next"
+import type { ThemeId } from "@/theme/themes"
 import type { WrappedInsights } from "./types"
 
 export const SLIDE_IDS = [
@@ -16,7 +17,7 @@ export const SLIDE_IDS = [
 
 export type SlideId = (typeof SLIDE_IDS)[number]
 
-export type ShareCacheKey = SlideId | `awards:${number}`
+export type ShareCacheKey = `${ThemeId}:${SlideId}` | `${ThemeId}:awards:${number}`
 
 export const WRAPPED_APP_URL = "https://miquelt9.github.io/jutge-wrapped/"
 
@@ -29,12 +30,13 @@ export function getAwardsPerPage(isWide: boolean): number {
 
 export function getShareCacheKey(
   slideId: SlideId,
+  theme: ThemeId,
   awardsPage?: number,
 ): ShareCacheKey {
   if (slideId === "awards" && awardsPage !== undefined) {
-    return `awards:${awardsPage}`
+    return `${theme}:awards:${awardsPage}`
   }
-  return slideId
+  return `${theme}:${slideId}`
 }
 
 export function getActiveSlideIds(insights: WrappedInsights): SlideId[] {

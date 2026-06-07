@@ -10,6 +10,7 @@ import { DeckNavOverflowMenu } from "@/components/DeckNavOverflowMenu"
 import { useAuth } from "@/context/AuthContext"
 import { SlideExportModeProvider } from "@/context/SlideExportModeContext"
 import { useSnapshot } from "@/context/SnapshotContext"
+import { useTheme } from "@/context/ThemeContext"
 import { useWrappedPeriod } from "@/context/WrappedContext"
 import { ProgressDots } from "@/components/ProgressDots"
 import { NavControls } from "@/components/NavControls"
@@ -60,6 +61,7 @@ const TOUCH_WARMUP_SLIDES = [
 export function WrappedDeck() {
   const { t } = useTranslation()
   const { client, logout } = useAuth()
+  const { theme } = useTheme()
   const { period, clearPeriod } = useWrappedPeriod()
   const { snapshot, isSnapshotMode, clearSnapshot } = useSnapshot()
   const { state } = useWrappedData(client, period, snapshot)
@@ -353,12 +355,21 @@ export function WrappedDeck() {
   ])
 
   useEffect(() => {
+    precomputeAbortRef.current?.abort()
+    precomputeAbortRef.current = null
+    shareImageCacheRef.current.clear()
+    setPrecomputeIndex(null)
+    setIsPrecomputing(false)
+  }, [theme])
+
+  useEffect(() => {
     const currentSlideId = activeSlideIds[index]
     if (!currentSlideId) return
     precomputeAbortRef.current?.abort()
     precomputeAbortRef.current = null
     const cacheKey = getShareCacheKey(
       currentSlideId,
+      theme,
       currentSlideId === "awards" ? awardsPageIndex : undefined,
     )
     const currentImage = shareImageCacheRef.current.get(cacheKey)
@@ -368,7 +379,7 @@ export function WrappedDeck() {
     }
     setPrecomputeIndex(null)
     setIsPrecomputing(false)
-  }, [activeSlideIds, awardsPageIndex, index])
+  }, [activeSlideIds, awardsPageIndex, index, theme])
 
   useEffect(() => {
     if (
@@ -385,6 +396,7 @@ export function WrappedDeck() {
     if (!currentSlideId) return
     const cacheKey = getShareCacheKey(
       currentSlideId,
+      theme,
       currentSlideId === "awards" ? awardsPageIndex : undefined,
     )
     if (shareImageCacheRef.current.has(cacheKey)) return
@@ -409,6 +421,7 @@ export function WrappedDeck() {
     isTouchActiveRef,
     precomputeIndex,
     state.status,
+    theme,
   ])
 
   useEffect(() => {
@@ -456,6 +469,7 @@ export function WrappedDeck() {
 
       const cacheKey = getShareCacheKey(
         slideId,
+        theme,
         slideId === "awards" ? captureAwardsPage : undefined,
       )
 
@@ -512,6 +526,7 @@ export function WrappedDeck() {
     precomputeIndex,
     showLoadingScreen,
     state.status,
+    theme,
   ])
 
   if (state.status === "error") {
@@ -633,6 +648,7 @@ export function WrappedDeck() {
   const slideId = activeSlideIds[index]!
   const shareCacheKey = getShareCacheKey(
     slideId,
+    theme,
     slideId === "awards" ? awardsPageIndex : undefined,
   )
   const awardsPerPage = getAwardsPerPage(layoutVariant === "wide")

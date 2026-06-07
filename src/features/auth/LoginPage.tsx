@@ -64,9 +64,6 @@ export function LoginPage() {
           <div className="jutge-panel w-full max-w-md">
           <div className="jutge-panel-heading">{t("login.signIn")}</div>
           <div className="jutge-panel-body">
-            <h1 className="text-jutge-text text-center text-lg font-black sm:text-xl">
-              {t("login.underDevelopmentTitle")}
-            </h1>
             <p className="text-jutge-muted text-sm">{t("login.intro")}</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
