@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import { motion } from "framer-motion"
 import { useAppReducedMotion as useReducedMotion } from "@/context/SlideExportModeContext"
 import { staggerContainer, staggerItem } from "./motionPresets"
@@ -26,13 +26,18 @@ export function StaggerGroup({ children, className }: GroupProps) {
 type ItemProps = {
   children: ReactNode
   className?: string
+  style?: CSSProperties
 }
 
-export function StaggerItem({ children, className }: ItemProps) {
+export function StaggerItem({ children, className, style }: ItemProps) {
   const reduceMotion = useReducedMotion()
 
   return (
-    <motion.div className={className} variants={staggerItem(reduceMotion)}>
+    <motion.div
+      className={className}
+      style={style}
+      variants={staggerItem(reduceMotion)}
+    >
       {children}
     </motion.div>
   )

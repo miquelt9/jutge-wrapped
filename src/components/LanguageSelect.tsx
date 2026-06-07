@@ -16,10 +16,10 @@ export function LanguageSelect({
   const { i18n, t } = useTranslation()
 
   const selectClass = onDark
-    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-[3.25rem] shrink-0 px-1 text-xs sm:w-auto sm:min-w-[4.25rem] sm:max-w-none sm:px-2 sm:text-sm" : ""}`
+    ? `jutge-theme-select jutge-theme-select-on-dark${compact ? " w-full min-w-[5.75rem] max-w-[9rem] shrink-0 px-1.5 text-xs sm:w-auto sm:min-w-[5.75rem] sm:max-w-none sm:px-2 sm:text-sm" : ""}`
     : compact
-      ? "jutge-theme-select jutge-input w-[3.25rem] shrink-0 px-1 py-1 text-xs sm:w-auto sm:min-w-[4.25rem] sm:max-w-none sm:px-2 sm:py-1.5 sm:text-sm"
-      : "jutge-theme-select jutge-input w-auto min-w-[9rem] py-1.5"
+      ? "jutge-theme-select jutge-input w-full min-w-[5.75rem] max-w-[9rem] shrink-0 px-1.5 py-1 text-xs sm:w-auto sm:min-w-[5.75rem] sm:max-w-none sm:px-2 sm:py-1.5 sm:text-sm"
+      : "jutge-theme-select jutge-input w-auto min-w-[5.75rem] py-1.5"
 
   return (
     <label
@@ -40,7 +40,7 @@ export function LanguageSelect({
       >
         {SUPPORTED_LANGUAGES.map((option) => (
           <option key={option.code} value={option.code}>
-            {compact ? option.code.toUpperCase() : option.label}
+            {option.label}
           </option>
         ))}
       </select>

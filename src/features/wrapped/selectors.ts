@@ -26,6 +26,7 @@ import {
 } from "./period"
 import type { WrappedPeriod } from "./period"
 import { compilerColor } from "@/theme/jutgeColors"
+import { estimateActiveMinutes } from "./timeSpent"
 import type {
   AwardInsights,
   AwardItem,
@@ -543,6 +544,7 @@ export function buildIntroMetricDrilldowns(
 export function buildJourneyInsights(
   dashboard: Dashboard,
   drilldowns: IntroMetricDrilldowns = EMPTY_INTRO_DRILLDOWNS,
+  estimatedActiveMinutes: number | null = null,
 ): JourneyInsights {
   const { stats, heatmap } = dashboard
   const sorted = [...heatmap].sort((a, b) => a.date - b.date)
@@ -557,6 +559,7 @@ export function buildJourneyInsights(
     rejectedProblems: rejected,
     totalSubmissions: stats.number_of_submissions ?? 0,
     problemSuccessRate: Math.round((accepted / denom) * 1000) / 10,
+    estimatedActiveMinutes,
     firstActive: first ? formatDate(first.date) : null,
     lastActive: last ? formatDate(last.date) : null,
     spanLabel:
@@ -1391,6 +1394,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
     "compilers",
   )
 
+  const estimatedActiveMinutes = estimateActiveMinutes(raw.submissions)
   const journey = buildJourneyInsights(
     dashboard,
     buildIntroMetricDrilldowns(
@@ -1400,6 +1404,7 @@ export function buildWrappedInsights(raw: WrappedRawData): WrappedInsights {
       raw.awards,
       raw.period,
     ),
+    estimatedActiveMinutes,
   )
   const heatmap = buildHeatmapInsights(dashboard, raw.period)
   const weekday = buildWeekdayInsights(dashboard)

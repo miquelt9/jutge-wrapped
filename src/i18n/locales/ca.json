@@ -182,6 +182,18 @@
     "performance": {
       "eyebrow": "Els teus assoliments"
     },
+    "recap": {
+      "title": "El teu Jutge Wrapped {{yearRange}}",
+      "ranking": "Ranking",
+      "estimatedTime": "Temps actiu estimat",
+      "timeUnavailable": "No disponible",
+      "acceptedProblems": "Problemes acceptats",
+      "totalSubmissions": "Enviaments totals",
+      "acRate": "Taxa AC",
+      "archetype": "Arquetip de programació",
+      "topLanguage": "L'idioma que parles:",
+      "footer": "Fes el teu wrapped a <0>{{url}}</0>"
+    },
     "share": {
       "eyebrow": "Comparteix el teu Wrapped",
       "title": "Mostra les teves estadístiques",
@@ -330,7 +342,8 @@
       "awards": "El meu Jutge.org Wrapped! {{count}} premis — últim: {{title}}!",
       "awardsPage": "En aquesta pàgina: {{titles}}",
       "ranking": "El meu Jutge.org Wrapped! {{elite}}!",
-      "performance": "El meu Jutge.org Wrapped! Posició #{{rank}}!"
+      "performance": "El meu Jutge.org Wrapped! Posició #{{rank}}!",
+      "recap": "El meu Jutge.org Wrapped! Temps actiu estimat: {{minutes}} minuts, {{accepted}} problemes acceptats i {{submissions}} enviaments."
     }
   },
   "cors": {

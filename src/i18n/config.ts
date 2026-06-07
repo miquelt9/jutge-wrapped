@@ -13,21 +13,47 @@ export const SUPPORTED_LANGUAGES = [
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]["code"]
 
-function readStoredLanguage(): AppLanguage {
+const SUPPORTED_LANGUAGE_CODES = new Set<AppLanguage>(
+  SUPPORTED_LANGUAGES.map((lang) => lang.code),
+)
+
+function isAppLanguage(value: string): value is AppLanguage {
+  return SUPPORTED_LANGUAGE_CODES.has(value as AppLanguage)
+}
+
+export function detectBrowserLanguage(
+  languages: readonly string[] = typeof navigator !== "undefined"
+    ? navigator.languages.length > 0
+      ? navigator.languages
+      : [navigator.language]
+    : [],
+): AppLanguage {
+  for (const locale of languages) {
+    const primary = locale.split("-")[0]?.toLowerCase()
+    if (primary && isAppLanguage(primary)) return primary
+  }
+  return "en"
+}
+
+function readStoredLanguage(): AppLanguage | null {
   try {
     const raw = localStorage.getItem(LANG_STORAGE_KEY)
-    if (raw === "ca" || raw === "en") return raw
+    if (raw && isAppLanguage(raw)) return raw
   } catch {
     /* ignore */
   }
-  return "en"
+  return null
+}
+
+export function resolveInitialLanguage(): AppLanguage {
+  return readStoredLanguage() ?? detectBrowserLanguage()
 }
 
 export function applyDocumentLanguage(lang: string) {
   document.documentElement.lang = lang
 }
 
-const initialLang = readStoredLanguage()
+const initialLang = resolveInitialLanguage()
 applyDocumentLanguage(initialLang)
 
 void i18n.use(initReactI18next).init({

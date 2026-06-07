@@ -305,6 +305,33 @@ describe("buildWrappedInsights slow solve", () => {
   })
 })
 
+describe("buildWrappedInsights estimated active time", () => {
+  it("estimates active minutes while ignoring long outlier breaks", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: [
+        makeSubmission("2025-01-01T22:00:00Z"),
+        makeSubmission("2025-01-01T22:10:00Z"),
+        makeSubmission("2025-01-02T09:00:00Z"),
+        makeSubmission("2025-01-02T09:20:00Z"),
+      ],
+    }
+
+    const insights = buildWrappedInsights(raw)
+    expect(insights.journey.estimatedActiveMinutes).toBe(60)
+  })
+
+  it("exposes null when submission history is unavailable", () => {
+    const raw: WrappedRawData = {
+      ...baseRaw,
+      submissions: undefined,
+    }
+
+    const insights = buildWrappedInsights(raw)
+    expect(insights.journey.estimatedActiveMinutes).toBeNull()
+  })
+})
+
 describe("buildRankingHighlights", () => {
   it("computes first-attempt rate from submission history", () => {
     const raw: WrappedRawData = {

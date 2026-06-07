@@ -37,6 +37,7 @@ import { VerdictSlide } from "./slides/VerdictSlide"
 import { AwardsSlide } from "./slides/AwardsSlide"
 import { PerformanceSlide } from "./slides/PerformanceSlide"
 import { RankingSlide } from "./slides/RankingSlide"
+import { ShareRecapSlide } from "./slides/ShareRecapSlide"
 import {
   getTouchMotionQuality,
   isTouchNavigationTarget,
@@ -174,6 +175,8 @@ export function WrappedDeck() {
           return <RankingSlide key="rank" insights={insights} />
         case "performance":
           return <PerformanceSlide key="performance" insights={insights} />
+        case "recap":
+          return <ShareRecapSlide key="recap" raw={raw} insights={insights} />
         default:
           return null
       }

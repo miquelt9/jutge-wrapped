@@ -182,6 +182,18 @@
     "performance": {
       "eyebrow": "Tus logros"
     },
+    "recap": {
+      "title": "Tu Jutge Wrapped {{yearRange}}",
+      "ranking": "Ranking",
+      "estimatedTime": "Tiempo activo estimado",
+      "timeUnavailable": "No disponible",
+      "acceptedProblems": "Problemas aceptados",
+      "totalSubmissions": "Envíos totales",
+      "acRate": "Tasa AC",
+      "archetype": "Arquetipo de programación",
+      "topLanguage": "Lenguaje principal",
+      "footer": "Haz tu wrapped en <0>{{url}}</0>"
+    },
     "share": {
       "eyebrow": "Comparte tu Wrapped",
       "title": "Presume de tus estadísticas",
@@ -330,7 +342,8 @@
       "awards": "¡Mi Jutge.org Wrapped! {{count}} premios — último: {{title}}!",
       "awardsPage": "En esta página: {{titles}}",
       "ranking": "¡Mi Jutge.org Wrapped! {{elite}}!",
-      "performance": "¡Mi Jutge.org Wrapped! Posición #{{rank}}!"
+      "performance": "¡Mi Jutge.org Wrapped! Posición #{{rank}}!",
+      "recap": "¡Mi Jutge.org Wrapped! Tiempo activo estimado: {{minutes}} minutos, {{accepted}} problemas aceptados y {{submissions}} envíos."
     }
   },
   "cors": {

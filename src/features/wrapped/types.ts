@@ -78,6 +78,7 @@ export type JourneyInsights = {
   rejectedProblems: number
   totalSubmissions: number
   problemSuccessRate: number
+  estimatedActiveMinutes: number | null
   firstActive: string | null
   lastActive: string | null
   spanLabel: string
