@@ -2,7 +2,8 @@ import { useState, type FormEvent } from "react"
 import { useTranslation } from "react-i18next"
 import { Github, Info, Lock, LogIn, Shield } from "lucide-react"
 
-const GITHUB_REPO_URL = "https://github.com/miquelt9/jutge-wrapped"
+const GITHUB_CONTRIBUTE_URL =
+  "https://github.com/miquelt9/jutge-wrapped/blob/main/CONTRIBUTING.md"
 import { useAuth } from "@/context/AuthContext"
 import { AppVersionBadge } from "@/components/AppVersionBadge"
 import { CorsOverlay } from "@/components/CorsOverlay"
@@ -139,13 +140,13 @@ export function LoginPage() {
 
             <div className="mt-5 text-center sm:hidden">
               <a
-                href={GITHUB_REPO_URL}
+                href={GITHUB_CONTRIBUTE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-jutge-muted hover:text-jutge-text inline-flex items-center gap-1.5 text-xs transition-colors"
               >
                 <Github className="h-3.5 w-3.5" aria-hidden />
-                {t("login.viewOnGitHub")}
+                {t("login.contribute")}
               </a>
             </div>
           </div>
@@ -155,13 +156,13 @@ export function LoginPage() {
 
       <footer className="hidden shrink-0 px-4 py-4 text-center sm:block">
         <a
-          href={GITHUB_REPO_URL}
+          href={GITHUB_CONTRIBUTE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="text-jutge-muted hover:text-jutge-text inline-flex items-center gap-1.5 text-xs transition-colors"
         >
           <Github className="h-3.5 w-3.5" aria-hidden />
-          {t("login.viewOnGitHub")}
+          {t("login.contribute")}
         </a>
       </footer>
     </div>

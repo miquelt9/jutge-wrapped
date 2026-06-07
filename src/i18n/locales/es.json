@@ -34,7 +34,7 @@
     "noCredentialPersistence": "Sin guardar credenciales",
     "or": "o",
     "loadSnapshotHint": "Abre un JSON que guardaste antes — funciona sin conexión y sin iniciar sesión.",
-    "viewOnGitHub": "Ver código en GitHub"
+    "contribute": "Contribuye en este proyecto"
   },
   "dateRange": {
     "headerSuffix": "Wrapped — elige fechas",

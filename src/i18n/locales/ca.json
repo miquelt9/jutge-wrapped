@@ -34,7 +34,7 @@
     "noCredentialPersistence": "Sense desar credencials",
     "or": "o",
     "loadSnapshotHint": "Obre un JSON que has desat abans — funciona sense connexió i sense iniciar sessió.",
-    "viewOnGitHub": "Codi font a GitHub"
+    "contribute": "Contribueix al projecte"
   },
   "dateRange": {
     "headerSuffix": "Wrapped — tria dates",
