@@ -267,6 +267,15 @@ function shortWeekdayLabel(label: string): string {
   return label.slice(0, 2)
 }
 
+export function shouldUseMobileHeatmapLayout(
+  isViewportMobile: boolean,
+  exportMode = false,
+): boolean {
+  // Export mode should not force desktop orientation on narrow viewports.
+  void exportMode
+  return isViewportMobile
+}
+
 function MobileWeekHeatmapGrid({
   block,
   maxValue,
@@ -369,7 +378,10 @@ function WeekHeatmapGrid({
   const responsiveMetrics = useHeatmapCellMetrics()
   const cellPx = exportMode ? CELL_PX_DESKTOP : responsiveMetrics.cellPx
   const gapPx = exportMode ? CELL_GAP_PX_DESKTOP : responsiveMetrics.gapPx
-  const isMobile = !exportMode && responsiveMetrics.isMobile
+  const isMobile = shouldUseMobileHeatmapLayout(
+    responsiveMetrics.isMobile,
+    exportMode,
+  )
   const { grid, labels, monthLabels } = block
 
   if (grid.length === 0 || !grid[0]?.length) {
