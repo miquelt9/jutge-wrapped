@@ -266,23 +266,23 @@
     },
     "slowSolve": {
       "label": "Longest time to solve",
-      "headline": "<0>{{problem}}</0> took <1>{{duration}}</1> to solve",
+      "headline": "You took <1>{{duration}}</1> to solve <0>{{problem}}</0>",
       "detail": "from first submission to first AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
         "label": "First attempt",
-        "headline": "You solved <0>{{percent}}%</0> on the first try",
+        "headline": "You solved <0>{{percent}}%</0> of the problems on the first try",
         "detail": "{{count}} of {{total}} solved problems"
       },
       "platformProblems": {
         "label": "Platform coverage",
-        "headline": "<0>{{percent}}%</0> of Jutge problems",
+        "headline": "You completed <0>{{percent}}%</0> of Jutge problems",
         "detail": "{{accepted}} out of {{total}} problems"
       },
       "platformSubmissions": {
         "label": "Submission footprint",
-        "headline": "<0>{{percent}}%</0> of Jutge submissions",
+        "headline": "You sent <0>{{percent}}%</0> of Jutge submissions",
         "detail": "{{yours}} out of {{total}} submissions"
       },
       "compileGrief": {

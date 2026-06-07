@@ -74,11 +74,11 @@
     "intro": {
       "eyebrow": "Welcome",
       "subtitle": "{{period}} · la teva identitat Jutge ha estat verificada.",
-      "judgeLevel": "Nivell de jutge",
+      "judgeLevel": "Nivell del jutge",
       "acceptedProblems": "Problemes acceptats",
       "rejectedProblems": "Problemes rebutjats",
       "submissions": "Enviaments",
-      "acRate": "Taxa AC",
+      "acRate": "Percentatge AC",
       "problemSuccessRate": "{{rate}}% dels problemes intentats van arribar a acceptació en aquest període.",
       "avatarAlt": "Avatar del Jutge",
       "mascotAlt": "Mascota del Jutge",
@@ -188,7 +188,7 @@
       "timeUnavailable": "No disponible",
       "acceptedProblems": "Problemes acceptats",
       "totalSubmissions": "Enviaments totals",
-      "acRate": "Taxa AC",
+      "acRate": "Percentatge AC",
       "archetype": "Arquetip de programació",
       "topLanguage": "L'idioma que parles:",
       "footer": "Fes el teu wrapped a <0>{{url}}</0>"
@@ -257,7 +257,7 @@
     },
     "hero": {
       "label": "El teu problema destacat",
-      "grindHeadline": "El teu problema de insistència: <0>{{problem}}</0>",
+      "grindHeadline": "El teu problema malson: <0>{{problem}}</0>",
       "grindDetail": "{{attempts}} intents abans del primer AC — {{submissions}} en total.",
       "mostAttemptedHeadline": "Tornaves una i altra vegada a <0>{{problem}}</0>",
       "mostAttemptedDetail": "{{submissions}} en aquest període.",
@@ -266,23 +266,23 @@
     },
     "slowSolve": {
       "label": "Temps més llarg per resoldre",
-      "headline": "<0>{{problem}}</0> et va costar <1>{{duration}}</1> resoldre'l",
+      "headline": "Vas trigar <1>{{duration}}</1> a resoldre <0>{{problem}}</0>",
       "detail": "des del primer enviament fins al primer AC."
     },
     "rankingHighlights": {
       "firstAttempt": {
         "label": "Primer intent",
-        "headline": "Has resolt el <0>{{percent}}%</0> al primer intent",
+        "headline": "Has resolt el <0>{{percent}}%</0> dels problemes al primer intent",
         "detail": "{{count}} de {{total}} problemes resolts"
       },
       "platformProblems": {
         "label": "Cobertura de la plataforma",
-        "headline": "<0>{{percent}}%</0> dels problemes del Jutge",
+        "headline": "Has completat el <0>{{percent}}%</0> dels problemes del Jutge",
         "detail": "{{accepted}} de {{total}} problemes"
       },
       "platformSubmissions": {
         "label": "Petjada d'enviaments",
-        "headline": "<0>{{percent}}%</0> dels enviaments del Jutge",
+        "headline": "Has enviat el <0>{{percent}}%</0> dels enviaments del Jutge",
         "detail": "{{yours}} de {{total}} enviaments"
       },
       "compileGrief": {

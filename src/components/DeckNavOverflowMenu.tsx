@@ -10,6 +10,7 @@ type Props = {
   raw: WrappedRawData
   onChangeDates: () => void
   onExit: () => void
+  closeSignal?: string | number | boolean
   className?: string
 }
 
@@ -45,6 +46,7 @@ export function DeckNavOverflowMenu({
   raw,
   onChangeDates,
   onExit,
+  closeSignal,
   className = "",
 }: Props) {
   const { t } = useTranslation()
@@ -76,6 +78,10 @@ export function DeckNavOverflowMenu({
       window.removeEventListener("keydown", onKeyDown)
     }
   }, [open])
+
+  useEffect(() => {
+    setOpen(false)
+  }, [closeSignal])
 
   async function handleDownloadJson() {
     setDownloading(true)

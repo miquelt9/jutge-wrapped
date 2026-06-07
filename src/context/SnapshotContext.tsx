@@ -66,16 +66,21 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
 
   const loadFromFile = useCallback(
     async (file: File) => {
-      const text = await file.text()
-      let json: unknown
       try {
+        const text = await file.text()
+        let json: unknown
         json = JSON.parse(text) as unknown
-      } catch {
-        throw new Error(i18n.t("snapshot.invalidJson"))
+        loadFromJson(json)
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : i18n.t("snapshot.invalidJson")
+        setSnapshotError(message)
+        throw err
       }
-      loadFromJson(json)
     },
-    [loadFromJson],
+    [loadFromJson, setSnapshotError],
   )
 
   const clearSnapshot = useCallback(() => {

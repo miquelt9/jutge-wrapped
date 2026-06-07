@@ -701,6 +701,7 @@ export function WrappedDeck() {
                 <DeckNavOverflowMenu
                   raw={exportRaw}
                   onChangeDates={clearPeriod}
+                  closeSignal={`${index}:${awardsPageIndex}:${isInteractionActive ? "moving" : "idle"}`}
                   onExit={
                     isSnapshotMode
                       ? clearSnapshot

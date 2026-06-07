@@ -277,12 +277,12 @@
       },
       "platformProblems": {
         "label": "Cobertura de la plataforma",
-        "headline": "<0>{{percent}}%</0> de los problemas del Jutge",
+        "headline": "Completaste el <0>{{percent}}%</0> de los problemas del Jutge",
         "detail": "{{accepted}} de {{total}} problemas"
       },
       "platformSubmissions": {
         "label": "Huella de envíos",
-        "headline": "<0>{{percent}}%</0> de los envíos del Jutge",
+        "headline": "Enviaste el <0>{{percent}}%</0> de los envíos del Jutge",
         "detail": "{{yours}} de {{total}} envíos"
       },
       "compileGrief": {
