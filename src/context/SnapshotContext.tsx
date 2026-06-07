@@ -68,8 +68,7 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
     async (file: File) => {
       try {
         const text = await file.text()
-        let json: unknown
-        json = JSON.parse(text) as unknown
+        const json = JSON.parse(text) as unknown
         loadFromJson(json)
       } catch (err) {
         const message =
