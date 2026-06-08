@@ -18,6 +18,7 @@ import { jutgeAwardIconUrl, resolveAwardYoutube } from "./jutgeLinks"
 import { resolveProblemTitle } from "./problemTitles"
 import {
   awardInPeriod,
+  formatActivitySpan,
   formatPeriodLabel,
   isAllTimePeriod,
   parseSubmissionTime,
@@ -81,11 +82,11 @@ function heatmapTimestampToMs(ts: number): number {
 }
 
 function formatDate(ts: number): string {
-  return new Date(heatmapTimestampToMs(ts)).toLocaleDateString(i18n.language, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
+  const d = new Date(heatmapTimestampToMs(ts))
+  const day = String(d.getUTCDate()).padStart(2, "0")
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0")
+  const year = d.getUTCFullYear()
+  return `${day}/${month}/${year}`
 }
 
 function labelForKey(key: string, tables?: AllTables): string {
@@ -1153,11 +1154,17 @@ function buildPersonalizedInsights(
   })
 
   const introActivity =
-    journey.firstActive && journey.lastActive
-      ? i18n.t("personalization.intro.activity", {
-          span: journey.spanLabel,
-        })
-      : null
+    isAllTimePeriod(raw.period)
+      ? journey.firstActive && journey.lastActive
+        ? i18n.t("personalization.intro.activity", {
+            span: formatActivitySpan(raw.period, journey.spanLabel),
+          })
+        : null
+      : raw.period.start && raw.period.end
+        ? i18n.t("personalization.intro.activity", {
+            span: formatActivitySpan(raw.period, journey.spanLabel),
+          })
+        : null
 
   let heatmapTitle = i18n.t("slides.heatmap.title")
   if (heatmap.longestStreak >= 7) {

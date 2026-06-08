@@ -4,7 +4,12 @@ import {
   awardInPeriod,
   dashboardForWrappedPeriod,
   filterDashboardByPeriod,
+  formatActivitySpan,
+  formatIsoDateForDisplay,
+  formatIsoDateRangeForDisplay,
+  formatPeriodLabel,
   getCurrentAcademicYearRange,
+  getDefaultCustomDateRange,
   submissionInPeriod,
   type WrappedPeriod,
 } from "./period"
@@ -143,6 +148,92 @@ describe("period helpers", () => {
       { date: Date.UTC(2025, 1, 4) / 1000, value: 2 },
     ])
     expect(result.distributions.compilers["g++"]).toBe(2)
+  })
+
+  it("formats ISO dates for display as DD/MM/YYYY", () => {
+    expect(formatIsoDateForDisplay("2025-09-01")).toBe("01/09/2025")
+    expect(formatIsoDateRangeForDisplay("2025-09-01", "2026-07-31")).toBe(
+      "01/09/2025 – 31/07/2026",
+    )
+    expect(
+      formatPeriodLabel({
+        start: "2026-02-14",
+        end: "2026-06-01",
+        label: "ignored",
+      }),
+    ).toBe("14/02/2026 – 01/06/2026")
+  })
+
+  it("uses the selected preset label for bounded intro activity spans", () => {
+    const period: WrappedPeriod = {
+      start: "2025-09-01",
+      end: "2026-06-20",
+      label: "Academic year 2025–26",
+    }
+
+    expect(formatActivitySpan(period, "14/02/2026 – 01/06/2026")).toBe(
+      "Academic year 2025–26",
+    )
+  })
+
+  it("formats custom bounded intro activity spans from ISO dates", () => {
+    const period: WrappedPeriod = {
+      start: "2025-09-01",
+      end: "2026-07-31",
+      label: "2025-09-01 – 2026-07-31",
+    }
+
+    expect(formatActivitySpan(period, "14/02/2026 – 01/06/2026")).toBe(
+      "01/09/2025 – 31/07/2026",
+    )
+  })
+
+  it("keeps all-time intro activity spans based on actual submission dates", () => {
+    const period: WrappedPeriod = {
+      start: null,
+      end: null,
+      label: "All time",
+    }
+
+    expect(formatActivitySpan(period, "14/02/2026 – 01/06/2026")).toBe(
+      "14/02/2026 – 01/06/2026",
+    )
+  })
+
+  it("defaults custom date inputs to the current academic year when it overlaps activity", () => {
+    const now = new Date("2026-03-03T12:00:00Z")
+    const bounds = { min: "2024-01-15", max: "2026-06-20" }
+    const heatmap = [
+      { date: Date.UTC(2025, 10, 4) / 1000, value: 2 },
+      { date: Date.UTC(2026, 1, 9) / 1000, value: 1 },
+    ]
+
+    expect(getDefaultCustomDateRange(bounds, heatmap, now)).toEqual({
+      start: "2025-09-01",
+      end: "2026-06-20",
+    })
+  })
+
+  it("falls back to full bounds when the academic year does not overlap activity", () => {
+    const now = new Date("2026-03-03T12:00:00Z")
+    const bounds = { min: "2020-01-01", max: "2024-06-30" }
+    const heatmap = [{ date: Date.UTC(2023, 5, 4) / 1000, value: 3 }]
+
+    expect(getDefaultCustomDateRange(bounds, heatmap, now)).toEqual({
+      start: bounds.min,
+      end: bounds.max,
+    })
+  })
+
+  it("falls back to full bounds when the academic year overlaps but has no submissions", () => {
+    const now = new Date("2026-03-03T12:00:00Z")
+    const bounds = { min: "2024-01-15", max: "2026-06-20" }
+    const heatmap = [{ date: Date.UTC(2024, 5, 4) / 1000, value: 5 }]
+
+    expect(getDefaultCustomDateRange(bounds, heatmap, now)).toEqual({
+      start: bounds.min,
+      end: bounds.max,
+    })
   })
 
   it("uses the current academic year boundaries around September", () => {

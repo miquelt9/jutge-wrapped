@@ -276,6 +276,33 @@ export function getCurrentAcademicYearRange(now = new Date()): {
   return { start, end, label }
 }
 
+/** Default From/To inputs: current academic year clipped to activity, else full bounds. */
+export function getDefaultCustomDateRange(
+  bounds: { min: string; max: string },
+  heatmap?: HeatmapCalendar,
+  now = new Date(),
+): { start: string; end: string } {
+  const academic = getCurrentAcademicYearRange(now)
+  const clipped = clipPeriodToBounds(academic.start, academic.end, bounds)
+
+  if (!isValidDateRange(clipped.start, clipped.end)) {
+    return { start: bounds.min, end: bounds.max }
+  }
+
+  if (heatmap) {
+    const period: WrappedPeriod = {
+      start: clipped.start,
+      end: clipped.end,
+      label: academic.label,
+    }
+    if (countHeatmapSubmissionsInPeriod(heatmap, period) === 0) {
+      return { start: bounds.min, end: bounds.max }
+    }
+  }
+
+  return clipped
+}
+
 export function clipPeriodToBounds(
   start: string,
   end: string,
@@ -303,10 +330,47 @@ export function heatmapBounds(heatmap: HeatmapCalendar): {
   }
 }
 
+/** Display an ISO calendar day (`YYYY-MM-DD`) as `DD/MM/YYYY`. */
+export function formatIsoDateForDisplay(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-").map(Number)
+  if (!y || !m || !d) return isoDate
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`
+}
+
+export function formatIsoDateRangeForDisplay(start: string, end: string): string {
+  return `${formatIsoDateForDisplay(start)} – ${formatIsoDateForDisplay(end)}`
+}
+
 export function formatPeriodLabel(period: WrappedPeriod): string {
   if (isAllTimePeriod(period)) return i18n.t("period.allTime")
-  if (period.start && period.end) return `${period.start} – ${period.end}`
-  if (period.start) return i18n.t("period.from", { date: period.start })
-  if (period.end) return i18n.t("period.until", { date: period.end })
+  if (period.start && period.end) {
+    return formatIsoDateRangeForDisplay(period.start, period.end)
+  }
+  if (period.start) {
+    return i18n.t("period.from", {
+      date: formatIsoDateForDisplay(period.start),
+    })
+  }
+  if (period.end) {
+    return i18n.t("period.until", {
+      date: formatIsoDateForDisplay(period.end),
+    })
+  }
   return period.label
+}
+
+/** Human-readable span for intro copy: selected period, or actual activity for all-time. */
+export function formatActivitySpan(
+  period: WrappedPeriod,
+  activitySpan: string,
+): string {
+  if (isAllTimePeriod(period)) return activitySpan
+  if (period.start && period.end) {
+    const isoCustomLabel = `${period.start} – ${period.end}`
+    if (period.label === isoCustomLabel) {
+      return formatIsoDateRangeForDisplay(period.start, period.end)
+    }
+    return period.label
+  }
+  return formatPeriodLabel(period)
 }

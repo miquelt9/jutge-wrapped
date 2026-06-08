@@ -1,18 +1,25 @@
 import i18n from "@/i18n/config"
 import type { MappedApiError } from "@/api/client"
-import { formatPeriodLabel, type WrappedPeriod } from "./period"
+import {
+  formatIsoDateForDisplay,
+  formatPeriodLabel,
+  type WrappedPeriod,
+} from "./period"
 
 export function wrappedRangeLabel(period: WrappedPeriod): string {
   if (period.start && period.end) {
-    return i18n.t("period.through", { start: period.start, end: period.end })
+    return i18n.t("period.through", {
+      start: formatIsoDateForDisplay(period.start),
+      end: formatIsoDateForDisplay(period.end),
+    })
   }
   return formatPeriodLabel(period)
 }
 
 export function invalidRangeMessage(period: WrappedPeriod): string {
   return i18n.t("errors.invalidRange", {
-    start: period.start ?? "",
-    end: period.end ?? "",
+    start: period.start ? formatIsoDateForDisplay(period.start) : "",
+    end: period.end ? formatIsoDateForDisplay(period.end) : "",
   })
 }
 

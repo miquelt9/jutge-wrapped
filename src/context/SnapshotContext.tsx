@@ -26,7 +26,7 @@ type SnapshotContextValue = {
 const SnapshotContext = createContext<SnapshotContextValue | null>(null)
 
 export function SnapshotProvider({ children }: { children: ReactNode }) {
-  const { setPeriod, clearPeriod } = useWrappedPeriod()
+  const { clearPeriod } = useWrappedPeriod()
   const [snapshot, setSnapshot] = useState<WrappedRawData | null>(null)
   const [snapshotError, setSnapshotError] = useState<string | null>(null)
   const avatarUrlRef = useRef<string | null>(null)
@@ -44,10 +44,10 @@ export function SnapshotProvider({ children }: { children: ReactNode }) {
       revokeAvatar()
       if (raw.avatarUrl) avatarUrlRef.current = raw.avatarUrl
       setSnapshot(raw)
-      setPeriod(raw.period)
+      clearPeriod()
       setSnapshotError(null)
     },
-    [revokeAvatar, setPeriod],
+    [revokeAvatar, clearPeriod],
   )
 
   const loadFromJson = useCallback(

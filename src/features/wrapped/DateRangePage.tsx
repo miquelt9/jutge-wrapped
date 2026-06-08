@@ -12,7 +12,10 @@ import {
   clipPeriodPreset,
   clipPeriodToBounds,
   countHeatmapSubmissionsInPeriod,
+  formatIsoDateForDisplay,
+  formatIsoDateRangeForDisplay,
   getCurrentAcademicYearRange,
+  getDefaultCustomDateRange,
   heatmapBounds,
   isValidDateRange,
   type WrappedPeriod,
@@ -46,8 +49,8 @@ function buildPresetOption(
       period,
       disabled: true,
       hint: t("dateRange.presetNoOverlap", {
-        min: bounds.min,
-        max: bounds.max,
+        min: formatIsoDateForDisplay(bounds.min),
+        max: formatIsoDateForDisplay(bounds.max),
         label,
       }),
     }
@@ -61,8 +64,8 @@ function buildPresetOption(
       disabled: true,
       hint: t("dateRange.presetNoSubmissions", {
         label,
-        start: clipped.start,
-        end: clipped.end,
+        start: formatIsoDateForDisplay(clipped.start),
+        end: formatIsoDateForDisplay(clipped.end),
       }),
     }
   }
@@ -90,8 +93,9 @@ export function DateRangePage() {
       const b = heatmapBounds(calendar)
       setBounds(b)
       if (b) {
-        setStart(b.min)
-        setEnd(b.max)
+        const { start, end } = getDefaultCustomDateRange(b, calendar)
+        setStart(start)
+        setEnd(end)
       }
       setLoadingBounds(false)
       return
@@ -107,8 +111,9 @@ export function DateRangePage() {
           const b = heatmapBounds(calendar)
           setBounds(b)
           if (b) {
-            setStart(b.min)
-            setEnd(b.max)
+            const { start, end } = getDefaultCustomDateRange(b, calendar)
+            setStart(start)
+            setEnd(end)
           }
         }
       } finally {
@@ -128,7 +133,11 @@ export function DateRangePage() {
   function handleCustomSubmit(e: FormEvent) {
     e.preventDefault()
     if (!start || !end || start > end) return
-    applyPeriod({ start, end, label: `${start} – ${end}` })
+    applyPeriod({
+      start,
+      end,
+      label: formatIsoDateRangeForDisplay(start, end),
+    })
   }
 
   function setPreset(period: WrappedPeriod) {
@@ -177,8 +186,8 @@ export function DateRangePage() {
         },
         disabled: true,
         hint: t("dateRange.presetNoOverlap", {
-          min: bounds.min,
-          max: bounds.max,
+          min: formatIsoDateForDisplay(bounds.min),
+          max: formatIsoDateForDisplay(bounds.max),
           label: year,
         }),
       })
@@ -227,8 +236,8 @@ export function DateRangePage() {
         },
         disabled: true,
         hint: t("dateRange.presetNoOverlap", {
-          min: bounds.min,
-          max: bounds.max,
+          min: formatIsoDateForDisplay(bounds.min),
+          max: formatIsoDateForDisplay(bounds.max),
           label: academic.label,
         }),
       })
